@@ -10,9 +10,9 @@
       body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; margin: 2rem; }
       .row { display: flex; gap: .5rem; align-items: center; margin-bottom: 1rem; }
       button { padding: .5rem .75rem; cursor: pointer; }
-      #status[data-type="info"] { color: #888; }
-      #status[data-type="success"] { color: #1b8a5a; }
-      #status[data-type="error"] { color: #c92a2a; }
+      #kiosk-auth-status[data-type="info"] { color: #888; }
+      #kiosk-auth-status[data-type="success"] { color: #1b8a5a; }
+      #kiosk-auth-status[data-type="error"] { color: #c92a2a; }
       pre { padding: 1rem; border: 1px solid #4443; border-radius: .5rem; overflow: auto; }
       input { padding: .4rem .6rem; width: 8rem; }
     </style>
@@ -20,13 +20,12 @@
   <body>
     <h1>API 클라이언트 데모</h1>
     <div class="row">
-      <label for="user-id">userId:</label>
-      <input id="user-id" type="text" placeholder="예: 1" />
-      <button id="btn-fetch">데이터 불러오기 (GET)</button>
-      <button id="btn-create">샘플 생성 (POST)</button>
+      <label for="kiosk-auth-user-id">키오스크 ID:</label>
+      <input id="kiosk-auth-user-id" type="text" />
+      <button id="kiosk-auth-btn-fetch">전송</button>
     </div>
-    <div id="status" data-type="info">대기 중</div>
-    <pre id="output">결과가 여기에 표시됩니다…</pre>
+    <div id="kiosk-auth-status" data-type="info">대기 중</div>
+    <pre id="kiosk-auth-output">결과가 여기에 표시됩니다…</pre>
 
     <script type="module" src="/src/main.ts"></script>
   </body>
