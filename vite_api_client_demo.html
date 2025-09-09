@@ -28,6 +28,17 @@
     <pre id="kiosk-auth-output">결과가 여기에 표시됩니다…</pre>
 
     <hr>
+        <h2>회원 정보 가져오기</h2>
+    <div class="row">
+      <label for="auth-user-kiosk-id">키오스크 token:</label>
+      <input id="auth-user-kiosk-id" type="text" />
+      <label for="auth-user-id">회원 ID:</label>
+      <input id="auth-user-id" type="text" />
+      <button id="auth-user-btn-fetch">전송</button>
+    </div>
+    <div id="auth-user-status" data-type="info">대기 중</div>
+    <pre id="auth-user-output">결과가 여기에 표시됩니다…</pre>
+
 
 
     <script type="module" src="/src/main.ts"></script>
