@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>얼굴 프레임 + 머리 위 파란 박스 (BlazeFace)</title>
+  <style>
+    html,body{height:100%;margin:0}
+    body{display:grid;place-items:center;background:#111;color:#eee;font:14px system-ui}
+    .wrap{position:relative;width:min(90vw, 800px);aspect-ratio:16/9}
+    video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:12px;z-index:1}
+    canvas{position:absolute;inset:0;width:100%;height:100%;border-radius:12px;z-index:2;pointer-events:none}
+    .status{position:fixed;top:10px;left:50%;transform:translateX(-50%);background:#222;padding:6px 10px;border-radius:8px}
+    .hud{position:fixed;top:44px;left:50%;transform:translateX(-50%);background:#1b1b1b;padding:6px 10px;border-radius:8px;font:12px/1.2 ui-monospace,Consolas,monospace;color:#9fe}
+    .note{position:fixed;bottom:10px;left:50%;transform:translateX(-50%);color:#bbb}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <video id="video" autoplay playsinline muted></video>
+    <canvas id="overlay"></canvas>
+  </div>
+  <div class="status" id="status">초기화 중…</div>
+  <div class="hud" id="hud">-</div>
+  <div class="note">HTTPS/localhost 권장 • 얼굴이 프레임의 15% 이상 • 밝은 조명</div>
+
+  <!-- TFJS (WebGL + WASM 폴백) -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core@4.20.0" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter@4.20.0" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl@4.20.0" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@4.20.0" crossorigin="anonymous"></script>
+  <!-- BlazeFace 모델 (직접 사용) -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface@0.0.7" crossorigin="anonymous"></script>
+
+  <script>
+    const SHOW_DEBUG = true;           // 초록 프레임 On/Off
+    const MIRROR_VIDEO = false;        // 세이프 모드: 비디오 미러링 OFF
+    const cmToPx = (cm) => cm * (96/2.54);
+    const OFFSET_PX = cmToPx(10);      // 머리 위 10cm
+
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('overlay');
+    const ctx = canvas.getContext('2d');
+    const statusEl = document.getElementById('status');
+    const hudEl = document.getElementById('hud');
+
+    const setStatus = (m)=>{ statusEl.textContent = m; console.log('[STATUS]', m); };
+    const setHud = (m)=>{ hudEl.textContent = m; };
+
+    async function prepareBackend(){
+      if (tf && tf.wasm) {
+        tf.wasm.setWasmPaths('https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@4.20.0/wasm/');
+      }
+      try {
+        await tf.setBackend('webgl'); await tf.ready(); setStatus('백엔드: WebGL');
+      } catch(e){
+        console.warn('WebGL 불가, WASM 폴백:', e);
+        await tf.setBackend('wasm'); await tf.ready(); setStatus('백엔드: WASM');
+      }
+    }
+
+    async function prepareCamera(){
+      if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+        setStatus('주의: HTTPS/localhost 권장');
+      }
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode:'user', width:{ideal:1280}, height:{ideal:720} }, audio:false
+      });
+      video.srcObject = stream;
+      await new Promise(r => video.onloadedmetadata = r);
+      await video.play();
+      if (MIRROR_VIDEO) video.style.transform = 'scaleX(-1)';
+      resizeCanvas(); window.addEventListener('resize', resizeCanvas);
+      setStatus(`카메라 준비: ${video.videoWidth}x${video.videoHeight}`);
+    }
+
+    function resizeCanvas(){
+      const rect = video.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = Math.floor(rect.width * dpr);
+      canvas.height = Math.floor(rect.height * dpr);
+      canvas.style.width = rect.width + 'px';
+      canvas.style.height = rect.height + 'px';
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+    }
+
+    function getScale(){
+      const rect = video.getBoundingClientRect();
+      const vw = video.videoWidth || rect.width;
+      const vh = video.videoHeight || rect.height;
+      return { sx: rect.width / vw, sy: rect.height / vh, rectW: rect.width, rectH: rect.height, vw, vh };
+    }
+
+    // 모델
+    let model = null;
+    async function prepareModel(){
+      model = await blazeface.load(); // BlazeFace 로드
+      setStatus('모델 로드 완료 (BlazeFace)');
+    }
+
+    function roundRectPath(ctx, x, y, w, h, r=14){
+      const rr = Math.min(r, w/2, h/2);
+      ctx.beginPath();
+      ctx.moveTo(x+rr, y);
+      ctx.lineTo(x+w-rr, y);
+      ctx.quadraticCurveTo(x+w, y, x+w, y+rr);
+      ctx.lineTo(x+w, y+h-rr);
+      ctx.quadraticCurveTo(x+w, y+h, x+w-rr, y+h);
+      ctx.lineTo(x+rr, y+h);
+      ctx.quadraticCurveTo(x, y+h, x, y+h-rr);
+      ctx.lineTo(x, y+rr);
+      ctx.quadraticCurveTo(x, y, x+rr, y);
+      ctx.closePath();
+    }
+
+    function drawOverlay(pred){
+      const { sx, sy } = getScale();
+
+      // BlazeFace: topLeft, bottomRight는 [x,y] (원본 비디오 좌표, px)
+      const [x1, y1] = pred.topLeft;
+      const [x2, y2] = pred.bottomRight;
+      const x = x1 * sx;
+      const y = y1 * sy;
+      const w = (x2 - x1) * sx;
+      const h = (y2 - y1) * sy;
+
+      if (SHOW_DEBUG){
+        ctx.strokeStyle = 'rgba(0,255,0,0.95)';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x, y, w, h);
+      }
+
+      // 머리 위 파란 박스
+      const margin = 8;
+      const boxW = Math.max(80, Math.min(w * 0.8, 320));
+      const boxH = Math.max(28, Math.min(h * 0.25, 80));
+      const boxX = x + (w - boxW)/2;
+      let boxY = y - OFFSET_PX - boxH;
+      if (boxY < margin) boxY = y - margin - boxH;
+
+      roundRectPath(ctx, boxX, boxY, boxW, boxH, 14);
+      ctx.fillStyle = '#227EFF'; ctx.fill();
+      ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(0,0,0,0.25)'; ctx.stroke();
+      ctx.save(); ctx.globalAlpha = 0.15;
+      roundRectPath(ctx, boxX, boxY, boxW, boxH, 14);
+      ctx.fillStyle = '#000'; ctx.fill();
+      ctx.restore();
+    }
+
+    async function loop(){
+      try{
+        // flipHorizontal:false (세이프 모드)
+        const preds = await model.estimateFaces(video, false);
+        const { sx, sy, vw, vh } = getScale();
+
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+
+        if (preds?.length){
+          const p = preds[0];
+          const [x1,y1] = p.topLeft, [x2,y2] = p.bottomRight;
+          setHud(`faces:${preds.length} | vw:${vw} vh:${vh} | sx:${sx.toFixed(3)} sy:${sy.toFixed(3)} | box: x=${x1.toFixed(1)}, y=${y1.toFixed(1)}, w=${(x2-x1).toFixed(1)}, h=${(y2-y1).toFixed(1)}`);
+          preds.forEach(drawOverlay);
+          setStatus(`감지됨: ${preds.length}명`);
+        } else {
+          setHud('faces:0');
+          setStatus('얼굴 없음');
+        }
+      }catch(e){
+        console.error('detect error', e);
+        setStatus('감지 오류(콘솔 확인)');
+      }
+      requestAnimationFrame(loop);
+    }
+
+    (async ()=>{
+      try{
+        setStatus('백엔드 준비…'); await prepareBackend();
+        setStatus('카메라 준비…'); await prepareCamera();
+        setStatus('모델 로딩…');  await prepareModel();
+        setStatus('실행 중');      loop();
+      }catch(e){
+        console.error(e);
+        setStatus('에러: '+(e?.message||e));
+      }
+    })();
+  </script>
+</body>
+</html>
