@@ -1,20 +1,17 @@
 import axios from "axios";
-
-export interface UserResponse {
-    resultCode: string;
-    resultData: [
-        token: String,
-    ]
-}
+import type {AuthKioskResponse} from "./Response";
 
 const api = axios.create({
-  baseURL: "/api",
-  timeout: 15000,
+    baseURL: "/api",
+    timeout: 15000,
 });
 
-export async function getUsers(): Promise<UserResponse[]> {
-    const res = await api.post<UserResponse[]>("/auth-kiosk", {
-      "kioskid":"MTA001",
+// auth-kiosk 가져오기
+export async function getKioskAuth(kioskName :string): Promise<AuthKioskResponse> {
+    const res = await api.post<AuthKioskResponse>("/auth-kiosk", {
+        "kioskid": `${kioskName}`,
     });
+
     return res.data;
 }
+
