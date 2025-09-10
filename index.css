@@ -1,0 +1,83 @@
+/* Pretendard 폰트 등록 */
+@font-face {
+  font-family: "Pretendard";
+  src: url("/public/assets/font/Pretendard/Pretendard-Thin.otf") format("opentype");
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Pretendard";
+  src: url("/public/assets/font/Pretendard/Pretendard-ExtraLight.otf") format("opentype");
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Pretendard";
+  src: url("/public/assets/font/Pretendard/Pretendard-Light.otf") format("opentype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Pretendard";
+  src: url("/public/assets/font/Pretendard/Pretendard-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Pretendard";
+  src: url("/public/assets/font/Pretendard/Pretendard-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Pretendard";
+  src: url("/public/assets/font/Pretendard/Pretendard-SemiBold.otf") format("opentype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Pretendard";
+  src: url("/public/assets/font/Pretendard/Pretendard-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Pretendard";
+  src: url("/public/assets/font/Pretendard/Pretendard-ExtraBold.otf") format("opentype");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Pretendard";
+  src: url("/public/assets/font/Pretendard/Pretendard-Black.otf") format("opentype");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+    font-family: 'Jalnan2';
+    src: url('/public/assets/font/Jalnan2/Jalnan2TTF.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.font-family-jalnan {
+    font-family: 'Jalnan2', sans-serif;
+}
+
+.font-family-pretendard {
+    font-family: 'Pretendard', sans-serif;
+}
+
+body {
+    font-family: 'Pretendard', system-ui, -apple-system, 'Noto Sans KR', sans-serif;
+}
