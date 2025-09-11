@@ -1,0 +1,42 @@
+<!-- camara-confirm.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>촬영 결과 확인</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    body { display: grid; place-items: center; min-height: 100vh; background: #111; color: #eee; margin: 0; }
+    .confirm-wrap { width: min(92vw, 820px); display: grid; gap: 16px; }
+    .photo-box {
+      position: relative;
+      width: 100%;
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      aspect-ratio: 798 / 1418; /* 프리뷰와 같은 비율 */
+      display: grid;
+      place-items: center;
+    }
+    .photo-box img { width: 100%; height: 100%; object-fit: contain; background: #000; }
+    .controls { display: flex; gap: 12px; justify-content: center; }
+    .controls button, .controls a {
+      padding: 10px 14px; border-radius: 10px; border: 1px solid #2a2a2a; background: #1b1b1b; color: #eee; cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <main class="confirm-wrap">
+    <h1>촬영 결과</h1>
+    <div class="photo-box">
+      <img id="capturedImg" alt="촬영 이미지" />
+    </div>
+    <div class="controls">
+      <button id="retakeBtn">다시 찍기</button>
+      <button id="downloadBtn">저장</button>
+    </div>
+  </main>
+  <script type="module" src="/src/camara/confirm.ts"></script>
+</body>
+</html>

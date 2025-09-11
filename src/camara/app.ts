@@ -4,7 +4,6 @@
  * - 캡처 결과 해상도: 798 x 1418 고정 (object-fit: cover 방식 크롭)
  */
 
-const startBtn = document.getElementById('startBtn') as HTMLButtonElement;
 const shotBtn = document.getElementById('shotBtn') as HTMLButtonElement;
 const downloadLink = document.getElementById('downloadLink') as HTMLAnchorElement;
 
@@ -16,120 +15,80 @@ const overlayImg = document.getElementById('overlayImg') as HTMLImageElement;
 const OUT_W = 798;
 const OUT_H = 1418;
 
-let stream: MediaStream | null = null;
+// 카메라 자동 시작/정지 유틸
+let currentStream: MediaStream | null = null;
 
-/* 이전 스트림 정리 */
-function stopStream() {
-  const s = video.srcObject as MediaStream | null;
-  if (s) s.getTracks().forEach(t => t.stop());
-  video.srcObject = null;
+async function startCamera(): Promise<void> {
+  const videoEl = document.getElementById('video') as HTMLVideoElement | null;
+  if (!videoEl) {
+    console.warn('[camera] #video 요소를 찾을 수 없습니다.');
+    return;
+  }
+
+  // iOS/Safari 대응
+  videoEl.setAttribute('playsinline', 'true');
+  videoEl.setAttribute('autoplay', 'true');
+  videoEl.muted = true;
+
+  try {
+    // 필요에 따라 facingMode를 'user'로 바꾸세요(전면 카메라)
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: { ideal: 'environment' }, // 후면 카메라 우선
+      },
+      audio: false,
+    });
+
+    currentStream = stream;
+    videoEl.srcObject = stream;
+
+    // 일부 브라우저에서 play()가 Promise를 반환
+    try {
+      await videoEl.play();
+    } catch (playErr) {
+      console.warn('[camera] 자동 재생 실패. 사용자 상호작용이 필요할 수 있습니다.', playErr);
+    }
+  } catch (err) {
+    console.error('[camera] 카메라 초기화 실패:', err);
+    // 앱 UI에 안내 메시지를 표시하려면 여기에서 처리하세요.
+  }
 }
 
+function stopCamera(): void {
+  if (currentStream) {
+    currentStream.getTracks().forEach((t) => t.stop());
+    currentStream = null;
+  }
+  const videoEl = document.getElementById('video') as HTMLVideoElement | null;
+  if (videoEl) {
+    videoEl.srcObject = null;
+  }
+}
+
+// 페이지 로드 시 즉시 카메라 시작
+document.addEventListener('DOMContentLoaded', () => {
+  void startCamera();
+});
+
+// 탭 전환/백그라운드 시 자원 절약(선택)
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') {
+    stopCamera();
+  } else if (document.visibilityState === 'visible') {
+    void startCamera();
+  }
+});
+
+// 페이지 종료 시 카메라 정리
+window.addEventListener('pagehide', stopCamera);
+window.addEventListener('beforeunload', stopCamera);
+/* 이전 스트림 정리 */
 /* 오버레이 이미지를 선택적으로(실패 허용) 로드
    - data-overlay-src가 비면 아무 것도 하지 않음
    - 상대경로는 location.origin 기준으로 절대화
    - 로드 실패해도 resolve해서 카메라 진행 막지 않음 */
-async function initOverlayOptional(): Promise<void> {
-  const raw = overlayImg.getAttribute('data-overlay-src')?.trim();
-  if (!raw) return;
-
-  const url = /^https?:\/\//i.test(raw) ? raw : new URL(raw, location.origin).href;
-
-  await new Promise<void>((resolve) => {
-    overlayImg.onload = () => {
-      overlayImg.classList.remove('hidden');
-      console.log('[overlay] loaded:', url);
-      resolve();
-    };
-    overlayImg.onerror = (e) => {
-      console.warn('[overlay] load failed:', url, e);
-      overlayImg.classList.add('hidden'); // 실패 시 숨김 유지
-      resolve(); // 실패해도 진행
-    };
-    overlayImg.src = url;
-  });
-}
-
 /* 환경 진단(선택): 문제시 콘솔에서 참고 */
-async function debugEnv() {
-  console.log('[camera] in iframe?', window.top !== window.self);
-  console.log('[camera] secureContext:', (window as any).isSecureContext, 'protocol:', location.protocol, 'host:', location.host);
-  try {
-    const perm = await (navigator.permissions as any)?.query?.({ name: 'camera' as any });
-    if (perm) console.log('[camera] permissions.query(camera):', perm.state);
-  } catch {}
-  try {
-    const devs = await navigator.mediaDevices.enumerateDevices();
-    console.log('[camera] enumerateDevices:', devs);
-  } catch (e) {
-    console.log('[camera] enumerateDevices failed:', e);
-  }
-}
-
 /* getUserMedia 세이프 모드: 제약 최소 → 대부분 환경에서 성공 */
-async function getSafeStream(): Promise<MediaStream> {
-  // 1) 완전 기본
-  try {
-    return await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-  } catch (e) {
-    console.warn('[camera] std getUserMedia video:true failed', e);
-  }
-  // 2) 전면 카메라 힌트
-  try {
-    return await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
-  } catch (e) {
-    console.warn('[camera] std getUserMedia facingMode:user failed', e);
-  }
-  // 3) 720p 선호(엄격 아님)
-  return await navigator.mediaDevices.getUserMedia({
-    video: { width: { ideal: 1280 }, height: { ideal: 720 } },
-    audio: false
-  });
-}
-
-/* 시작 버튼 */
-startBtn.addEventListener('click', async () => {
-  try {
-    await initOverlayOptional();  // 실패해도 계속 진행
-    stopStream();
-    await debugEnv();             // 선택 진단 로그
-
-    stream = await getSafeStream();
-    video.srcObject = stream;
-    await video.play();
-
-    shotBtn.disabled = false;
-  } catch (err: unknown) {
-    // 진짜 카메라 오류만 여기서 처리
-    const anyErr = err as any;
-    const props = anyErr ? Object.getOwnPropertyNames(anyErr) : [];
-    const entries: Record<string, any> = {};
-    for (const k of props) entries[k] = anyErr[k];
-
-    const isDomEx = typeof DOMException !== 'undefined' && anyErr instanceof DOMException;
-
-    console.group('[camera] getUserMedia error');
-    console.log('raw error:', anyErr);
-    console.log('typeof:', typeof anyErr);
-    console.log('props:', props);
-    console.log('entries:', entries);
-    console.log('instanceof DOMException:', isDomEx);
-    console.groupEnd();
-
-    const name = anyErr?.name ?? 'Unknown';
-    const msg  = anyErr?.message ?? (isDomEx ? '(DOMException but no message)' : '(no message)');
-
-    const hints: string[] = [];
-    if (window.top !== window.self) hints.push('• 이 페이지가 iframe 안이라면 <iframe allow="camera; microphone"> 가 필요합니다.');
-    hints.push('• 서버/프록시의 Permissions-Policy 헤더에 camera=() 가 설정되어 있지 않은지 확인하세요.');
-    if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
-      hints.push('• HTTPS가 아니면 카메라가 차단될 수 있습니다. (https 또는 http://localhost 권장)');
-    }
-
-    alert(`카메라 접근 실패: ${name}\n${msg}\n\n${hints.join('\n')}\n(자세한 내용은 콘솔을 확인해주세요)`);
-  }
-});
-
 /* 캡처: 결과 이미지는 798x1418로 고정, 비디오는 cover 방식으로 맞춤 */
 shotBtn.addEventListener('click', () => {
   const vw = video.videoWidth, vh = video.videoHeight;

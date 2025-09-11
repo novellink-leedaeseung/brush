@@ -56,76 +56,78 @@
         </div>
     </div>
     <div id="cameraWrap" class="camera-wrap" style="position: relative;">
-  <video id="video" playsinline autoplay muted></video>
+        <video id="video" playsinline autoplay muted></video>
 
-  <!-- 오버레이: 여러 장을 data-overlays로 등록 (경로만 교체하면 됨) -->
-  <img
-    id="overlayImg"
-    class="overlay-img"
-    alt="overlay"
-    style="
+        <!-- 오버레이: 여러 장을 data-overlays로 등록 (경로만 교체하면 됨) -->
+        <img
+                id="overlayImg"
+                class="overlay-img"
+                alt="overlay"
+                style="
       position:absolute; inset:0;
       max-width:100%; max-height:100%;
       object-fit:contain;            /* 필요시 cover/fill 로 바꿔도 TS에서 처리 */
       pointer-events:none;           /* 클릭 방해하지 않음 */
       opacity:1;
     "
-    data-overlays='[
+                data-overlays='[
       "/public/assets/images/image01.png",
       "/public/assets/images/image02.png"
     ]'
-    data-fit="contain"   <!-- contain | cover | fill -->
-    data-opacity="1"     <!-- 0~1 -->
-  />
+                data-fit="contain"   <!-- contain | cover | fill -->
+        data-opacity="1"     <!-- 0~1 -->
+        />
 
-  <!-- 슬라이더 컨트롤(좌/우) -->
-  <button
-    id="ovPrev"
-    type="button"
-    aria-label="이전 오버레이"
-    style="
+        <!-- 슬라이더 컨트롤(좌/우) -->
+        <button
+                id="ovPrev"
+                type="button"
+                aria-label="이전 오버레이"
+                style="
       position:absolute; left:8px; top:50%; transform:translateY(-50%);
       width:40px; height:40px; border:none; border-radius:8px; cursor:pointer;
       background:rgba(0,0,0,.35); color:#fff; font-size:20px; line-height:40px;
-    ">⟨</button>
+    ">⟨
+        </button>
 
-  <button
-    id="ovNext"
-    type="button"
-    aria-label="다음 오버레이"
-    style="
+        <button
+                id="ovNext"
+                type="button"
+                aria-label="다음 오버레이"
+                style="
       position:absolute; right:8px; top:50%; transform:translateY(-50%);
       width:40px; height:40px; border:none; border-radius:8px; cursor:pointer;
       background:rgba(0,0,0,.35); color:#fff; font-size:20px; line-height:40px;
-    ">⟩</button>
+    ">⟩
+        </button>
 
-  <!-- 현재 인덱스 표시 -->
-  <div
-    id="ovIndicator"
-    style="
+        <!-- 현재 인덱스 표시 -->
+        <div
+                id="ovIndicator"
+                style="
       position:absolute; bottom:8px; left:50%; transform:translateX(-50%);
       background:rgba(0,0,0,.35); color:#fff; padding:4px 10px; border-radius:999px; font-size:12px;
     ">
-    1/2
-  </div>
-</div>
+            1/2
+        </div>
+    </div>
 
     <!-- 카메라 버튼 -->
     <div style="width: 1080px; height: 353px;background-color:#E5E7EB;display: flex;
   align-items: flex-start;">
         <div class="ellipse-div">
-            <img class="camera-icon" src="/public/assets/icon/camera.svg">
+            <img id="shotBtn" class="camera-icon" src="/public/assets/icon/camera.svg">
         </div>
     </div>
-
     <div class="controls">
-        <button id="startBtn" disabled>카메라 시작</button>
-        <button id="shotBtn" disabled>캡처</button>
-        <a id="downloadLink" download="capture.png" class="hidden">다운로드</a>
-    </div>
+  <button id="captureBtn">촬영</button>
+</div>
+
 
     <!-- 요청 경로 그대로 -->
     <script type="module" src="/src/camara/app.ts"></script>
+    <script type="module" src="/src/camara/capture.ts"></script>
+
 </main>
 </body>
 </html>
