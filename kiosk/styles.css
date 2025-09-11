@@ -1,6 +1,4 @@
 * { box-sizing: border-box; }
-body { margin: 0; font-family: system-ui, Arial, sans-serif; color: #222; }
-.app { max-width: 840px; margin: 24px auto; padding: 0 16px; }
 h1 { font-size: 20px; margin: 0 0 12px; }
 
 .controls {
@@ -16,11 +14,12 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 /* 카메라 컨테이너: 뷰는 임의 크기지만, 내부 렌더는 캔버스에서 798x1418로 고정됨 */
 .camera-wrap {
   position: relative;
-  width: 360px;           /* 페이지에서 보이는 미리보기 크기 (원하면 조절) */
-  height: calc(360px * 1418 / 798);
+  width: 798px;           /* 페이지에서 보이는 미리보기 크기 (원하면 조절) */
+  height: 1418px;
   background: #000;
   border-radius: 14px;
   overflow: hidden;
+  margin-left: 141px;
 }
 
 video {
