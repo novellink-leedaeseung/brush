@@ -1,3 +1,9 @@
+/** /src/camara/app.ts
+ * - 카메라: 제약 최소(세이프 모드)로 열기
+ * - 오버레이: 경로가 틀려도(404/CORS) 카메라 시작은 계속 진행
+ * - 캡처 결과 해상도: 798 x 1418 고정 (object-fit: cover 방식 크롭)
+ */
+
 const startBtn = document.getElementById('startBtn') as HTMLButtonElement;
 const shotBtn = document.getElementById('shotBtn') as HTMLButtonElement;
 const downloadLink = document.getElementById('downloadLink') as HTMLAnchorElement;
@@ -5,97 +11,162 @@ const downloadLink = document.getElementById('downloadLink') as HTMLAnchorElemen
 const video = document.getElementById('video') as HTMLVideoElement;
 const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 const preview = document.getElementById('preview') as HTMLImageElement;
+const overlayImg = document.getElementById('overlayImg') as HTMLImageElement;
 
-const cameraWrap = document.getElementById('cameraWrap') as HTMLDivElement;
-const frameProbe = document.getElementById('frameProbe') as HTMLDivElement;
+const OUT_W = 798;
+const OUT_H = 1418;
 
 let stream: MediaStream | null = null;
 
+/* 이전 스트림 정리 */
+function stopStream() {
+  const s = video.srcObject as MediaStream | null;
+  if (s) s.getTracks().forEach(t => t.stop());
+  video.srcObject = null;
+}
+
+/* 오버레이 이미지를 선택적으로(실패 허용) 로드
+   - data-overlay-src가 비면 아무 것도 하지 않음
+   - 상대경로는 location.origin 기준으로 절대화
+   - 로드 실패해도 resolve해서 카메라 진행 막지 않음 */
+async function initOverlayOptional(): Promise<void> {
+  const raw = overlayImg.getAttribute('data-overlay-src')?.trim();
+  if (!raw) return;
+
+  const url = /^https?:\/\//i.test(raw) ? raw : new URL(raw, location.origin).href;
+
+  await new Promise<void>((resolve) => {
+    overlayImg.onload = () => {
+      overlayImg.classList.remove('hidden');
+      console.log('[overlay] loaded:', url);
+      resolve();
+    };
+    overlayImg.onerror = (e) => {
+      console.warn('[overlay] load failed:', url, e);
+      overlayImg.classList.add('hidden'); // 실패 시 숨김 유지
+      resolve(); // 실패해도 진행
+    };
+    overlayImg.src = url;
+  });
+}
+
+/* 환경 진단(선택): 문제시 콘솔에서 참고 */
+async function debugEnv() {
+  console.log('[camera] in iframe?', window.top !== window.self);
+  console.log('[camera] secureContext:', (window as any).isSecureContext, 'protocol:', location.protocol, 'host:', location.host);
+  try {
+    const perm = await (navigator.permissions as any)?.query?.({ name: 'camera' as any });
+    if (perm) console.log('[camera] permissions.query(camera):', perm.state);
+  } catch {}
+  try {
+    const devs = await navigator.mediaDevices.enumerateDevices();
+    console.log('[camera] enumerateDevices:', devs);
+  } catch (e) {
+    console.log('[camera] enumerateDevices failed:', e);
+  }
+}
+
+/* getUserMedia 세이프 모드: 제약 최소 → 대부분 환경에서 성공 */
+async function getSafeStream(): Promise<MediaStream> {
+  // 1) 완전 기본
+  try {
+    return await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+  } catch (e) {
+    console.warn('[camera] std getUserMedia video:true failed', e);
+  }
+  // 2) 전면 카메라 힌트
+  try {
+    return await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+  } catch (e) {
+    console.warn('[camera] std getUserMedia facingMode:user failed', e);
+  }
+  // 3) 720p 선호(엄격 아님)
+  return await navigator.mediaDevices.getUserMedia({
+    video: { width: { ideal: 1280 }, height: { ideal: 720 } },
+    audio: false
+  });
+}
+
+/* 시작 버튼 */
 startBtn.addEventListener('click', async () => {
   try {
-    // 16:9를 선호하는 기본 해상도 요청 (필요에 따라 변경)
-    stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
-      audio: false
-    });
+    await initOverlayOptional();  // 실패해도 계속 진행
+    stopStream();
+    await debugEnv();             // 선택 진단 로그
 
+    stream = await getSafeStream();
     video.srcObject = stream;
     await video.play();
 
     shotBtn.disabled = false;
-  } catch (err) {
-    console.error(err);
-    alert('카메라 접근에 실패했습니다. 브라우저 권한/HTTPS를 확인해주세요.');
+  } catch (err: unknown) {
+    // 진짜 카메라 오류만 여기서 처리
+    const anyErr = err as any;
+    const props = anyErr ? Object.getOwnPropertyNames(anyErr) : [];
+    const entries: Record<string, any> = {};
+    for (const k of props) entries[k] = anyErr[k];
+
+    const isDomEx = typeof DOMException !== 'undefined' && anyErr instanceof DOMException;
+
+    console.group('[camera] getUserMedia error');
+    console.log('raw error:', anyErr);
+    console.log('typeof:', typeof anyErr);
+    console.log('props:', props);
+    console.log('entries:', entries);
+    console.log('instanceof DOMException:', isDomEx);
+    console.groupEnd();
+
+    const name = anyErr?.name ?? 'Unknown';
+    const msg  = anyErr?.message ?? (isDomEx ? '(DOMException but no message)' : '(no message)');
+
+    const hints: string[] = [];
+    if (window.top !== window.self) hints.push('• 이 페이지가 iframe 안이라면 <iframe allow="camera; microphone"> 가 필요합니다.');
+    hints.push('• 서버/프록시의 Permissions-Policy 헤더에 camera=() 가 설정되어 있지 않은지 확인하세요.');
+    if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+      hints.push('• HTTPS가 아니면 카메라가 차단될 수 있습니다. (https 또는 http://localhost 권장)');
+    }
+
+    alert(`카메라 접근 실패: ${name}\n${msg}\n\n${hints.join('\n')}\n(자세한 내용은 콘솔을 확인해주세요)`);
   }
 });
 
-/**
- * object-fit: cover 로 표시된 비디오에서
- * 컨테이너 내 특정 프레임(frameProbe) 영역만 "원본 비디오 픽셀 좌표"로 변환해 잘라냄.
- */
+/* 캡처: 결과 이미지는 798x1418로 고정, 비디오는 cover 방식으로 맞춤 */
 shotBtn.addEventListener('click', () => {
-  if (!video.videoWidth || !video.videoHeight) {
-    alert('비디오가 아직 초기화되지 않았습니다.');
+  const vw = video.videoWidth, vh = video.videoHeight;
+  if (!vw || !vh) {
+    console.warn('[capture] video not ready');
     return;
   }
 
-  const containerRect = cameraWrap.getBoundingClientRect();
-  const videoRect = video.getBoundingClientRect(); // cover된 실제 표시 크기
-  const frameRect = frameProbe.getBoundingClientRect();
-
-  // 원본 비디오 픽셀 크기
-  const vw = video.videoWidth;
-  const vh = video.videoHeight;
-
-  // cover 비율 계산: 컨테이너를 가득 채우기 위해 scale = max()
-  const scale = Math.max(containerRect.width / vw, containerRect.height / vh);
-
-  // 화면에 표시되고 있는 비디오의 실제 픽셀 크기
-  const dispW = vw * scale;
-  const dispH = vh * scale;
-
-  // cover로 인해 화면 중앙 기준으로 잘린 오프셋
-  const offsetX = (containerRect.width - dispW) / 2;
-  const offsetY = (containerRect.height - dispH) / 2;
-
-  // frameRect의 좌표를 컨테이너 좌표계로 정규화
-  const frameLeftInContainer = frameRect.left - containerRect.left;
-  const frameTopInContainer = frameRect.top - containerRect.top;
-
-  // frame을 원본 비디오 좌표로 환산
-  // (frame + cover 오프셋) / scale
-  const sx = (frameLeftInContainer - offsetX) / scale;
-  const sy = (frameTopInContainer - offsetY) / scale;
-  const sw = frameRect.width / scale;
-  const sh = frameRect.height / scale;
-
-  // 자르는 영역이 비디오 범위를 벗어나지 않게 클램프
-  const sxClamped = Math.max(0, Math.min(vw, sx));
-  const syClamped = Math.max(0, Math.min(vh, sy));
-  const swClamped = Math.max(1, Math.min(vw - sxClamped, sw));
-  const shClamped = Math.max(1, Math.min(vh - syClamped, sh));
-
-  // 캔버스 크기를 프레임 크기(결과물 크기)로 설정
-  canvas.width = Math.round(swClamped);
-  canvas.height = Math.round(shClamped);
+  canvas.width = OUT_W;
+  canvas.height = OUT_H;
 
   const ctx = canvas.getContext('2d')!;
-  ctx.imageSmoothingEnabled = true;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, OUT_W, OUT_H);
 
-  // 원본 비디오에서 프레임 영역만 잘라 그리기
-  ctx.drawImage(
-    video,
-    sxClamped, syClamped, swClamped, shClamped, // source
-    0, 0, canvas.width, canvas.height          // dest
-  );
+  // object-fit: cover 계산 (소스 크롭 → 대상 가득 채움)
+  const scale = Math.max(OUT_W / vw, OUT_H / vh);
+  const sw = OUT_W / scale;
+  const sh = OUT_H / scale;
+  const sx = (vw - sw) / 2;
+  const sy = (vh - sh) / 2;
 
-  // PNG 데이터 URL 미리보기
-  const dataUrl = canvas.toDataURL('image/png');
-  preview.src = dataUrl;
+  // 1) 비디오 그리기
+  ctx.drawImage(video, sx, sy, sw, sh, 0, 0, OUT_W, OUT_H);
 
-  // 다운로드 링크 업데이트
-  downloadLink.href = dataUrl;
+  // 2) 오버레이가 로드되어 있으면 전체 덮기
+  if (!overlayImg.classList.contains('hidden') && overlayImg.complete) {
+    try {
+      ctx.drawImage(overlayImg, 0, 0, OUT_W, OUT_H);
+    } catch (e) {
+      console.warn('[overlay] draw failed (CORS/tainted 가능성):', e);
+    }
+  }
+
+  // 저장/미리보기
+  const url = canvas.toDataURL('image/png');
+  preview.src = url;
+  downloadLink.href = url;
   downloadLink.classList.remove('hidden');
   downloadLink.textContent = '다운로드 (PNG)';
 });
