@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <!-- 1080px 고정 뷰포트 -->
+    <meta name="viewport" content="width=1080, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <link rel="stylesheet" href="../index.css"/>
+</head>
+<body>
+<!-- 고정 크기 컨테이너 -->
+<div id="app-viewport">
+    <!-- 상단 -->
+    <div style="
+      width:1080px;
+      height:150px;
+      background:#214882;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      font-family:Pretendard, system-ui, -apple-system, 'Noto Sans KR', sans-serif;
+      color:#D4E1F3;">
+        <!-- 왼쪽 로고 영역 -->
+        <img src="/public/assets/icon/logo.png" width="154" height="113">
+
+        <!-- 중앙 타이틀 -->
+        <div style="font-size: 60px;" class="font-family-jalnan">
+            스마트 건강관리
+        </div>
+
+        <!-- 오른쪽 날짜/시간 -->
+        <div style="display:flex;flex-direction:column;align-items:flex-end;margin-right: 32px">
+            <div class="font-family-pretendard" style="font-size: 36px; font-weight: normal; color: white">2024-07-05
+            </div>
+            <div class="font-family-pretendard" style="font-size: 36px; font-weight: normal; color: white">오후 01:15
+            </div>
+        </div>
+    </div>
+    <!-- 안내문  -->
+    <div style="margin-top: 190px;margin-left: 94px;margin-right: 94px;">
+        사용자 번호 또는 휴대폰 번호를 입력 해주시거나 <br>
+        사용자 바코드 또는 QR코드를 리더기에 대주세요.
+    </div>
+
+    <!-- 키패드 입력시 보이는 화면 -->
+    <div>
+        <div style="width: 680px; height: 94px; left: 107.29px; top: 40.74px; color: black; font-size: 12px; font-family: Inter; font-weight: 400; word-wrap: break-word">
+            사용자 번호 또는 핸드폰 번호
+        </div>
+    </div>
+
+    <!-- 키패드 -->
+    <div style="
+  width:540px;
+  padding:20px;
+  border:2px solid #ccc;
+  border-radius:8px;
+  background:linear-gradient(to bottom,#f9fbff,#e9f0f8);
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  justify-items:center;
+  font-family:Pretendard, sans-serif;
+">
+        <button style="width:100%;height:100px;font-size:36px;font-weight:600;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;">
+            1
+        </button>
+        <button style="width:100%;height:100px;font-size:36px;font-weight:600;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;">
+            2
+        </button>
+        <button style="width:100%;height:100px;font-size:36px;font-weight:600;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;">
+            3
+        </button>
+
+        <button style="width:100%;height:100px;font-size:36px;font-weight:600;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;">
+            4
+        </button>
+        <button style="width:100%;height:100px;font-size:36px;font-weight:600;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;">
+            5
+        </button>
+        <button style="width:100%;height:100px;font-size:36px;font-weight:600;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;">
+            6
+        </button>
+
+        <button style="width:100%;height:100px;font-size:36px;font-weight:600;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;">
+            7
+        </button>
+        <button style="width:100%;height:100px;font-size:36px;font-weight:600;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;">
+            8
+        </button>
+        <button style="width:100%;height:100px;font-size:36px;font-weight:600;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;">
+            9
+        </button>
+
+        <button style="width:100%;height:100px;font-size:20px;font-weight:500;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;">
+            전체삭제
+        </button>
+        <button style="width:100%;height:100px;font-size:36px;font-weight:600;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;">
+            0
+        </button>
+        <button style="width:100%;height:100px;font-size:28px;font-weight:600;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;">
+            ⌫
+        </button>
+    </div>
+
+    <!-- 확인 버튼 -->
+    <button>확인</button>
+
+
+</div>
+</body>
+</html>

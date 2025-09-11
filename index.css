@@ -78,6 +78,11 @@
     font-family: 'Pretendard', sans-serif;
 }
 
-body {
-    font-family: 'Pretendard', system-ui, -apple-system, 'Noto Sans KR', sans-serif;
+/* 실제 콘텐츠가 들어갈 고정 크기 캔버스 */
+#app-viewport {
+  width: 1080px;
+  height: 1920px;
+  position: relative;
+  overflow: hidden;     /* 내부 스크롤도 막으려면 유지 */
+  background: #D4E1F3;  /* 필요 시 변경 */
 }
