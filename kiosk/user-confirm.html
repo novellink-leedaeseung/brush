@@ -3,8 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <link rel="stylesheet" href="../index.css"/>
+
 </head>
 <body>
+<div id="app-viewport">
+    <!-- 상단 -->
+    <div style="
+      width:1080px;
+      height:150px;
+      background:#214882;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      font-family:Pretendard, system-ui, -apple-system, 'Noto Sans KR', sans-serif;
+      color:#D4E1F3;">
+        <!-- 왼쪽 로고 영역 -->
+        <img src="/public/assets/icon/logo.png" width="154" height="113">
 
+        <!-- 중앙 타이틀 -->
+        <div style="font-size: 60px;" class="font-family-jalnan">
+            스마트 건강관리
+        </div>
+
+        <!-- 오른쪽 날짜/시간 -->
+        <div style="display:flex;flex-direction:column;align-items:flex-end;margin-right: 32px">
+            <div class="font-family-pretendard" style="font-size: 36px; font-weight: normal; color: white">2024-07-05
+            </div>
+            <div class="font-family-pretendard" style="font-size: 36px; font-weight: normal; color: white">오후 01:15
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-left: 75px; margin-top: 160px; width: 930px; height: 1380px; background: white; box-shadow: 0px 4px 2px rgba(0, 0, 0, 0.09); border-radius: 50px">
+        <div style="width: 575px; height: 300px; flex-direction: column; justify-content: center; align-items: center; gap: 30px; display: inline-flex;margin-top: 125px;margin-left: 190px;">
+            <div style="align-self: stretch; text-align: center; color: #004F99; font-size: 94px; font-family: Pretendard; font-weight: 700; line-height: 131.60px; word-wrap: break-word">
+                임O영 님
+            </div>
+            <div style="align-self: stretch; text-align: center; color: #4B4948; font-size: 72px; font-family: Pretendard; font-weight: 600; line-height: 100.80px; word-wrap: break-word">
+                본인이 맞으십니까?
+            </div>
+        </div>
+        <div style="width: 760px; height: 210px; background: #004F99; box-shadow: 0px 4px 2px rgba(0, 0, 0, 0.09); border-radius: 16px; margin-top: 173px;margin-left: 85px;">
+            <div style="height: 210px; text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 60px; font-family: Pretendard; font-weight: 700; line-height: 56px; word-wrap: break-word">
+                네, 맞습니다
+            </div>
+        </div>
+        <div style="width: 760px; height: 210px; background: #E7EAF3; box-shadow: 0px 4px 2px rgba(0, 0, 0, 0.09); border-radius: 16px;margin-top: 100px;margin-left: 85px;">
+                <div style="height: 210px;text-align: center; justify-content: center; display: flex; flex-direction: column; color: #595757; font-size: 60px; font-family: Pretendard; font-weight: 700; line-height: 56px; word-wrap: break-word">
+                    아닙니다
+                </div>
+            </div>
+    </div>
+</div>
 </body>
 </html>
