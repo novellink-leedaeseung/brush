@@ -22,12 +22,25 @@ function main() {
     });
 
     downloadBtn?.addEventListener('click', () => {
+        let phoneNumber = localStorage.getItem("phone");
+        let name = localStorage.getItem("name");
+        // 파일명
+        let today = new Date();
+
+        let dd = String(today.getDate()).padStart(2, '0'); // 시 분
+        let mm = String(today.getMonth()+1).padStart(2, '0'); // 월
+        let yyyy = today.getFullYear(); // 년도
+
+        let fileName = yyyy + '-' + mm + '-' + dd + '-' + phoneNumber + '-' + name;
+
+
         const a = document.createElement('a');
         a.href = dataUrl;
-        a.download = `photo-${new Date().toISOString().replace(/[:.]/g, '-')}.jpg`;
+        a.download = `${fileName}.jpg`;
         document.body.appendChild(a);
         a.click();
         a.remove();
+        location.href = '/';
     });
 }
 

@@ -2,41 +2,96 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <title>촬영 결과 확인</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="/styles.css" />
-  <style>
-    body { display: grid; place-items: center; min-height: 100vh; background: #111; color: #eee; margin: 0; }
-    .confirm-wrap { width: min(92vw, 820px); display: grid; gap: 16px; }
-    .photo-box {
-      position: relative;
-      width: 100%;
-      background: #000;
-      border-radius: 12px;
-      overflow: hidden;
-      aspect-ratio: 798 / 1418; /* 프리뷰와 같은 비율 */
-      display: grid;
-      place-items: center;
-    }
-    .photo-box img { width: 100%; height: 100%; object-fit: contain; background: #000; }
-    .controls { display: flex; gap: 12px; justify-content: center; }
-    .controls button, .controls a {
-      padding: 10px 14px; border-radius: 10px; border: 1px solid #2a2a2a; background: #1b1b1b; color: #eee; cursor: pointer;
-    }
-  </style>
+    <meta charset="UTF-8"/>
+    <title>촬영 결과 확인</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="stylesheet" href="/styles.css"/>
+    <link rel="stylesheet" href="/index.css"/>
+    <!--<style>
+      body { display: grid; place-items: center; min-height: 100vh; background: #111; color: #eee; margin: 0; }
+      .confirm-wrap { width: min(92vw, 820px); display: grid; gap: 16px; }
+      .photo-box {
+        position: relative;
+        width: 100%;
+        background: #000;
+        border-radius: 12px;
+        overflow: hidden;
+        aspect-ratio: 798 / 1418; /* 프리뷰와 같은 비율 */
+        display: grid;
+        place-items: center;
+      }
+      .photo-box img { width: 100%; height: 100%; object-fit: contain; background: #000; }
+      .controls { display: flex; gap: 12px; justify-content: center; }
+      .controls button, .controls a {
+        padding: 10px 14px; border-radius: 10px; border: 1px solid #2a2a2a; background: #1b1b1b; color: #eee; cursor: pointer;
+      }
+    </style>-->
 </head>
 <body>
-  <main class="confirm-wrap">
-    <h1>촬영 결과</h1>
-    <div class="photo-box">
-      <img id="capturedImg" alt="촬영 이미지" />
+
+<div id="app-viewport">
+    <div style="
+  width:1080px;
+  height:150px;
+  background:#214882;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  font-family:Pretendard, system-ui, -apple-system, 'Noto Sans KR', sans-serif;
+  color:#FFFFFF;
+">
+        <!-- 왼쪽 로고 영역 -->
+        <img src="/public/assets/icon/logo.png" width="154" height="113">
+
+        <!-- 중앙 타이틀 -->
+        <div style="font-size: 60px;" class="font-family-jalnan">
+            스마트 건강관리
+        </div>
+
+        <!-- 오른쪽 날짜/시간 -->
+        <div style="display:flex;flex-direction:column;align-items:flex-end;margin-right: 32px">
+            <div class="font-family-pretendard" style="font-size: 36px; font-weight: normal; color: white">2024-07-05
+            </div>
+            <div class="font-family-pretendard" style="font-size: 36px; font-weight: normal; color: white">오후 01:15
+            </div>
+        </div>
+
     </div>
-    <div class="controls">
-      <button id="retakeBtn">다시 찍기</button>
-      <button id="downloadBtn">저장</button>
+    <img id="capturedImg" alt="촬영 이미지" width="798" height="1418" style="margin-left: 141px" src=""/>
+    <div style="width: 1080px; height: 352px;background-color:white;display: flex;">
+        <div style="margin-top: 26px;margin-left: 31px; margin-right: 24px; width: 300px; height: 320px; background: white; box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.16); border-radius: 32px">
+            <div id="retakeBtn" style="margin-top:55px; width: 250px; height: 190px; flex-direction: column; justify-content: flex-start; align-items: center; gap: 36px; display: inline-flex">
+                <div style="width: 110px; height: 110.84px;">
+                    <img src="/public/assets/icon/retake.svg" alt="">
+                </div>
+                <div style="align-self: stretch; height: 43px; text-align: center; justify-content: center; display: flex; flex-direction: column; color: #004F99; font-size: 36px; font-family: Pretendard; font-weight: 600; line-height: 56px; word-wrap: break-word">
+                    재촬영
+                </div>
+            </div>
+        </div>
+        <div style="margin-top: 26px;margin-right: 24px;width: 300px; height: 320px; background: white; box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.16); border-radius: 32px">
+            <div style="margin-top:55px; width: 250px; height: 190px; flex-direction: column; justify-content: flex-start; align-items: center; gap: 36px; display: inline-flex">
+                <div style="width: 110px; height: 110.84px;">
+                    <img src="/public/assets/icon/home.svg" alt="">
+                </div>
+                <div style="align-self: stretch; height: 43px; text-align: center; justify-content: center; display: flex; flex-direction: column; color: #004F99; font-size: 36px; font-family: Pretendard; font-weight: 600; line-height: 56px; word-wrap: break-word">
+                    처음화면
+                </div>
+            </div>
+        </div>
+        <div style="margin-top: 26px;width: 300px; height: 320px; background: white; box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.16); border-radius: 32px">
+            <div id="downloadBtn" style="margin-top:55px; width: 250px; height: 190px; flex-direction: column; justify-content: flex-start; align-items: center; gap: 36px; display: inline-flex">
+                <div style="width: 110px; height: 110.84px;">
+                    <img src="/public/assets/icon/toothbrush.svg" alt="">
+                </div>
+                <div style="align-self: stretch; height: 43px; text-align: center; justify-content: center; display: flex; flex-direction: column; color: #004F99; font-size: 36px; font-family: Pretendard; font-weight: 600; line-height: 56px; word-wrap: break-word">
+                    등록
+                </div>
+            </div>
+        </div>
     </div>
-  </main>
-  <script type="module" src="/src/camara/confirm.ts"></script>
+</div>
+
+<script type="module" src="/src/camara/confirm.ts"></script>
 </body>
 </html>
