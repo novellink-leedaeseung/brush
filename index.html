@@ -143,11 +143,24 @@
         </div>
     </div>
 </div>
-<button onclick="location.href='/kiosk/camara'">
-    <div style="width: 1080px; height: 354px; background: #333331">
-        <img src="/public/assets/icon/pinger.svg">
-        <p style="color: white">화면을 터치해주세요!</p>
-    </div>
+<button onclick="location.href='/kiosk/camara'" style="
+    width: 1080px;
+    height: 354px;
+    padding: 0;
+    border: none;
+    cursor: pointer;
+    background: #333331;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+">
+    <div style="margin-top: 40px"><img src="/public/assets/icon/pinger.gif" style="
+        width: auto;
+        height: auto;
+        margin-bottom: 10px;
+    "></div>
+    <div style="width: 100%; height: 100%; text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 52px; font-family: 'Jalnan2'; font-weight: 400; word-wrap: break-word">화면을 터치해주세요!</div>
 </button>
 </body>
 </html>
