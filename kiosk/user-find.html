@@ -36,75 +36,122 @@
         </div>
     </div>
     <!-- 안내문  -->
-    <div style="margin-top: 190px;margin-left: 94px;margin-right: 94px;">
-        사용자 번호 또는 휴대폰 번호를 입력 해주시거나 <br>
-        사용자 바코드 또는 QR코드를 리더기에 대주세요.
-    </div>
+    <div style="width:900px;height:120px;margin-left: 90px;margin-top: 160px">
+  <p style="width: 822px; height: 120px; margin:0;text-align:center;font-family:Pretendard, sans-serif;line-height:1.3;">
+    <span style="color:#111111;font-size:46px;font-weight:700;">사용자 번호</span>
+    <span style="color:#111111;font-size:40px;font-weight:600;"> </span>
+    <span style="color:#595757;font-size:40px;font-weight:400;">또는</span>
+    <span style="color:#111111;font-size:40px;font-weight:400;"> </span>
+    <span style="color:#111111;font-size:46px;font-weight:700;">휴대폰 번호</span>
+    <span style="color:#595757;font-size:40px;font-weight:400;">를 입력해주시거나<br></span>
+    <span style="color:#111111;font-size:46px;font-weight:700;">사용자 바코드</span>
+    <span style="color:#111111;font-size:40px;font-weight:600;"> </span>
+    <span style="color:#595757;font-size:40px;font-weight:400;">또는</span>
+    <span style="color:#111111;font-size:40px;font-weight:600;"> </span>
+    <span style="color:#111111;font-size:46px;font-weight:700;">QR코드</span>
+    <span style="color:#595757;font-size:40px;font-weight:400;">를 리더기에 대주세요.</span>
+  </p>
+</div>
+
 
     <!-- 키패드 입력시 보이는 화면 -->
-    <div>
-        <div style="width: 680px; height: 94px; left: 107.29px; top: 40.74px; color: black; font-size: 12px; font-family: Inter; font-weight: 400; word-wrap: break-word">
-            사용자 번호 또는 핸드폰 번호
+    <div style="width: 860px; height: 170px;background: white; box-shadow: 0px 4px 2px rgba(0, 0, 0, 0.09); border-radius: 16px;margin-left: 110px;margin-top:140px">
+        <div style="height: 170px;margin-top: 57px; text-align: center; justify-content: center; display: flex; flex-direction: column; color: #B5B5B6; font-size: 44px; font-family: 'Pretendard'; font-weight: 600; line-height: 56px; word-wrap: break-word">
+            사용자 번호 또는 휴대폰 번호
         </div>
     </div>
 
     <!-- 키패드 -->
+    <!-- 키패드 래퍼 -->
+  <div style="width:320px; display:grid; grid-template-columns: repeat(3, 1fr); row-gap:28px; column-gap:60px; align-items:center; justify-items:center; margin-left: 175px;margin-top: 130px;">
+
+    <!-- 1~9 -->
+    <button onclick="press(1)"  aria-label="1"
+      style="width:70px;height:70px;background:transparent;border:none;font-size:60px;font-weight:700;color:#111;cursor:pointer;line-height:60px;">
+      1
+    </button>
+    <button onclick="press(2)"  aria-label="2"
+      style="width:70px;height:70px;background:transparent;border:none;font-size:60px;font-weight:700;color:#111;cursor:pointer;line-height:60px;">
+      2
+    </button>
+    <button onclick="press(3)"  aria-label="3"
+      style="width:70px;height:70px;background:transparent;border:none;font-size:60px;font-weight:700;color:#111;cursor:pointer;line-height:60px;">
+      3
+    </button>
+
+    <button onclick="press(4)"  aria-label="4"
+      style="width:70px;height:70px;background:transparent;border:none;font-size:60px;font-weight:700;color:#111;cursor:pointer;line-height:60px;">
+      4
+    </button>
+    <button onclick="press(5)"  aria-label="5"
+      style="width:70px;height:70px;background:transparent;border:none;font-size:60px;font-weight:700;color:#111;cursor:pointer;line-height:60px;">
+      5
+    </button>
+    <button onclick="press(6)"  aria-label="6"
+      style="width:70px;height:70px;background:transparent;border:none;font-size:60px;font-weight:700;color:#111;cursor:pointer;line-height:60px;">
+      6
+    </button>
+
+    <button onclick="press(7)"  aria-label="7"
+      style="width:70px;height:70px;background:transparent;border:none;font-size:60px;font-weight:700;color:#111;cursor:pointer;line-height:60px;">
+      7
+    </button>
+    <button onclick="press(8)"  aria-label="8"
+      style="width:70px;height:70px;background:transparent;border:none;font-size:60px;font-weight:700;color:#111;cursor:pointer;line-height:60px;">
+      8
+    </button>
+    <button onclick="press(9)"  aria-label="9"
+      style="width:70px;height:70px;background:transparent;border:none;font-size:60px;font-weight:700;color:#111;cursor:pointer;line-height:60px;">
+      9
+    </button>
+
+    <!-- 전체삭제 (좌하단) -->
+    <button onclick="press('clear')" aria-label="전체삭제"
+      style="justify-self:start;width:100px;height:40px;background:transparent;border:none;font-size:16px;font-weight:600;color:#111;cursor:pointer;line-height:40px;">
+      전체삭제
+    </button>
+
+    <!-- 0 (중하단) -->
+    <button onclick="press(0)" aria-label="0"
+      style="width:100px;height:100px;background:transparent;border:none;font-size:60px;font-weight:600;color:#111;cursor:pointer;line-height:60px;">
+      0
+    </button>
+
+    <!-- X (우하단 - 파란 배지) -->
+    <button onclick="press('backspace')" aria-label="삭제"
+      style="justify-self:end;display:inline-flex;align-items:center;justify-content:center;width:56px;height:32px;background:#9FB4D2;border:none;border-radius:8px;color:#fff;font-size:18px;font-weight:800;cursor:pointer;">
+      ×
+    </button>
+  </div>
+
     <div style="
-  width:540px;
-  padding:20px;
-  border:2px solid #ccc;
-  border-radius:8px;
-  background:linear-gradient(to bottom,#f9fbff,#e9f0f8);
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:12px;
-  justify-items:center;
-  font-family:Pretendard, sans-serif;
+  width:630px;
+  height:120px;
+  background:#004F99;
+  border-radius:16px;
+  box-shadow:0px 4px 2px rgba(0,0,0,0.09);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-left: 225px;
+  margin-top: 100px;
 ">
-        <button style="width:100%;height:100px;font-size:36px;font-weight:600;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;">
-            1
-        </button>
-        <button style="width:100%;height:100px;font-size:36px;font-weight:600;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;">
-            2
-        </button>
-        <button style="width:100%;height:100px;font-size:36px;font-weight:600;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;">
-            3
-        </button>
-
-        <button style="width:100%;height:100px;font-size:36px;font-weight:600;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;">
-            4
-        </button>
-        <button style="width:100%;height:100px;font-size:36px;font-weight:600;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;">
-            5
-        </button>
-        <button style="width:100%;height:100px;font-size:36px;font-weight:600;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;">
-            6
-        </button>
-
-        <button style="width:100%;height:100px;font-size:36px;font-weight:600;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;">
-            7
-        </button>
-        <button style="width:100%;height:100px;font-size:36px;font-weight:600;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;">
-            8
-        </button>
-        <button style="width:100%;height:100px;font-size:36px;font-weight:600;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;">
-            9
-        </button>
-
-        <button style="width:100%;height:100px;font-size:20px;font-weight:500;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;">
-            전체삭제
-        </button>
-        <button style="width:100%;height:100px;font-size:36px;font-weight:600;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;">
-            0
-        </button>
-        <button style="width:100%;height:100px;font-size:28px;font-weight:600;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;">
-            ⌫
-        </button>
-    </div>
-
-    <!-- 확인 버튼 -->
-    <button>확인</button>
-
+  <span style="
+    color:#ffffff;
+    font-size:44px;
+    font-family:Pretendard, sans-serif;
+    font-weight:600;
+    line-height:1.27;
+    text-align:center;
+  ">
+    확인
+  </span>
+</div>
+     <script>
+    function press(value) {
+      console.log("클릭:", value);
+    }
+  </script>
 
 </div>
 </body>
