@@ -14,5 +14,5 @@ COPY . .
 RUN chown -R node:node /app
 USER node
 
-EXPOSE 80
+EXPOSE 5001
 CMD ["npm","run","dev"]

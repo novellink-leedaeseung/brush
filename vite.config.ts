@@ -1,12 +1,15 @@
 import {defineConfig} from "vite";
-import basicSsl from '@vitejs/plugin-basic-ssl'
+// import basicSsl from '@vitejs/plugin-basic-ssl'
 
 export default defineConfig({
-    plugins: [basicSsl()],
+    // plugins: [basicSsl()],
     server: {
-        port: 80,
-        https: true,
-        host: true,     // 네트워크 접근 허용(모바일 기기 테스트 등)
+        host: '0.0.0.0',
+        port: 5001,
+        allowedHosts: [
+      'novel-513909686873.europe-west1.run.app',
+      // You can add other hosts here if needed
+    ],
         proxy: {
             "/api": {
                 target: "https://novel.rosq.co.kr:8488/",
