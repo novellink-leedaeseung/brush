@@ -1,0 +1,14 @@
+version: "3.9"
+services:
+  web:
+    build:
+      dockerfile: Dockerfile
+    container_name: vite-dev
+    ports:
+      - "80:80"
+    volumes:
+      - .:/app                       # 소스만 바인드
+      - node_modules:/app/node_modules  # ★ node_modules는 컨테이너 전용 볼륨
+
+volumes:
+  node_modules:
