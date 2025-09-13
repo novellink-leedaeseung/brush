@@ -4,6 +4,7 @@ import basicSsl from '@vitejs/plugin-basic-ssl'
 export default defineConfig({
     plugins: [basicSsl()],
     server: {
+        port: 80,
         https: true,
         host: true,     // 네트워크 접근 허용(모바일 기기 테스트 등)
         proxy: {
