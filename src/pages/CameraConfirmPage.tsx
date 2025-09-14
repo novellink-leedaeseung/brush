@@ -11,12 +11,30 @@ const CameraConfirmPage: React.FC = () => {
 
     // 컴포넌트가 마운트될 때 저장된 이미지 불러오기
     useEffect(() => {
-        const CAPTURED_PHOTO_KEY = 'camara.capturedPhoto'
-        const savedImage = sessionStorage.getItem(CAPTURED_PHOTO_KEY)
-        if (savedImage) {
-            setCapturedImage(savedImage)
+        // 여러 가능한 키 이름으로 시도
+        const possibleKeys = ['capturedImage', 'camara.capturedPhoto', 'captured-photo']
+        
+        let savedImage = null
+        for (const key of possibleKeys) {
+            savedImage = sessionStorage.getItem(key)
+            if (savedImage) {
+                console.log(`이미지를 찾았습니다. 키: ${key}`)
+                setCapturedImage(savedImage)
+                break
+            }
+        }
+        
+        if (!savedImage) {
+            console.log('세션 스토리지에서 이미지를 찾을 수 없습니다.')
+            // 세션 스토리지의 모든 키를 출력해서 디버깅
+            console.log('세션 스토리지의 모든 키들:', Object.keys(sessionStorage))
         }
     }, [])
+
+    // 이미지가 없을 때 placeholder 표시를 위한 디버깅
+    useEffect(() => {
+        console.log('현재 capturedImage 상태:', capturedImage ? '이미지 있음' : '이미지 없음')
+    }, [capturedImage])
 
     // ESC 키로 모달 닫기
     useEffect(() => {
@@ -35,44 +53,6 @@ const CameraConfirmPage: React.FC = () => {
                 clearTimeout(confirmationTimeoutRef.current)
             }
         }
-    }, [])
-
-    // 현재 시간 표시를 위한 상태
-    const [currentTime, setCurrentTime] = useState(() => {
-        const now = new Date()
-        return {
-            date: now.toLocaleDateString('ko-KR', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit'
-            }).replace(/\. /g, '-').replace('.', ''),
-            time: now.toLocaleTimeString('ko-KR', {
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true
-            })
-        }
-    })
-
-    // 1분마다 시간 업데이트
-    useEffect(() => {
-        const timer = setInterval(() => {
-            const now = new Date()
-            setCurrentTime({
-                date: now.toLocaleDateString('ko-KR', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit'
-                }).replace(/\. /g, '-').replace('.', ''),
-                time: now.toLocaleTimeString('ko-KR', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: true
-                })
-            })
-        }, 60000)
-
-        return () => clearInterval(timer)
     }, [])
 
     // 점심시간 체크 (예시: 12:00 ~ 13:00)
