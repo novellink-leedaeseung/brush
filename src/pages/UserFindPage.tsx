@@ -1,6 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
+import {findUser} from "../api/UserFind.ts";
 
-interface UserFindPageProps {}
+
+interface UserFindPageProps {
+}
 
 const UserFindPage: React.FC<UserFindPageProps> = () => {
     const [inputNumber, setInputNumber] = useState<string>('');
@@ -54,6 +57,7 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
         if (inputNumber.trim()) {
             console.log('입력된 번호:', inputNumber);
             // API 호출 로직 추가
+            findUser(inputNumber);
         }
     };
 
@@ -161,29 +165,29 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                         lineHeight: 1.3
                     }}
                 >
-          <span style={{ color: '#111111', fontSize: '46px', fontWeight: '700' }}>
+          <span style={{color: '#111111', fontSize: '46px', fontWeight: '700'}}>
             사용자 번호
           </span>
-                    <span style={{ color: '#595757', fontSize: '40px', fontWeight: '400' }}>
+                    <span style={{color: '#595757', fontSize: '40px', fontWeight: '400'}}>
             {' '}또는{' '}
           </span>
-                    <span style={{ color: '#111111', fontSize: '46px', fontWeight: '700' }}>
+                    <span style={{color: '#111111', fontSize: '46px', fontWeight: '700'}}>
             휴대폰 번호
           </span>
-                    <span style={{ color: '#595757', fontSize: '40px', fontWeight: '400' }}>
+                    <span style={{color: '#595757', fontSize: '40px', fontWeight: '400'}}>
             를 입력해주시거나
           </span>
-                    <br />
-                    <span style={{ color: '#111111', fontSize: '46px', fontWeight: '700' }}>
+                    <br/>
+                    <span style={{color: '#111111', fontSize: '46px', fontWeight: '700'}}>
             사용자 바코드
           </span>
-                    <span style={{ color: '#595757', fontSize: '40px', fontWeight: '400' }}>
+                    <span style={{color: '#595757', fontSize: '40px', fontWeight: '400'}}>
             {' '}또는{' '}
           </span>
-                    <span style={{ color: '#111111', fontSize: '46px', fontWeight: '700' }}>
+                    <span style={{color: '#111111', fontSize: '46px', fontWeight: '700'}}>
             QR코드
           </span>
-                    <span style={{ color: '#595757', fontSize: '40px', fontWeight: '400' }}>
+                    <span style={{color: '#595757', fontSize: '40px', fontWeight: '400'}}>
             를 리더기에 대주세요.
           </span>
                 </p>
@@ -370,7 +374,7 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                         alt=""
                         width="40"
                         height="34"
-                        style={{ marginRight: '30px' }}
+                        style={{marginRight: '30px'}}
                     />
                     바코드 / QR 코드 대는 곳
                 </div>
