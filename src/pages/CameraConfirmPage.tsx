@@ -55,6 +55,53 @@ const CameraConfirmPage: React.FC = () => {
         }
     }, [])
 
+    // 이미지 다운로드 함수
+    const downloadImage = () => {
+        const possibleKeys = ['capturedImage', 'camara.capturedPhoto', 'captured-photo']
+        let imageData = null
+        
+        // 세션 스토리지에서 이미지 데이터 찾기
+        for (const key of possibleKeys) {
+            imageData = sessionStorage.getItem(key)
+            if (imageData) {
+                console.log(`다운로드할 이미지 키: ${key}`)
+                break
+            }
+        }
+        
+        if (!imageData) {
+            console.error('다운로드할 이미지가 없습니다.')
+            alert('저장된 이미지가 없습니다.')
+            return
+        }
+
+        try {
+            // 현재 날짜/시간으로 파일명 생성
+            const now = new Date()
+            const dateStr = now.toISOString().slice(0, 19).replace(/[:-]/g, '').replace('T', '_')
+            let name = localStorage.getItem("name");
+            let phone = localStorage.getItem("phone");
+            const fileName = `${dateStr}-${phone}-${name}.jpg`
+            
+            // 가상의 다운로드 링크 생성
+            const link = document.createElement('a')
+            link.href = imageData
+            link.download = fileName
+            link.style.display = 'none'
+            
+            // DOM에 추가하고 클릭한 후 제거
+            document.body.appendChild(link)
+            link.click()
+            document.body.removeChild(link)
+            
+            console.log(`이미지 다운로드 완료: ${fileName}`)
+            
+        } catch (error) {
+            console.error('이미지 다운로드 실패:', error)
+            alert('이미지 다운로드에 실패했습니다.')
+        }
+    }
+
     // 점심시간 체크 (예시: 12:00 ~ 13:00)
     const isLunchTime = () => {
         const now = new Date()
@@ -85,6 +132,9 @@ const CameraConfirmPage: React.FC = () => {
 
     // 등록 완료 모달 표시
     const showRegistrationComplete = () => {
+        // 이미지 다운로드 먼저 실행
+        downloadImage()
+        
         setShowLunchModal(false)
         setShowConfirmationModal(true)
         document.body.style.overflow = 'hidden'
@@ -375,6 +425,44 @@ const CameraConfirmPage: React.FC = () => {
           transform: translateY(0);
         }
 
+        /* 이미지 플레이스홀더 스타일 */
+        .image-placeholder {
+          width: 798px;
+          height: 1418px;
+          margin-left: 141px;
+          background: linear-gradient(45deg, #f0f0f0 25%, #e0e0e0 25%, #e0e0e0 50%, #f0f0f0 50%, #f0f0f0 75%, #e0e0e0 75%);
+          background-size: 20px 20px;
+          border: 2px dashed #ccc;
+          border-radius: 14px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-direction: column;
+          color: #666;
+          font-size: 24px;
+          font-weight: 600;
+          text-align: center;
+        }
+
+        /* 테스트 다운로드 버튼 스타일 */
+        .test-download-button {
+          display: block;
+          margin: 20px auto;
+          padding: 12px 24px;
+          background: #28a745;
+          color: white;
+          border: none;
+          border-radius: 8px;
+          font-size: 16px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: background 0.2s ease;
+        }
+
+        .test-download-button:hover {
+          background: #218838;
+        }
+
         @keyframes lunch-false-fade-in {
           from { opacity: 0; }
           to { opacity: 1; }
@@ -389,8 +477,8 @@ const CameraConfirmPage: React.FC = () => {
             <div id="app-viewport">
                 <Header />
 
-                {/* 촬영된 이미지 */}
-                {capturedImage && (
+                {/* 촬영된 이미지 또는 플레이스홀더 */}
+                {capturedImage ? (
                     <img
                         id="capturedImg"
                         alt="촬영 이미지"
@@ -398,7 +486,34 @@ const CameraConfirmPage: React.FC = () => {
                         height="1418"
                         style={{ marginLeft: '141px' }}
                         src={capturedImage}
+                        onError={(e) => {
+                            console.error('이미지 로드 실패:', e)
+                            setCapturedImage('') // 이미지 로드 실패시 플레이스홀더 표시
+                        }}
                     />
+                ) : (
+                    <div className="image-placeholder">
+                        <div>📷</div>
+                        <div style={{marginTop: '20px'}}>촬영된 이미지가 없습니다</div>
+                        <div style={{fontSize: '18px', marginTop: '10px', color: '#999'}}>
+                            카메라에서 사진을 촬영해주세요
+                        </div>
+                        <button 
+                            onClick={handleRetake}
+                            style={{
+                                marginTop: '30px',
+                                padding: '15px 30px',
+                                backgroundColor: '#004f99',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '8px',
+                                fontSize: '18px',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            카메라로 이동
+                        </button>
+                    </div>
                 )}
 
                 {/* 버튼 영역 */}
@@ -617,17 +732,26 @@ const CameraConfirmPage: React.FC = () => {
                 </div>
             )}
 
-            {/* 테스트용 점심시간 알림창 트리거 버튼 (개발 환경에서만 표시) */}
+            {/* 개발용 테스트 버튼들 */}
             {process.env.NODE_ENV === 'development' && (
-                <button
-                    className="lunch-false-trigger-button"
-                    onClick={() => {
-                        setShowLunchModal(true)
-                        document.body.style.overflow = 'hidden'
-                    }}
-                >
-                    점심시간 확인 알림창 열기 (개발용)
-                </button>
+                <div style={{ textAlign: 'center', padding: '20px' }}>
+                    <button
+                        className="lunch-false-trigger-button"
+                        onClick={() => {
+                            setShowLunchModal(true)
+                            document.body.style.overflow = 'hidden'
+                        }}
+                    >
+                        점심시간 확인 알림창 열기 (개발용)
+                    </button>
+                    
+                    <button
+                        className="test-download-button"
+                        onClick={downloadImage}
+                    >
+                        이미지 다운로드 테스트
+                    </button>
+                </div>
             )}
         </div>
     )
