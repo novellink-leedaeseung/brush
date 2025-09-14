@@ -1,11 +1,12 @@
 import {defineConfig} from "vite";
-// import basicSsl from '@vitejs/plugin-basic-ssl'
+import basicSsl from '@vitejs/plugin-basic-ssl'
 
 export default defineConfig({
-    // plugins: [basicSsl()],
+    plugins: [basicSsl()],
     server: {
         host: '0.0.0.0',
         port: 5001,
+        https: true,
         allowedHosts: [
       'novel-513909686873.europe-west1.run.app',
       // You can add other hosts here if needed

@@ -11,19 +11,24 @@
 <div id="app-viewport">
     <!-- 상단 -->
     <div style="
-      width:1080px;
-      height:150px;
-      background:#214882;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      font-family:Pretendard, system-ui, -apple-system, 'Noto Sans KR', sans-serif;
-      color:#D4E1F3;">
+  width:1080px;
+  height:150px;
+  background:#214882;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  font-family:Pretendard, system-ui, -apple-system, 'Noto Sans KR', sans-serif;
+  color:#FFFFFF;
+">
         <!-- 왼쪽 로고 영역 -->
         <img src="/public/assets/icon/logo.png" width="154" height="113">
 
         <!-- 중앙 타이틀 -->
-        <div style="font-size: 60px;" class="font-family-jalnan">
+        <div style="color: white;
+font-size: 60px;
+font-family:Jalnan2;
+font-weight: 400;
+word-wrap: break-word">
             스마트 건강관리
         </div>
 
@@ -149,6 +154,12 @@
     확인
   </span>
     </div>
+    <!-- 바코드 / QR 코드 대는곳 -->
+    <div style="width: 900px;height: 120px;background: #383839; box-shadow: 0px 4px 2px rgba(0, 0, 0, 0.09); border-top-left-radius: 16px; border-top-right-radius: 16px;margin-top: 189px;margin-left:90px; display: flex; align-items: center; justify-content: center;">
+    <div style="text-align: center;color: white; font-size: 44px; font-family: Pretendard; font-weight: 600; line-height: 56px; word-wrap: break-word;">
+        <img src="/assets/icon/barcode_location.svg" alt="" width="40" height="34" style="margin-right: 30px">바코드 / QR 코드 대는 곳
+    </div>
+</div>
     <script type="module" src="/src/user-find/userFindApp.ts"></script>
     <script>
         // 입력된 번호를 저장할 변수

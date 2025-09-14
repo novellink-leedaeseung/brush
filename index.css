@@ -1,66 +1,74 @@
 /* Pretendard 폰트 등록 */
 @font-face {
-  font-family: "Pretendard";
-  src: url("/public/assets/font/Pretendard/Pretendard-Thin.otf") format("opentype");
-  font-weight: 100;
-  font-style: normal;
-  font-display: swap;
+    font-family: "Pretendard";
+    src: url("/public/assets/font/Pretendard/Pretendard-Thin.otf") format("opentype");
+    font-weight: 100;
+    font-style: normal;
+    font-display: swap;
 }
+
 @font-face {
-  font-family: "Pretendard";
-  src: url("/public/assets/font/Pretendard/Pretendard-ExtraLight.otf") format("opentype");
-  font-weight: 200;
-  font-style: normal;
-  font-display: swap;
+    font-family: "Pretendard";
+    src: url("/public/assets/font/Pretendard/Pretendard-ExtraLight.otf") format("opentype");
+    font-weight: 200;
+    font-style: normal;
+    font-display: swap;
 }
+
 @font-face {
-  font-family: "Pretendard";
-  src: url("/public/assets/font/Pretendard/Pretendard-Light.otf") format("opentype");
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
+    font-family: "Pretendard";
+    src: url("/public/assets/font/Pretendard/Pretendard-Light.otf") format("opentype");
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
 }
+
 @font-face {
-  font-family: "Pretendard";
-  src: url("/public/assets/font/Pretendard/Pretendard-Regular.otf") format("opentype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
+    font-family: "Pretendard";
+    src: url("/public/assets/font/Pretendard/Pretendard-Regular.otf") format("opentype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
 }
+
 @font-face {
-  font-family: "Pretendard";
-  src: url("/public/assets/font/Pretendard/Pretendard-Medium.otf") format("opentype");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
+    font-family: "Pretendard";
+    src: url("/public/assets/font/Pretendard/Pretendard-Medium.otf") format("opentype");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
 }
+
 @font-face {
-  font-family: "Pretendard";
-  src: url("/public/assets/font/Pretendard/Pretendard-SemiBold.otf") format("opentype");
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
+    font-family: "Pretendard";
+    src: url("/public/assets/font/Pretendard/Pretendard-SemiBold.otf") format("opentype");
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
 }
+
 @font-face {
-  font-family: "Pretendard";
-  src: url("/public/assets/font/Pretendard/Pretendard-Bold.otf") format("opentype");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
+    font-family: "Pretendard";
+    src: url("/public/assets/font/Pretendard/Pretendard-Bold.otf") format("opentype");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
 }
+
 @font-face {
-  font-family: "Pretendard";
-  src: url("/public/assets/font/Pretendard/Pretendard-ExtraBold.otf") format("opentype");
-  font-weight: 800;
-  font-style: normal;
-  font-display: swap;
+    font-family: "Pretendard";
+    src: url("/public/assets/font/Pretendard/Pretendard-ExtraBold.otf") format("opentype");
+    font-weight: 800;
+    font-style: normal;
+    font-display: swap;
 }
+
 @font-face {
-  font-family: "Pretendard";
-  src: url("/public/assets/font/Pretendard/Pretendard-Black.otf") format("opentype");
-  font-weight: 900;
-  font-style: normal;
-  font-display: swap;
+    font-family: "Pretendard";
+    src: url("/public/assets/font/Pretendard/Pretendard-Black.otf") format("opentype");
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
 }
 
 @font-face {
@@ -80,9 +88,21 @@
 
 /* 실제 콘텐츠가 들어갈 고정 크기 캔버스 */
 #app-viewport {
-  width: 1080px;
-  height: 1920px;
-  position: relative;
-  overflow: hidden;     /* 내부 스크롤도 막으려면 유지 */
-  background: linear-gradient(180deg, white 0%, #D4E1F3 100%);
+    width: 1080px;
+    height: 1920px;
+    position: relative;
+    overflow: hidden; /* 내부 스크롤도 막으려면 유지 */
+    background: linear-gradient(180deg, white 0%, #D4E1F3 100%);
+}
+
+#index-viewport {
+    width: 1080px;
+    height: 1920px;
+    position: relative;
+    overflow: hidden; /* 내부 스크롤도 막으려면 유지 */
+}
+
+body {
+    margin: 0; /* body의 기본 여백을 제거합니다 */
+    padding: 0; /* 필요하다면 body의 내부 여백도 제거합니다 */
 }
