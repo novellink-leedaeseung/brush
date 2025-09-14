@@ -8,6 +8,200 @@
     <link rel="stylesheet" href="/styles.css"/>
     <link rel="stylesheet" href="/index.css"/>
     <style>
+
+         /* 알림창 트리거 버튼 */
+        .lunch-false-trigger-button {
+            display: block;
+            margin: 50px auto;
+            padding: 15px 30px;
+            background: #004f99;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .lunch-false-trigger-button:hover {
+            background: #003d7a;
+        }
+
+        /* 모달 오버레이 */
+        .lunch-false-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(49, 49, 49, 0.6);
+            z-index: 1000;
+            animation: lunch-false-fade-in 0.3s ease;
+        }
+
+        .lunch-false-modal-overlay.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 알림창 컨테이너 */
+        .lunch-false-container {
+            position: relative;
+            width: 932px;
+            max-width: 90vw;
+            height: 675px;
+            max-height: 80vh;
+            border-radius: 41px;
+            box-shadow: 2px 2px 2px 0px rgba(42, 73, 148, 0.09);
+            animation: lunch-false-slide-up 0.3s ease;
+        }
+
+        .lunch-false-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #ffffff;
+            border-radius: 50px;
+            box-shadow: 2px 2px 2px 0px rgba(0, 79, 153, 0.09);
+        }
+
+        /* 닫기 버튼 */
+        .lunch-false-close-button {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: transparent;
+            font-size: 24px;
+            color: #666;
+            cursor: pointer;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s ease;
+            z-index: 10;
+        }
+
+        .lunch-false-close-button:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        /* 시계 컨테이너 - 사용자가 직접 시계 요소를 추가할 때 사용 */
+        .lunch-false-clock-container {
+            position: absolute;
+            left: 50%;
+            top: 60px;
+            width: 130px;
+            height: 130px;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .lunch-false-main-message {
+            position: absolute;
+            left: 50%;
+            top: 200px;
+            width: 80%;
+            height: 130px;
+            transform: translateX(-50%);
+            font-weight: 700;
+            font-size: 64px;
+            line-height: 1.4;
+            letter-spacing: -1.6px;
+            text-align: center;
+            color: #4b4948;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lunch-false-secondary-message {
+            position: absolute;
+            left: 50%;
+            top: 330px;
+            width: 80%;
+            height: 130px;
+            transform: translateX(-50%);
+            font-weight: 500;
+            font-size: 64px;
+            line-height: 1.4;
+            letter-spacing: -1.6px;
+            text-align: center;
+            color: #004f99;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lunch-false-buttons-container {
+            position: absolute;
+            left: 50%;
+            top: 505px;
+            width: 828px;
+            max-width: 90%;
+            height: 120px;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 28px;
+        }
+
+        .lunch-false-button {
+            height: 120px;
+            flex: 1;
+            border-radius: 8px;
+            border: none;
+            font-family: 'Pretendard', sans-serif;
+            font-weight: 700;
+            font-size: 40px;
+            line-height: 1.6;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 24px;
+            box-sizing: border-box;
+        }
+
+        .lunch-false-button-secondary {
+            background: #e7eaf3;
+            color: #595757;
+            border: 1px solid #eaecf0;
+        }
+
+        .lunch-false-button-secondary:hover {
+            background: #dde1ec;
+            transform: translateY(-1px);
+        }
+
+        .lunch-false-button-primary {
+            background: linear-gradient(45deg, #2970ff 0%, #0040c1 100%);
+            color: #ffffff;
+            border: 1px solid transparent;
+        }
+
+        .lunch-false-button-primary:hover {
+            background: linear-gradient(45deg, #1e5fff 0%, #0037a8 100%);
+            transform: translateY(-1px);
+        }
+
+        .lunch-false-button:active {
+            transform: translateY(1px);
+        }
+
+
         /* 확인 모달 스타일 */
         .confirmation-modal {
             position: fixed;
@@ -186,6 +380,47 @@
     </div>
 </div>
 
+<!-- 알림창 트리거 버튼 -->
+    <button class="lunch-false-trigger-button" onclick="showModal()">
+        점심시간 확인 알림창 열기
+    </button>
+
+    <!-- 모달 오버레이 -->
+    <div class="lunch-false-modal-overlay" id="lunchFalseModal" onclick="closeModal(event)">
+        <div class="lunch-false-container" onclick="event.stopPropagation()">
+            <!-- 배경 -->
+            <div class="lunch-false-background"></div>
+            <!-- 시계 아이콘 (사용자가 직접 추가할 예정) -->
+            <div class="lunch-false-clock-container">
+                <!--여기에 시계 이미지나 아이콘을 추가하세요-->
+                <img src="/public/assets/icon/time.svg" alt="">
+            </div>
+
+            <!-- 메인 메시지 -->
+            <div class="lunch-false-main-message">
+                지금은 점심 시간이 아닙니다
+            </div>
+
+            <!-- 보조 메시지 -->
+            <div class="lunch-false-secondary-message">
+                그래도 등록 할까요?
+            </div>
+
+            <!-- 버튼 컨테이너 -->
+            <div class="lunch-false-buttons-container">
+                <!-- 아니요 버튼 -->
+                <button class="lunch-false-button lunch-false-button-secondary" onclick="handleNoClick()">
+                    아니요
+                </button>
+
+                <!-- 등록 버튼 -->
+                <button class="lunch-false-button lunch-false-button-primary" onclick="handleRegisterClick()">
+                    등록
+                </button>
+            </div>
+        </div>
+    </div>
+
 <!-- 양치 인증 완료 모달 -->
 <div id="confirmationModal" class="confirmation-modal">
     <div class="confirmation-container">
@@ -231,6 +466,43 @@
             document.getElementById('confirmationModal').classList.remove('show');
         }
     });
+    // 알림창 열기
+        function showModal() {
+            const modal = document.getElementById('lunchFalseModal');
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden'; // 배경 스크롤 방지
+        }
+
+        // 알림창 닫기
+        function closeModal(event) {
+            // 오버레이 클릭시에만 닫기 (내부 클릭시 닫히지 않음)
+            if (event && event.target !== event.currentTarget) return;
+
+            const modal = document.getElementById('lunchFalseModal');
+            modal.classList.remove('show');
+            document.body.style.overflow = 'auto'; // 배경 스크롤 복원
+        }
+
+        // 아니요 버튼 클릭
+        function handleNoClick() {
+            console.log('아니요 버튼 클릭됨');
+            alert('취소되었습니다.');
+            closeModal();
+        }
+
+        // 등록 버튼 클릭
+        function handleRegisterClick() {
+            console.log('등록 버튼 클릭됨');
+            alert('등록되었습니다.');
+            closeModal();
+        }
+
+        // ESC 키로 모달 닫기
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
 </script>
 </body>
 </html>
