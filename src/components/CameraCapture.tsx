@@ -226,7 +226,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
       }}>
         {/* 메인 카메라 영역 */}
         <div style={{
-          width: '100%',
+          width: '798px',
           flex: 1,
           display: 'flex',
           justifyContent: 'center',
@@ -240,8 +240,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
                 color: 'white',
                 padding: '20px',
                 borderRadius: '8px',
-                margin: 'auto',
-                zIndex: 10
+                margin: 'auto'
               }}>
                 카메라 준비중...
               </div>
@@ -254,7 +253,6 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
                 padding: '20px',
                 borderRadius: '8px',
                 margin: 'auto',
-                zIndex: 10,
                 textAlign: 'center'
               }}>
                 {error}
@@ -303,88 +301,22 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
             )}
           </div>
 
-          {/* 오버레이 컨트롤 버튼들 */}
-          {overlayImages.length > 1 && (
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                width: '100%',
-                height: '100%',
-                marginTop: '-100%', // 전체를 위로 올려서 겹치기
-                pointerEvents: 'none'
-              }}>
-                <button
-                    onClick={previousOverlay}
-                    style={{
-                      marginLeft: '8px',
-                      width: '40px',
-                      height: '40px',
-                      border: 'none',
-                      borderRadius: '8px',
-                      cursor: 'pointer',
-                      background: 'rgba(0,0,0,.35)',
-                      color: '#fff',
-                      fontSize: '20px',
-                      lineHeight: '40px',
-                      pointerEvents: 'auto'
-                    }}
-                    aria-label="이전 오버레이"
-                >
-                  ⟨
-                </button>
-
-                <button
-                    onClick={nextOverlay}
-                    style={{
-                      marginRight: '8px',
-                      width: '40px',
-                      height: '40px',
-                      border: 'none',
-                      borderRadius: '8px',
-                      cursor: 'pointer',
-                      background: 'rgba(0,0,0,.35)',
-                      color: '#fff',
-                      fontSize: '20px',
-                      lineHeight: '40px',
-                      pointerEvents: 'auto'
-                    }}
-                    aria-label="다음 오버레이"
-                >
-                  ⟩
-                </button>
-              </div>
-          )}
-
-          {/* 오버레이 인디케이터 */}
-          {overlayImages.length > 1 && (
-              <div style={{
-                background: 'rgba(0,0,0,.35)',
-                color: '#fff',
-                padding: '4px 10px',
-                borderRadius: '999px',
-                fontSize: '12px',
-                marginTop: '-60px', // 하단에서 약간 올리기
-                marginBottom: '8px'
-              }}>
-                {currentOverlayIndex + 1}/{overlayImages.length}
-              </div>
-          )}
         </div>
-          {/* 하단 컨트롤 영역 */}
+        
+          {/* 하단 컨트롤 영역 - 3구역으로 분할 */}
       <div style={{
         width: '1080px',
         height: '353px',
         backgroundColor: '#E5E7EB',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-around',
       }}>
-          {/* 캡처 버튼 영역 */}
+
+        {/* 가운데 캡처 버튼 영역 */}
         <div style={{
-          width: '100%',
-          display: 'flex',
-          justifyContent: 'center',
+          width: '360px',
+          height: '100%',
+          marginLeft: '415px',
         }}>
           <div
               style={{
@@ -411,14 +343,12 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
 
       </div>
 
-
-
-        {/* 숨겨진 캔버스 (캡처용) */}
-        <canvas
-            ref={canvasRef}
-            style={{ display: 'none' }}
-        />
-      </div>
+      {/* 숨겨진 캔버스 (캡처용) */}
+      <canvas
+        ref={canvasRef}
+        style={{ display: 'none' }}
+      />
+    </div>
   )
 }
 

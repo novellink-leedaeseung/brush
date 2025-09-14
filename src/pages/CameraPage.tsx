@@ -20,10 +20,13 @@ const CameraPage: React.FC = () => {
       <Header />
 
       {/* 카메라 영역 */}
-      <div style={{ width: '1080px', height: '1417px', position: 'relative' }}>
+      <div style={{ 
+        width: '1080px', 
+        height: '798px',
+        background: 'linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(212, 225, 243, 1) 100%)'
+      }}>
         <CameraCapture onCapture={handleCapture} />
       </div>
-
     </div>
   )
 }
