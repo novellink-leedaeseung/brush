@@ -24,7 +24,6 @@ export function findUser(inputField: string) {
             localStorage.setItem("name", res.resultData.username);
             localStorage.setItem("gender", res.resultData.gender);
             localStorage.setItem("phone", res.resultData.phonenumber);
-            window.location.href = "/kiosk/user-confirm.html";
         })
         .catch(error => {
             console.error('에러 발생:', error);
