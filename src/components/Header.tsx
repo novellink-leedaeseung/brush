@@ -66,6 +66,7 @@ const Header: React.FC<HeaderProps> = ({
                 width: '177px',
                 height: '130px',
                 marginLeft: '32px',
+                marginTop: '10px',
             }
             }>
                 <img
@@ -97,31 +98,34 @@ const Header: React.FC<HeaderProps> = ({
             </div>
 
             {/* 날짜/시간 */}
-            <div
-      className="flex flex-col gap-2.5 items-center justify-center bg-blue-800 text-white p-4 rounded-lg"
-      style={{
-        width: '230px',
-        height: '130px',
-        backgroundColor: '#27468A', // 피그마에서 가져온 정확한 색상
-      }}
-      data-name="Header date container"
-    >
-      <div
-        className="flex flex-col justify-center leading-relaxed text-center"
-        style={{
-          fontFamily: 'Pretendard, sans-serif',
-          fontSize: '36px',
-          fontWeight: '400',
-          lineHeight: '1.3',
-          letterSpacing: '-2.5%',
-          width: '190px',
-          height: '100px',
-        }}
-      >
-        <p className="mb-0 text-white">{currentDate}</p>
-        <p className="mb-0 text-white">{currentTime}</p>
-      </div>
-    </div>
+            <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                height: '130px',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '230px',
+            }}>
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    fontFamily: "'Pretendard', sans-serif",
+                    fontWeight: 400,
+                    height: '100px',
+                    justifyContent: 'center',
+                    lineHeight: 1.3,
+                    fontStyle: 'normal',
+                    flexShrink: 0,
+                    fontSize: '36px',
+                    color: 'white',
+                    letterSpacing: '-0.9px',
+                    width: '190px',
+                    textAlign: 'left'
+                }}>
+                    <p style={{marginBottom: 0}}>{currentDate}</p>
+                    <p style={{margin: 0}}>{currentTime}</p>
+                </div>
+            </div>
         </div>
     );
 };
