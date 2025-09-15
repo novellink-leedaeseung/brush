@@ -348,14 +348,33 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                         textAlign: 'center',
                         justifyContent: 'center',
                         display: 'flex',
-                        flexDirection: 'column',
-                        color: inputNumber === '' ? '#B5B5B6' : '#111111',
-                        fontSize: '44px',
-                        fontWeight: '600',
-                        lineHeight: '56px'
+                        flexDirection: 'column'
                     }}
                 >
-                    {inputNumber === '' ? '사용자 번호 또는 휴대폰 번호' : maskPhoneNumber(inputNumber)}
+                    {inputNumber === '' ? (
+                        // 플레이스홀더 텍스트 (기존 스타일 유지)
+                        <span style={{
+                            color: '#B5B5B6',
+                            fontSize: '44px',
+                            fontWeight: '600',
+                            lineHeight: '56px'
+                        }}>
+                            사용자 번호 또는 휴대폰 번호
+                        </span>
+                    ) : (
+                        // 입력된 텍스트 (여기에 커스텀 스타일 적용 가능)
+                        <span style={{
+                            // 기본 스타일 - 원하는 대로 수정 가능
+                            color: "#111111",
+                            fontSize: 68,
+                            fontFamily: "Jalnan2",
+                            fontWeight: 400,
+                            lineHeight: "56px",
+                            wordWrap: "break-word",
+                        }}>
+                            {maskPhoneNumber(inputNumber)}
+                        </span>
+                    )}
                 </div>
             </div>
 
