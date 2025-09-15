@@ -294,12 +294,6 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
                 onLoad={() => console.log('Overlay loaded:', overlayImages[currentOverlayIndex])}
                 onError={() => console.warn('Overlay failed to load:', overlayImages[currentOverlayIndex])}
             />
-
-            {/* 캔버스 (숨겨진 상태) */}
-            <canvas
-                ref={canvasRef}
-                style={{ display: 'none' }}
-            />
         </div>
     )
 }
