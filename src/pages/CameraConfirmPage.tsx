@@ -1,13 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import Header from "../components/Header.tsx";
+import Header from "../components/Header.tsx"
+import RegistrationButton from '../components/RegistrationButton'
 
 const CameraConfirmPage: React.FC = () => {
     const navigate = useNavigate()
     const [capturedImage, setCapturedImage] = useState<string>('')
     const [showLunchModal, setShowLunchModal] = useState(false)
-    const [showConfirmationModal, setShowConfirmationModal] = useState(false)
-    const confirmationTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
     // 컴포넌트가 마운트될 때 저장된 이미지 불러오기
     useEffect(() => {
@@ -41,7 +40,6 @@ const CameraConfirmPage: React.FC = () => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === 'Escape') {
                 setShowLunchModal(false)
-                setShowConfirmationModal(false)
                 document.body.style.overflow = 'auto'
             }
         }
@@ -49,9 +47,6 @@ const CameraConfirmPage: React.FC = () => {
         document.addEventListener('keydown', handleKeyDown)
         return () => {
             document.removeEventListener('keydown', handleKeyDown)
-            if (confirmationTimeoutRef.current) {
-                clearTimeout(confirmationTimeoutRef.current)
-            }
         }
     }, [])
 
@@ -121,31 +116,33 @@ const CameraConfirmPage: React.FC = () => {
 
     // 등록 버튼 클릭
     const handleRegister = () => {
+        // 사용자 데이터 준비
+        const userName = localStorage.getItem("name") || "익명 사용자"
+        const userPhone = localStorage.getItem("phone") || ""
+        const studentData = {
+            name: userName,
+            className: '1-1반', // 실제로는 사용자 정보에서 가져와야 함
+            profileImage: '/assets/images/man.png' // 실제로는 성별이나 사용자 정보에 따라 결정
+        }
+        
+        const mealType = isLunchTime() ? 'lunch' : 'outside'
+        const brushingDuration = 120 // 실제로는 양치 시간 측정 결과
+        
         if (!isLunchTime()) {
             setShowLunchModal(true)
             document.body.style.overflow = 'hidden'
         } else {
-            // 점심시간이면 바로 등록
-            showRegistrationComplete()
+            // 점심시간이면 바로 등록 완료 페이지로 이동
+            navigate('/registration-complete', {
+                state: {
+                    name: studentData.name,
+                    className: studentData.className,
+                    profileImage: studentData.profileImage,
+                    mealType,
+                    brushingDuration
+                }
+            })
         }
-    }
-
-    // 등록 완료 모달 표시
-    const showRegistrationComplete = () => {
-        // 이미지 다운로드 먼저 실행
-        downloadImage()
-        
-        setShowLunchModal(false)
-        setShowConfirmationModal(true)
-        document.body.style.overflow = 'hidden'
-
-        // 3초 후 자동으로 모달 닫기
-        confirmationTimeoutRef.current = setTimeout(() => {
-            setShowConfirmationModal(false)
-            document.body.style.overflow = 'auto'
-            // 홈으로 이동
-            navigate('/')
-        }, 3000)
     }
 
     // 점심시간 모달 - 아니요 클릭
@@ -156,7 +153,22 @@ const CameraConfirmPage: React.FC = () => {
 
     // 점심시간 모달 - 등록 클릭
     const handleLunchModalRegister = () => {
-        showRegistrationComplete()
+        const userName = localStorage.getItem("name") || "익명 사용자"
+        const studentData = {
+            name: userName,
+            className: '1-1반',
+            profileImage: '/assets/images/man.png'
+        }
+        
+        navigate('/registration-complete', {
+            state: {
+                name: studentData.name,
+                className: studentData.className,
+                profileImage: studentData.profileImage,
+                mealType: 'outside', // 점심시간이 아니므로 외부식사로 분류
+                brushingDuration: 120
+            }
+        })
     }
 
     // 점심시간 모달 닫기
@@ -164,17 +176,6 @@ const CameraConfirmPage: React.FC = () => {
         if (event.target === event.currentTarget) {
             setShowLunchModal(false)
             document.body.style.overflow = 'auto'
-        }
-    }
-
-    // 확인 모달 닫기
-    const closeConfirmationModal = (event: React.MouseEvent) => {
-        if (event.target === event.currentTarget) {
-            setShowConfirmationModal(false)
-            document.body.style.overflow = 'auto'
-            if (confirmationTimeoutRef.current) {
-                clearTimeout(confirmationTimeoutRef.current)
-            }
         }
     }
 
@@ -713,21 +714,6 @@ const CameraConfirmPage: React.FC = () => {
                                 등록
                             </button>
                         </div>
-                    </div>
-                </div>
-            )}
-
-            {/* 양치 인증 완료 모달 */}
-            {showConfirmationModal && (
-                <div className="confirmation-modal" onClick={closeConfirmationModal}>
-                    <div className="confirmation-container">
-                        <div className="confirmation-background"></div>
-
-                        <div className="tick-icon">
-                            <img src="/public/assets/icon/ticktick.svg" alt="완료" />
-                        </div>
-
-                        <div className="confirmation-text">양치 인증 완료!</div>
                     </div>
                 </div>
             )}

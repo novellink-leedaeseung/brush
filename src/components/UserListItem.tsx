@@ -8,6 +8,7 @@ interface UserListItemProps {
   profileImage: string
   mealType: 'lunch' | 'outside'
   isLast?: boolean
+  isCurrentUser?: boolean
 }
 
 const UserListItem: React.FC<UserListItemProps> = ({
@@ -17,147 +18,99 @@ const UserListItem: React.FC<UserListItemProps> = ({
   time,
   profileImage,
   mealType,
-  isLast = false
+  isLast = false,
+  isCurrentUser = false
 }) => {
-  const mealTypeStyle = mealType === 'lunch' 
-    ? { background: '#B2D7FF', color: '#227EFF', text: '점심' }
-    : { background: '#FEEAE2', color: '#E5621C', text: '외' }
-
   return (
     <div style={{
       width: '1080px',
-      height: '150px',
+      height: '140px',
       position: 'relative',
-      overflow: 'hidden',
-      borderBottom: isLast ? '0.50px #F3F4F6 solid' : 'none',
-      outline: isLast ? '0.50px #F3F4F6 solid' : 'none',
-      outlineOffset: isLast ? '-0.50px' : 'none'
+      background: isCurrentUser ? 'linear-gradient(90deg, #F0FDF4 0%, #DCFCE7 100%)' : 'white',
+      borderBottom: isLast ? 'none' : '0.50px #B4B4B5 solid',
+      display: 'flex',
+      alignItems: 'center',
+      paddingLeft: '60px',
+      paddingRight: '60px',
+      boxSizing: 'border-box'
     }}>
-      {/* 랭킹 번호 */}
+      {/* 순위 */}
       <div style={{
-        left: '52px',
-        top: '47px',
-        position: 'absolute',
-        justifyContent: 'center',
-        display: 'flex',
-        flexDirection: 'column',
-        color: '#111111',
-        fontSize: '32px',
-        fontFamily: 'Inter',
-        fontWeight: 600,
-        lineHeight: '56px',
-        wordWrap: 'break-word'
+        width: '80px',
+        textAlign: 'center',
+        color: isCurrentUser ? '#16A34A' : '#111111',
+        fontSize: '48px',
+        fontFamily: 'Pretendard',
+        fontWeight: isCurrentUser ? 700 : 600,
+        lineHeight: '56px'
       }}>
         {rank}
+        {isCurrentUser && <span style={{ fontSize: '24px', marginLeft: '8px' }}>👑</span>}
       </div>
 
       {/* 프로필 이미지 */}
-      <img style={{
-        width: '86px',
-        height: '86px',
-        left: rank === 4 ? '106px' : '105px',
-        top: '32px',
-        position: 'absolute',
-        borderRadius: '999px'
-      }} src={profileImage} alt={name} />
+      <img
+        style={{
+          width: '100px',
+          height: '100px',
+          borderRadius: '50px',
+          border: isCurrentUser ? '3px #22C55E solid' : '2px #E5E5E5 solid',
+          marginLeft: '40px',
+          marginRight: '40px'
+        }}
+        src={profileImage}
+        alt={name}
+      />
 
-      {/* 사용자 정보 */}
+      {/* 이름과 반 */}
       <div style={{
-        width: '110px',
-        left: '224px',
-        top: '32px',
-        position: 'absolute',
-        background: 'white',
-        overflow: 'hidden',
+        flex: 1,
+        display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        display: 'inline-flex'
+        justifyContent: 'center'
       }}>
         <div style={{
-          alignSelf: 'stretch',
-          height: '43px',
-          textAlign: 'center',
-          justifyContent: 'center',
-          display: 'flex',
-          flexDirection: 'column',
-          color: '#111111',
-          fontSize: '32px',
+          color: isCurrentUser ? '#16A34A' : '#111111',
+          fontSize: '36px',
           fontFamily: 'Pretendard',
-          fontWeight: 600,
-          lineHeight: '56px',
-          wordWrap: 'break-word'
+          fontWeight: isCurrentUser ? 700 : 600,
+          lineHeight: '42px'
         }}>
-          {name}
-        </div>
-        <div style={{
-          alignSelf: 'stretch',
-          height: '43px',
-          textAlign: 'center',
-          justifyContent: 'center',
-          display: 'flex',
-          flexDirection: 'column',
-          color: '#4C4948',
-          fontSize: '32px',
-          fontFamily: 'Pretendard',
-          fontWeight: 400,
-          lineHeight: '56px',
-          wordWrap: 'break-word'
-        }}>
-          {className}
-        </div>
-      </div>
-
-      {/* 식사 태그 */}
-      <div style={{
-        width: '80px',
-        height: '50px',
-        left: '366px',
-        top: '50px',
-        position: 'absolute',
-        background: mealTypeStyle.background,
-        borderRadius: '16px',
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: '10px',
-        display: 'inline-flex'
-      }}>
-        <div style={{
-          width: '35px',
-          height: '18px',
-          justifyContent: 'center',
-          display: 'flex',
-          flexDirection: 'column',
-          color: mealTypeStyle.color,
-          fontSize: '20px',
-          fontFamily: 'Pretendard',
-          fontWeight: 600,
-          lineHeight: '6px',
-          wordWrap: 'break-word'
-        }}>
-          {mealTypeStyle.text}
+          {className} {name}
         </div>
       </div>
 
       {/* 시간 */}
       <div style={{
-        width: '218px',
-        height: '44px',
-        left: '830px',
-        top: '53px',
-        position: 'absolute',
-        textAlign: 'right',
-        justifyContent: 'center',
-        display: 'flex',
-        flexDirection: 'column',
-        color: '#4C4948',
+        color: isCurrentUser ? '#16A34A' : '#4C4948',
         fontSize: '32px',
         fontFamily: 'Pretendard',
-        fontWeight: 400,
+        fontWeight: isCurrentUser ? 600 : 400,
         lineHeight: '56px',
-        wordWrap: 'break-word'
+        marginRight: '40px'
       }}>
         {time}
+      </div>
+
+      {/* 식사 태그 */}
+      <div style={{
+        width: '50px',
+        height: '40px',
+        background: '#B2D7FF',
+        borderRadius: '8px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <div style={{
+          color: '#227EFF',
+          fontSize: '16px',
+          fontFamily: 'Pretendard',
+          fontWeight: 600,
+          textAlign: 'center'
+        }}>
+          {mealType === 'lunch' ? '점심' : '외'}
+        </div>
       </div>
     </div>
   )
