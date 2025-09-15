@@ -18,22 +18,23 @@ const CameraPage: React.FC = () => {
         <div style={{
             width: '1080px',
             height: '1920px',
-            background: 'linear-gradient(180deg, #FFFFFF 0%, #D4E1F3 100%)',
-            position: 'relative'
+            background: 'linear-gradient(180deg, #FFFFFF 0%, #D4E1F3 100%)'
         }}>
             {/* 헤더 */}
             <Header/>
 
+            {/* 카메라 컴포넌트 */}
+            <CameraCapture onCapture={handleCapture}/>
+
             {/* 카메라 영역 텍스트 */}
             <div style={{
-                position: 'absolute',
-                left: '305px',
-                top: '784px',
                 width: '469px',
                 height: '116px',
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
+                marginLeft: '305px',
+                marginTop: '-650px',
                 zIndex: 10
             }}>
                 <span style={{
@@ -49,9 +50,6 @@ const CameraPage: React.FC = () => {
                 </span>
             </div>
 
-            {/* 카메라 컴포넌트 */}
-            <CameraCapture onCapture={handleCapture}/>
-
             {/* 카메라 버튼 */}
             <div 
                 onClick={() => {
@@ -60,9 +58,6 @@ const CameraPage: React.FC = () => {
                     window.dispatchEvent(event);
                 }}
                 style={{
-                    position: 'absolute',
-                    left: '415px',
-                    top: '1618px',
                     width: '250px',
                     height: '250px',
                     background: '#004F99',
@@ -73,6 +68,8 @@ const CameraPage: React.FC = () => {
                     justifyContent: 'center',
                     alignItems: 'center',
                     cursor: 'pointer',
+                    marginLeft: '415px',
+                    marginTop: '100px',
                     zIndex: 20
                 }}
             >

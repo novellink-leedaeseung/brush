@@ -227,13 +227,12 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
 
     return (
         <div style={{
-            position: 'absolute',
-            left: '141px',
-            top: '149px',
             width: '798px',
             height: '1418px',
             backgroundColor: '#000',
-            overflow: 'hidden'
+            overflow: 'hidden',
+            marginLeft: '141px',
+            marginTop: '0px'
         }}>
             {/* 로딩 및 에러 메시지 */}
             {isLoading && (
