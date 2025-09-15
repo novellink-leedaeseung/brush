@@ -1,9 +1,10 @@
 import {getAuthUser, getKioskAuth} from "../api/ApiAxios.ts";
+import type {AuthUserResponse} from "@/api/Response.ts";
 
 // 서버 조회
 // 1. 키오스크 토큰 가져오기
 // 2. inputField에 전화번호로 조회하기
-export function findUser(inputField: string) {
+export function findUser(inputField: string) : AuthUserResponse | null {
     localStorage.clear();
     // 핸드폰, 회원 아이디 구분
     let type = "PHONE";
@@ -20,6 +21,10 @@ export function findUser(inputField: string) {
         })
         .then(res => {
             console.log('사용자 인증 결과:', res);
+
+            if(res.resultData.username === "")
+                return;
+
             // 여기서 인증 성공 후 처리
             localStorage.setItem("name", res.resultData.username);
             localStorage.setItem("gender", res.resultData.gender);
@@ -29,5 +34,7 @@ export function findUser(inputField: string) {
             console.error('에러 발생:', error);
             // 에러 처리
         });
+
+    return null;
 
 }

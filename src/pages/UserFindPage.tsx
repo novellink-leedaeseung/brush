@@ -66,10 +66,14 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
         if (inputNumber.trim()) {
             console.log('입력된 번호:', inputNumber);
             // API 호출 로직 추가
-            findUser(inputNumber)
-            setTimeout(() => {
+            let getUser = findUser(inputNumber);
+            // 사용자 이름을 가져오지 못할 경우 에러창
+
+            if(getUser != null) {
+             setTimeout(() => {
                 navigate("/kiosk/user-confirm")
             }, 1000);
+            }
 
         }
     };
@@ -271,6 +275,7 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
           확인
         </span>
             </div>
+
 
             {/* 바코드/QR코드 영역 */}
             <div
