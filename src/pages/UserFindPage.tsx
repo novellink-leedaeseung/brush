@@ -58,12 +58,8 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
     return (
 
         <div
-            id="app-viewport"
             style={{
-                width: '1080px',
-                height: '1920px',
-                margin: '0 auto',
-                fontFamily: 'Pretendard, system-ui, -apple-system, "Noto Sans KR", sans-serif'
+                width: '1080px', height: '1920px', backgroundColor: 'white'
             }}
         >
             {/* 기존 헤더 코드를 Header 컴포넌트로 교체 */}

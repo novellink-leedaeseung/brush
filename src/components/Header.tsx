@@ -63,18 +63,18 @@ const Header: React.FC<HeaderProps> = ({
         <div className={className} style={defaultStyle}>
             {/* 로고 */}
             <div style={{
-                width: '177px',
+                width: '220px',
                 height: '130px',
-                marginLeft: '32px',
                 marginTop: '10px',
+                marginLeft:'10px',
             }
             }>
                 <img
                     src={logoSrc}
-                    width="220"
+                    width="177"
                     height="130"
                     alt="로고"
-                    style={{flexShrink: 0, marginLeft: '22px'}}
+                    style={{flexShrink: 0,marginLeft: '22px'}}
                 /></div>
 
             {/* 중앙 타이틀 */}
@@ -93,7 +93,10 @@ const Header: React.FC<HeaderProps> = ({
                         marginLeft: '100px',
                     }}
                 >
-                    {title}
+                    <div style={{
+                        width: '600px',
+                        height: "70px",
+                    }}>{title}</div>
                 </div>
             </div>
 
