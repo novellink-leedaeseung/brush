@@ -12,6 +12,19 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
     const navigate = useNavigate();
     const [inputNumber, setInputNumber] = useState<string>('');
 
+    // 핸드폰번호 마스킹 함수 (오른쪽부터 마스킹, 중간 번호는 보이게)
+    const maskPhoneNumber = (number: string): string => {
+        if (number.length <= 7) {
+            return number; // 7자리 이하면 그대로 표시
+        }
+        
+        // 11자리 핸드폰 번호의 경우: 010-1234-5678 형태로 가정
+        // 처음 7자리는 보여주고 뒤 4자리만 마스킹
+        const visiblePart = number.slice(0, 7); // 010-1234 부분
+        const maskedPart = '*'.repeat(number.length - 7); // 뒤 4자리를 *로
+        return visiblePart + maskedPart;
+    };
+
     // 키패드 입력 처리
     const handlePress = (value: number | string) => {
         if (typeof value === 'number') {
@@ -115,7 +128,7 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                         lineHeight: '56px'
                     }}
                 >
-                    {inputNumber === '' ? '사용자 번호 또는 휴대폰 번호' : inputNumber}
+                    {inputNumber === '' ? '사용자 번호 또는 휴대폰 번호' : maskPhoneNumber(inputNumber)}
                 </div>
             </div>
 
