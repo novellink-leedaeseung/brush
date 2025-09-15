@@ -11,6 +11,163 @@ interface UserFindPageProps {
 const UserFindPage: React.FC<UserFindPageProps> = () => {
     const navigate = useNavigate();
     const [inputNumber, setInputNumber] = useState<string>('');
+    const [showNotificationModal, setShowNotificationModal] = useState<boolean>(false);
+
+    // 알림창 닫기 함수
+    const closeNotificationModal = () => {
+        setShowNotificationModal(false);
+        // 키패드 화면으로 이동 (현재 화면 유지이므로 특별한 처리 없음)
+    };
+
+    // 알림창 컴포넌트
+    const NotificationModal = ({ isVisible, onClose }: { isVisible: boolean; onClose: () => void }) => {
+        if (!isVisible) return null;
+
+        return (
+            <div style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                width: '100vw',
+                height: '100vh',
+                backgroundColor: 'rgba(49, 49, 49, 0.6)',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                zIndex: 1000
+            }}>
+                <div style={{
+                    width: '932px',
+                    height: '675px',
+                    background: '#FFFFFF',
+                    borderRadius: '50px',
+                    boxShadow: '2px 2px 2px 0px rgba(0, 79, 153, 0.09)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '60px 66px 50px 66px',
+                    boxSizing: 'border-box'
+                }}>
+                    <div style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        flex: '1',
+                        justifyContent: 'center'
+                    }}>
+                        <div style={{
+                            width: '130px',
+                            height: '130px',
+                            background: '#D8211E',
+                            borderRadius: '50%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            marginBottom: '20px'
+                        }}>
+                            <div style={{
+                                color: '#FFFFFF',
+                                fontSize: '80px',
+                                fontWeight: 'bold',
+                                fontFamily: 'Arial, sans-serif'
+                            }}>
+                                !
+                            </div>
+                        </div>
+
+                        <div style={{
+                            width: '714px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            marginBottom: '18px'
+                        }}>
+                            <span style={{
+                                fontFamily: 'Pretendard, Arial, sans-serif',
+                                fontWeight: '700',
+                                fontSize: '38px',
+                                lineHeight: '1.4em',
+                                letterSpacing: '-2.5%',
+                                textAlign: 'center',
+                                color: '#4B4948'
+                            }}>
+                                일치하는 회원 정보가 없습니다.
+                            </span>
+                        </div>
+
+                        <div style={{
+                            width: '560px',
+                            height: '80px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            marginBottom: '40px'
+                        }}>
+                            <span style={{
+                                fontFamily: 'Jalnan 2, Arial, sans-serif',
+                                fontWeight: '400',
+                                fontSize: '74px',
+                                lineHeight: '0.76em',
+                                letterSpacing: '-2.5%',
+                                textAlign: 'center',
+                                color: '#004F99'
+                            }}>
+                                1224
+                            </span>
+                        </div>
+
+                        <div style={{
+                            width: '800px',
+                            height: '70px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}>
+                            <span style={{
+                                fontFamily: 'Pretendard, Arial, sans-serif',
+                                fontWeight: '700',
+                                fontSize: '44px',
+                                lineHeight: '1.4em',
+                                letterSpacing: '-2.5%',
+                                textAlign: 'center',
+                                color: '#111111'
+                            }}>
+                                보건실에서 보건선생님의 도움을 받아 주세요.
+                            </span>
+                        </div>
+                    </div>
+
+                    <div 
+                        onClick={onClose}
+                        style={{
+                            width: '630px',
+                            height: '120px',
+                            background: '#004F99',
+                            borderRadius: '16px',
+                            boxShadow: '0px 4px 2px rgba(0, 0, 0, 0.09)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            flexShrink: 0
+                        }}
+                    >
+                        <span style={{
+                            fontFamily: 'Pretendard, Arial, sans-serif',
+                            fontWeight: '600',
+                            fontSize: '44px',
+                            lineHeight: '1.27em',
+                            textAlign: 'center',
+                            color: '#FFFFFF'
+                        }}>
+                            확인
+                        </span>
+                    </div>
+                </div>
+            </div>
+        );
+    };
 
     // 핸드폰번호 마스킹 함수 (010 입력 즉시 하이픈 추가, 오른쪽부터 마스킹)
     const maskPhoneNumber = (number: string): string => {
@@ -62,19 +219,27 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
     };
 
     // 확인 버튼 클릭 처리
-    const handleConfirm = () => {
+    const handleConfirm = async () => {
         if (inputNumber.trim()) {
             console.log('입력된 번호:', inputNumber);
-            // API 호출 로직 추가
-            let getUser = findUser(inputNumber);
-            // 사용자 이름을 가져오지 못할 경우 에러창
-
-            if(getUser != null) {
-             setTimeout(() => {
-                navigate("/kiosk/user-confirm")
-            }, 1000);
+            try {
+                // API 호출 로직 추가
+                let getUser = await findUser(inputNumber);
+                
+                // 사용자 이름을 가져오지 못할 경우 에러창
+                if(getUser != null) {
+                    setTimeout(() => {
+                        navigate("/kiosk/user-confirm");
+                    }, 1000);
+                } else {
+                    // 알림창 표시
+                    setShowNotificationModal(true);
+                }
+            } catch (error) {
+                console.error('사용자 조회 실패:', error);
+                // 알림창 표시
+                setShowNotificationModal(true);
             }
-
         }
     };
 
@@ -314,6 +479,12 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                     바코드 / QR 코드 대는 곳
                 </div>
             </div>
+
+            {/* 알림창 */}
+            <NotificationModal 
+                isVisible={showNotificationModal} 
+                onClose={closeNotificationModal} 
+            />
         </div>
     );
 };
