@@ -23,7 +23,9 @@ const HomePage: React.FC = () => {
             <Header />
 
             {/* 녹색 섹션 (현재는 빈 공간) */}
-            <div style={{ width: '1080px', height: '608px', background: '#22C55E' }}></div>
+            <div style={{ width: '1080px', height: '608px'}}>
+                <img src="/public/assets/images/home-image.png" alt=""/>
+            </div>
 
             {/* 랭킹 섹션 - 이제 1~5등까지 모두 포함 */}
             <RankingSection />
