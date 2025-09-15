@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useRanking } from '../contexts/RankingContext'
 import Header from '../components/Header'
 
 const TestRegistrationPage: React.FC = () => {
   const navigate = useNavigate()
+  const { clearAllRecords } = useRanking()
   const [formData, setFormData] = useState({
     name: '김테스트',
     className: '2-3반',
@@ -217,6 +219,46 @@ const TestRegistrationPage: React.FC = () => {
               </button>
             ))}
           </div>
+        </div>
+
+        {/* 데이터 관리 */}
+        <div style={{
+          background: '#FEF2F2',
+          padding: '40px',
+          borderRadius: '20px',
+          marginBottom: '40px'
+        }}>
+          <div style={{
+            fontSize: '36px',
+            fontFamily: 'Pretendard',
+            fontWeight: 600,
+            marginBottom: '30px',
+            color: '#DC2626'
+          }}>
+            데이터 관리
+          </div>
+
+          <button
+            onClick={() => {
+              if (window.confirm('모든 랭킹 데이터를 초기화하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+                clearAllRecords()
+                alert('랭킹 데이터가 초기화되었습니다.')
+              }
+            }}
+            style={{
+              width: '300px',
+              height: '80px',
+              backgroundColor: '#DC2626',
+              color: 'white',
+              border: 'none',
+              borderRadius: '15px',
+              fontSize: '28px',
+              fontWeight: 600,
+              cursor: 'pointer'
+            }}
+          >
+            전체 데이터 초기화
+          </button>
         </div>
 
         {/* 홈으로 돌아가기 */}

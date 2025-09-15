@@ -3,7 +3,93 @@ import { useRanking } from '../contexts/RankingContext'
 import UserListItem from './UserListItem'
 
 const RankingSection: React.FC = () => {
-  const { rankedUsers, currentUserRank, getCurrentUserRecord } = useRanking()
+  const { rankedUsers, currentUserRank, getCurrentUserRecord, isLoading } = useRanking()
+  
+  console.log('🔄 RankingSection 렌더링:', {
+    isLoading,
+    rankedUsersCount: rankedUsers.length,
+    currentUserRank
+  })
+  
+  // 로딩 중일 때
+  if (isLoading) {
+    return (
+      <div style={{
+        width: '1080px',
+        height: '800px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'column',
+        gap: '20px',
+        backgroundColor: 'white'
+      }}>
+        <div style={{
+          width: '80px',
+          height: '80px',
+          border: '8px solid #E5E7EB',
+          borderTop: '8px solid #22C55E',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite'
+        }} />
+        <div style={{
+          fontSize: '36px',
+          fontFamily: 'Pretendard',
+          fontWeight: 500,
+          color: '#6B7280'
+        }}>
+          랭킹 데이터를 불러오는 중...
+        </div>
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    )
+  }
+  
+  // 데이터가 없을 때
+  if (!rankedUsers || rankedUsers.length === 0) {
+    return (
+      <div style={{
+        width: '1080px',
+        height: '800px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'column',
+        gap: '20px',
+        backgroundColor: 'white'
+      }}>
+        <div style={{
+          fontSize: '48px',
+          marginBottom: '20px'
+        }}>
+          📊
+        </div>
+        <div style={{
+          fontSize: '36px',
+          fontFamily: 'Pretendard',
+          fontWeight: 600,
+          color: '#111111',
+          textAlign: 'center'
+        }}>
+          아직 등록된 기록이 없습니다
+        </div>
+        <div style={{
+          fontSize: '28px',
+          fontFamily: 'Pretendard',
+          fontWeight: 400,
+          color: '#6B7280',
+          textAlign: 'center'
+        }}>
+          첫 번째 양치왕이 되어보세요!
+        </div>
+      </div>
+    )
+  }
   
   // 상위 3명과 나머지 분리
   const topThree = rankedUsers.slice(0, 3)

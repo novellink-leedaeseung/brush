@@ -17,6 +17,7 @@ const RegistrationCompletePage: React.FC = () => {
   const { addRecord, getCurrentUserRecord, currentUserRank } = useRanking()
   const [countdown, setCountdown] = useState(5)
   const [isRegistered, setIsRegistered] = useState(false)
+  const [isNavigating, setIsNavigating] = useState(false)
   
   // URL에서 등록 데이터 가져오기 (실제로는 이전 페이지에서 전달받음)
   const registrationData: RegistrationData = location.state || {
@@ -27,8 +28,18 @@ const RegistrationCompletePage: React.FC = () => {
     brushingDuration: 120
   }
 
+  console.log('📝 RegistrationCompletePage 렌더링:', {
+    registrationData,
+    isRegistered,
+    currentUserRank,
+    countdown
+  })
+
+  // 등록 처리
   useEffect(() => {
     if (!isRegistered) {
+      console.log('➕ 양치 기록 등록 시작:', registrationData)
+      
       // 양치 기록 등록
       addRecord({
         name: registrationData.name,
@@ -38,22 +49,47 @@ const RegistrationCompletePage: React.FC = () => {
         mealType: registrationData.mealType,
         duration: registrationData.brushingDuration
       })
+      
       setIsRegistered(true)
+      console.log('✅ 양치 기록 등록 완료')
     }
+  }, [addRecord, registrationData, isRegistered])
 
-    // 5초 카운트다운 후 홈으로 이동
+  // 카운트다운 타이머
+  useEffect(() => {
+    if (!isRegistered || isNavigating) return
+
     const timer = setInterval(() => {
       setCountdown(prev => {
+        console.log('⏰ 카운트다운:', prev - 1)
+        
         if (prev <= 1) {
-          navigate('/', { replace: true })
+          console.log('🏠 홈으로 자동 이동')
+          setIsNavigating(true)
+          
+          // replace: true를 사용하여 히스토리 스택에서 현재 페이지 제거
+          setTimeout(() => {
+            navigate('/', { replace: true })
+          }, 100)
+          
           return 0
         }
         return prev - 1
       })
     }, 1000)
 
-    return () => clearInterval(timer)
-  }, [addRecord, navigate, registrationData, isRegistered])
+    return () => {
+      clearInterval(timer)
+    }
+  }, [navigate, isRegistered, isNavigating])
+
+  const handleGoHome = () => {
+    if (isNavigating) return
+    
+    console.log('🏠 수동으로 홈으로 이동')
+    setIsNavigating(true)
+    navigate('/', { replace: true })
+  }
 
   const currentUser = getCurrentUserRecord()
   const now = new Date()
@@ -80,6 +116,45 @@ const RegistrationCompletePage: React.FC = () => {
     if (currentUserRank <= 3) return '훌륭합니다! 상위권에 진입했어요!'
     if (currentUserRank <= 10) return '좋은 기록이에요! 계속 도전하세요!'
     return '양치 완료! 내일은 더 빨리 도전해보세요!'
+  }
+
+  // 네비게이션 중일 때 로딩 표시
+  if (isNavigating) {
+    return (
+      <div style={{ 
+        width: '1080px', 
+        height: '1920px', 
+        backgroundColor: 'white',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'column',
+        gap: '30px'
+      }}>
+        <div style={{
+          width: '100px',
+          height: '100px',
+          border: '10px solid #E5E7EB',
+          borderTop: '10px solid #22C55E',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite'
+        }} />
+        <div style={{
+          fontSize: '42px',
+          fontFamily: 'Pretendard',
+          fontWeight: 600,
+          color: '#6B7280'
+        }}>
+          홈으로 이동 중...
+        </div>
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    )
   }
 
   return (
@@ -222,9 +297,12 @@ const RegistrationCompletePage: React.FC = () => {
             {countdown}초 후 메인 화면으로 이동합니다
           </div>
           <button
-            onClick={() => navigate('/', { replace: true })}
+            onClick={handleGoHome}
+            disabled={isNavigating}
             style={{
-              background: 'linear-gradient(135deg, #22C55E 0%, #16A34A 100%)',
+              background: isNavigating 
+                ? 'linear-gradient(135deg, #9CA3AF 0%, #6B7280 100%)'
+                : 'linear-gradient(135deg, #22C55E 0%, #16A34A 100%)',
               border: 'none',
               borderRadius: '20px',
               padding: '20px 60px',
@@ -232,20 +310,27 @@ const RegistrationCompletePage: React.FC = () => {
               fontSize: '36px',
               fontFamily: 'Pretendard',
               fontWeight: 600,
-              cursor: 'pointer',
-              transition: 'all 0.3s ease'
+              cursor: isNavigating ? 'not-allowed' : 'pointer',
+              transition: 'all 0.3s ease',
+              opacity: isNavigating ? 0.7 : 1
             }}
             onMouseDown={(e) => {
-              e.currentTarget.style.transform = 'scale(0.95)'
+              if (!isNavigating) {
+                e.currentTarget.style.transform = 'scale(0.95)'
+              }
             }}
             onMouseUp={(e) => {
-              e.currentTarget.style.transform = 'scale(1)'
+              if (!isNavigating) {
+                e.currentTarget.style.transform = 'scale(1)'
+              }
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'scale(1)'
+              if (!isNavigating) {
+                e.currentTarget.style.transform = 'scale(1)'
+              }
             }}
           >
-            지금 확인하기
+            {isNavigating ? '이동 중...' : '지금 확인하기'}
           </button>
         </div>
       </div>
