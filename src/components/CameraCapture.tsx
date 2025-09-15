@@ -10,8 +10,8 @@ interface CameraCaptureProps {
 const CameraCapture: React.FC<CameraCaptureProps> = ({
                                                          onCapture,
                                                          overlayImages = [
-                                                             "/public/assets/images/image01.png",
-                                                             "/public/assets/images/image02.png"
+                                                             "/assets/images/image01.png",
+                                                             "/assets/images/image02.png"
                                                          ],
                                                          outputWidth = 798,
                                                          outputHeight = 1418
@@ -232,7 +232,8 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
             backgroundColor: '#000',
             overflow: 'hidden',
             marginLeft: '141px',
-            marginTop: '0px'
+            marginTop: '0px',
+            position: 'relative'
         }}>
             {/* 로딩 및 에러 메시지 */}
             {isLoading && (
@@ -285,14 +286,94 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
                 playsInline
             />
 
-            {/* 오버레이 이미지 (숨겨진 상태로 로드) */}
+            {/* 오버레이 이미지 (비디오 위에 표시) */}
             <img
                 ref={overlayRef}
                 src={overlayImages[currentOverlayIndex]}
-                style={{ display: 'none' }}
+                style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    // opacity: 0.7,
+                    pointerEvents: 'none',
+                    zIndex: 5
+                }}
                 alt="overlay"
                 onLoad={() => console.log('Overlay loaded:', overlayImages[currentOverlayIndex])}
                 onError={() => console.warn('Overlay failed to load:', overlayImages[currentOverlayIndex])}
+            />
+
+            {/* 오버레이 전환 버튼들 */}
+            <div style={{
+                position: 'absolute',
+                bottom: '20px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                display: 'flex',
+                gap: '10px',
+                zIndex: 10
+            }}>
+                <button
+                    onClick={previousOverlay}
+                    style={{
+                        width: '60px',
+                        height: '60px',
+                        borderRadius: '50%',
+                        border: '2px solid white',
+                        background: 'rgba(0, 0, 0, 0.5)',
+                        color: 'white',
+                        fontSize: '24px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }}
+                >
+                    ←
+                </button>
+                <button
+                    onClick={nextOverlay}
+                    style={{
+                        width: '60px',
+                        height: '60px',
+                        borderRadius: '50%',
+                        border: '2px solid white',
+                        background: 'rgba(0, 0, 0, 0.5)',
+                        color: 'white',
+                        fontSize: '24px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }}
+                >
+                    →
+                </button>
+            </div>
+
+            {/* 오버레이 인디케이터 */}
+            <div style={{
+                position: 'absolute',
+                top: '20px',
+                right: '20px',
+                background: 'rgba(0, 0, 0, 0.5)',
+                color: 'white',
+                padding: '10px 15px',
+                borderRadius: '20px',
+                fontSize: '16px',
+                fontFamily: 'Pretendard',
+                zIndex: 10
+            }}>
+                {currentOverlayIndex + 1} / {overlayImages.length}
+            </div>
+
+            {/* 캔버스 (숨겨진 상태) */}
+            <canvas
+                ref={canvasRef}
+                style={{ display: 'none' }}
             />
         </div>
     )
