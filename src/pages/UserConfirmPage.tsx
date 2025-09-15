@@ -27,7 +27,10 @@ const UserConfirmPage: React.FC = () => {
     }
 
     return (
-        <div id="app-viewport">
+        <div style={{
+            width: '1080px', height: '1920px',
+            background: 'linear-gradient(180deg, white 0%, #D4E1F3 100%)'
+        }}>
             {/* 상단 헤더 */}
             {/* 기존 헤더 코드를 Header 컴포넌트로 교체 */}
             <Header/>
