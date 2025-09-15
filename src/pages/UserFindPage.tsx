@@ -59,7 +59,7 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
 
         <div
             style={{
-                width: '1080px', height: '1920px', backgroundColor: 'white'
+                width: '1080px', height: '1920px', background: 'linear-gradient(180deg, white 0%, #D4E1F3 100%)',
             }}
         >
             {/* 기존 헤더 코드를 Header 컴포넌트로 교체 */}
@@ -70,45 +70,24 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                 style={{
                     width: '900px',
                     height: '120px',
-                    marginLeft: '90px',
-                    marginTop: '160px'
+                    marginTop:'159px', marginLeft: '90px'
                 }}
             >
-                <p
-                    style={{
-                        width: '822px',
-                        height: '120px',
-                        margin: 0,
-                        textAlign: 'center',
-                        lineHeight: 1.3
-                    }}
-                >
-          <span style={{color: '#111111', fontSize: '46px', fontWeight: '700'}}>
-            사용자 번호
-          </span>
-                    <span style={{color: '#595757', fontSize: '40px', fontWeight: '400'}}>
-            {' '}또는{' '}
-          </span>
-                    <span style={{color: '#111111', fontSize: '46px', fontWeight: '700'}}>
-            휴대폰 번호
-          </span>
-                    <span style={{color: '#595757', fontSize: '40px', fontWeight: '400'}}>
-            를 입력해주시거나
-          </span>
-                    <br/>
-                    <span style={{color: '#111111', fontSize: '46px', fontWeight: '700'}}>
-            사용자 바코드
-          </span>
-                    <span style={{color: '#595757', fontSize: '40px', fontWeight: '400'}}>
-            {' '}또는{' '}
-          </span>
-                    <span style={{color: '#111111', fontSize: '46px', fontWeight: '700'}}>
-            QR코드
-          </span>
-                    <span style={{color: '#595757', fontSize: '40px', fontWeight: '400'}}>
-            를 리더기에 대주세요.
-          </span>
-                </p>
+                <div style={{width:'822px',height:'120px', marginLeft: '39px'}}>
+                    <span
+                    style={{color: '#111111', fontSize: 46, fontFamily: 'Pretendard', fontWeight: '700'}}>&nbsp; 사용자 번호</span><span
+                    style={{color: '#111111', fontSize: 40, fontFamily: 'Pretendard', fontWeight: '600'}}> </span><span
+                    style={{color: '#595757', fontSize: 40, fontFamily: 'Pretendard', fontWeight: '400'}}>또는</span><span
+                    style={{color: '#111111', fontSize: 40, fontFamily: 'Pretendard', fontWeight: '400'}}> </span><span
+                    style={{color: '#111111', fontSize: 46, fontFamily: 'Pretendard', fontWeight: '700'}}>휴대폰 번호</span><span
+                    style={{color: '#595757', fontSize: 40, fontFamily: 'Pretendard', fontWeight: '400'}}>를 입력해주시거나<br/></span><span
+                    style={{color: '#111111', fontSize: 46, fontFamily: 'Pretendard', fontWeight: '700'}}>사용자 바코드</span><span
+                    style={{color: '#111111', fontSize: 40, fontFamily: 'Pretendard', fontWeight: '600'}}> </span><span
+                    style={{color: '#595757', fontSize: 40, fontFamily: 'Pretendard', fontWeight: '400'}}>또는</span><span
+                    style={{color: '#111111', fontSize: 40, fontFamily: 'Pretendard', fontWeight: '600'}}> </span><span
+                    style={{color: '#111111', fontSize: 46, fontFamily: 'Pretendard', fontWeight: '700'}}>QR코드</span><span
+                    style={{color: '#595757', fontSize: 40, fontFamily: 'Pretendard', fontWeight: '400'}}>를 리더기에 대주세요.</span>
+                </div>
             </div>
 
             {/* 입력 필드 */}
