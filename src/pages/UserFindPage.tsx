@@ -264,16 +264,20 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
 
     // 키패드 버튼 스타일
     const keypadButtonStyle: React.CSSProperties = {
-        padding: 0,
-        width: '70px',
-        height: '70px',
+        width: '310px',
+        height: '140px',
         background: 'transparent',
         border: 'none',
-        fontSize: '60px',
-        fontWeight: '700',
-        color: '#111',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
         cursor: 'pointer',
-        lineHeight: '60px'
+        fontFamily: 'Pretendard, Arial, sans-serif',
+        fontWeight: '700',
+        fontSize: '60px',
+        lineHeight: '0.93em',
+        textAlign: 'center',
+        color: '#111111'
     };
 
     return (
@@ -358,91 +362,189 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
             {/* 키패드 */}
             <div
                 style={{
-                    width: '320px',
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(3, 1fr)',
-                    rowGap: '80px',
-                    columnGap: '256px',
-                    alignItems: 'center',
-                    justifyItems: 'center',
-                    marginLeft: '175px',
+                    width: '970px',
+                    height: '590px',
+                    marginLeft: '55px',
                     marginTop: '130px',
-                    marginRight: '175px'
+                    position: 'relative'
                 }}
             >
-                {/* 숫자 키패드 1-9 */}
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                {/* 첫 번째 줄: 1, 2, 3 */}
+                <div style={{
+                    position: 'absolute',
+                    top: '0px',
+                    left: '0px',
+                    display: 'flex',
+                    width: '100%',
+                    justifyContent: 'space-between'
+                }}>
                     <button
-                        key={num}
-                        onClick={() => handlePress(num)}
-                        aria-label={num.toString()}
+                        onClick={() => handlePress(1)}
+                        aria-label="1"
                         style={keypadButtonStyle}
                     >
-                        {num}
+                        1
                     </button>
-                ))}
+                    <button
+                        onClick={() => handlePress(2)}
+                        aria-label="2"
+                        style={keypadButtonStyle}
+                    >
+                        2
+                    </button>
+                    <button
+                        onClick={() => handlePress(3)}
+                        aria-label="3"
+                        style={keypadButtonStyle}
+                    >
+                        3
+                    </button>
+                </div>
 
-                {/* 전체삭제 */}
-                <button
-                    onClick={() => handlePress('clear')}
-                    aria-label="전체삭제"
-                    style={{
-                        justifySelf: 'start',
-                        width: '100px',
-                        height: '40px',
-                        background: 'transparent',
-                        border: 'none',
-                        fontSize: '16px',
-                        fontWeight: '600',
-                        color: '#111',
-                        cursor: 'pointer',
-                        lineHeight: '40px'
-                    }}
-                >
-                    전체삭제
-                </button>
+                {/* 두 번째 줄: 4, 5, 6 */}
+                <div style={{
+                    position: 'absolute',
+                    top: '150px',
+                    left: '0px',
+                    display: 'flex',
+                    width: '100%',
+                    justifyContent: 'space-between'
+                }}>
+                    <button
+                        onClick={() => handlePress(4)}
+                        aria-label="4"
+                        style={keypadButtonStyle}
+                    >
+                        4
+                    </button>
+                    <button
+                        onClick={() => handlePress(5)}
+                        aria-label="5"
+                        style={keypadButtonStyle}
+                    >
+                        5
+                    </button>
+                    <button
+                        onClick={() => handlePress(6)}
+                        aria-label="6"
+                        style={keypadButtonStyle}
+                    >
+                        6
+                    </button>
+                </div>
 
-                {/* 0 */}
-                <button
-                    onClick={() => handlePress(0)}
-                    aria-label="0"
-                    style={{
-                        width: '100px',
-                        height: '100px',
-                        background: 'transparent',
-                        border: 'none',
-                        fontSize: '60px',
-                        fontWeight: '600',
-                        color: '#111',
-                        cursor: 'pointer',
-                        lineHeight: '60px'
-                    }}
-                >
-                    0
-                </button>
+                {/* 세 번째 줄: 7, 8, 9 */}
+                <div style={{
+                    position: 'absolute',
+                    top: '300px',
+                    left: '0px',
+                    display: 'flex',
+                    width: '100%',
+                    justifyContent: 'space-between'
+                }}>
+                    <button
+                        onClick={() => handlePress(7)}
+                        aria-label="7"
+                        style={keypadButtonStyle}
+                    >
+                        7
+                    </button>
+                    <button
+                        onClick={() => handlePress(8)}
+                        aria-label="8"
+                        style={keypadButtonStyle}
+                    >
+                        8
+                    </button>
+                    <button
+                        onClick={() => handlePress(9)}
+                        aria-label="9"
+                        style={keypadButtonStyle}
+                    >
+                        9
+                    </button>
+                </div>
 
-                {/* 삭제 (X) */}
-                <button
-                    onClick={() => handlePress('backspace')}
-                    aria-label="삭제"
-                    style={{
-                        justifySelf: 'end',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        width: '56px',
-                        height: '32px',
-                        background: '#9FB4D2',
-                        border: 'none',
-                        borderRadius: '8px',
-                        color: '#fff',
-                        fontSize: '18px',
-                        fontWeight: '800',
-                        cursor: 'pointer'
-                    }}
-                >
-                    ×
-                </button>
+                {/* 네 번째 줄: 전체삭제, 0, 삭제 */}
+                <div style={{
+                    position: 'absolute',
+                    top: '450px',
+                    left: '0px',
+                    display: 'flex',
+                    width: '100%',
+                    justifyContent: 'space-between'
+                }}>
+                    <button
+                        onClick={() => handlePress('clear')}
+                        aria-label="전체삭제"
+                        style={{
+                            width: '310px',
+                            height: '140px',
+                            background: 'transparent',
+                            border: 'none',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            cursor: 'pointer',
+                            fontFamily: 'Pretendard, Arial, sans-serif',
+                            fontWeight: '700',
+                            fontSize: '38px',
+                            lineHeight: '1.47em',
+                            textAlign: 'center',
+                            color: '#111111'
+                        }}
+                    >
+                        전체삭제
+                    </button>
+                    <button
+                        onClick={() => handlePress(0)}
+                        aria-label="0"
+                        style={keypadButtonStyle}
+                    >
+                        0
+                    </button>
+                    <button
+                        onClick={() => handlePress('backspace')}
+                        aria-label="삭제"
+                        style={{
+                            width: '310px',
+                            height: '140px',
+                            background: 'transparent',
+                            border: 'none',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        {/* 삭제 버튼 배경 */}
+                        <div style={{
+                            width: '88.82px',
+                            height: '56px',
+                            background: '#8C9AB7',
+                            borderRadius: '8px',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center'
+                        }}>
+                            {/* X 아이콘 */}
+                            <div style={{
+                                width: '28.68px',
+                                height: '28.66px',
+                                background: '#FFFFFF',
+                                borderRadius: '50%',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                fontSize: '18px',
+                                fontWeight: '800',
+                                color: '#8C9AB7'
+                            }}>
+                                ×
+                            </div>
+                        </div>
+                    </button>
+                </div>
             </div>
 
             {/* 확인 버튼 */}
