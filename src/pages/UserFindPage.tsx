@@ -20,7 +20,7 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
     };
 
     // 알림창 컴포넌트
-    const NotificationModal = ({ isVisible, onClose }: { isVisible: boolean; onClose: () => void }) => {
+    const NotificationModal = ({isVisible, onClose}: { isVisible: boolean; onClose: () => void }) => {
         if (!isVisible) return null;
 
         return (
@@ -44,9 +44,8 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                     boxShadow: '2px 2px 2px 0px rgba(0, 79, 153, 0.09)',
                     display: 'flex',
                     flexDirection: 'column',
-                    alignItems: 'center',
+                    // alignItems: 'center',
                     justifyContent: 'space-between',
-                    padding: '60px 66px 50px 66px',
                     boxSizing: 'border-box'
                 }}>
                     <div style={{
@@ -59,21 +58,14 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                         <div style={{
                             width: '130px',
                             height: '130px',
-                            background: '#D8211E',
                             borderRadius: '50%',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                             marginBottom: '20px'
                         }}>
-                            <div style={{
-                                color: '#FFFFFF',
-                                fontSize: '80px',
-                                fontWeight: 'bold',
-                                fontFamily: 'Arial, sans-serif'
-                            }}>
-                                !
-                            </div>
+                            <img src="/public/assets/icon/warning.svg" alt=""/>
+
                         </div>
 
                         <div style={{
@@ -102,7 +94,7 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            marginBottom: '40px'
+                            marginBottom: '18px'
                         }}>
                             <span style={{
                                 fontFamily: 'Jalnan 2, Arial, sans-serif',
@@ -124,21 +116,43 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                             alignItems: 'center',
                             justifyContent: 'center'
                         }}>
-                            <span style={{
-                                fontFamily: 'Pretendard, Arial, sans-serif',
+                                <span
+                                    style={{
+                                        color: '#111111',
+                                        fontSize: 44,
+                                        fontFamily: 'Pretendard',
+                                        fontWeight: '500',
+                                        lineHeight: 61.60,
+                                        wordWrap: 'break-word'
+                                    }}>보건실에서</span><span
+                            style={{
+                                color: '#111111',
+                                fontSize: 44,
+                                fontFamily: 'Pretendard',
                                 fontWeight: '700',
-                                fontSize: '44px',
-                                lineHeight: '1.4em',
-                                letterSpacing: '-2.5%',
-                                textAlign: 'center',
-                                color: '#111111'
-                            }}>
-                                보건실에서 보건선생님의 도움을 받아 주세요.
-                            </span>
+                                lineHeight: 61.60,
+                                wordWrap: 'break-word'
+                            }}> </span><span
+                            style={{
+                                color: '#004F99',
+                                fontSize: 44,
+                                fontFamily: 'Pretendard',
+                                fontWeight: '700',
+                                lineHeight: 61.60,
+                                wordWrap: 'break-word'
+                            }}>&nbsp; 보건선생님의 도움</span><span
+                            style={{
+                                color: '#111111',
+                                fontSize: 44,
+                                fontFamily: 'Pretendard',
+                                fontWeight: '500',
+                                lineHeight: 61.60,
+                                wordWrap: 'break-word'
+                            }}>을 받아 주세요.</span>
                         </div>
                     </div>
 
-                    <div 
+                    <div
                         onClick={onClose}
                         style={{
                             width: '630px',
@@ -150,7 +164,9 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                             alignItems: 'center',
                             justifyContent: 'center',
                             cursor: 'pointer',
-                            flexShrink: 0
+                            flexShrink: 0,
+                            marginBottom: '50px',
+                            marginLeft: '151px',
                         }}
                     >
                         <span style={{
@@ -186,13 +202,13 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                 const part1 = number.slice(0, 3);   // 010
                 const part2 = number.slice(3, 7);   // 중간번호 (4자리)
                 const part3 = number.slice(7);      // 뒷번호 실제 입력된 부분
-                
+
                 // 뒷번호는 입력된 만큼만 *로 마스킹
                 const maskedPart = '*'.repeat(part3.length);
                 return `${part1}-${part2}-${maskedPart}`;
             }
         }
-        
+
         // 010이 아닌 경우 기존 로직
         if (number.length <= 7) {
             return number;
@@ -225,9 +241,9 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
             try {
                 // API 호출 로직 추가
                 let getUser = await findUser(inputNumber);
-                
+
                 // 사용자 이름을 가져오지 못할 경우 에러창
-                if(getUser != null) {
+                if (getUser != null) {
                     setTimeout(() => {
                         navigate("/kiosk/user-confirm");
                     }, 1000);
@@ -272,23 +288,38 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                 style={{
                     width: '900px',
                     height: '120px',
-                    marginTop:'159px', marginLeft: '90px'
+                    marginTop: '159px', marginLeft: '90px'
                 }}
             >
-                <div style={{width:'822px',height:'120px', marginLeft: '39px'}}>
+                <div style={{width: '822px', height: '120px', marginLeft: '39px'}}>
                     <span
-                    style={{color: '#111111', fontSize: 46, fontFamily: 'Pretendard', fontWeight: '700'}}>&nbsp; 사용자 번호</span><span
+                        style={{color: '#111111', fontSize: 46, fontFamily: 'Pretendard', fontWeight: '700'}}>&nbsp; 사용자 번호</span><span
                     style={{color: '#111111', fontSize: 40, fontFamily: 'Pretendard', fontWeight: '600'}}> </span><span
                     style={{color: '#595757', fontSize: 40, fontFamily: 'Pretendard', fontWeight: '400'}}>또는</span><span
                     style={{color: '#111111', fontSize: 40, fontFamily: 'Pretendard', fontWeight: '400'}}> </span><span
-                    style={{color: '#111111', fontSize: 46, fontFamily: 'Pretendard', fontWeight: '700'}}>휴대폰 번호</span><span
+                    style={{
+                        color: '#111111',
+                        fontSize: 46,
+                        fontFamily: 'Pretendard',
+                        fontWeight: '700'
+                    }}>휴대폰 번호</span><span
                     style={{color: '#595757', fontSize: 40, fontFamily: 'Pretendard', fontWeight: '400'}}>를 입력해주시거나<br/></span><span
                     style={{color: '#111111', fontSize: 46, fontFamily: 'Pretendard', fontWeight: '700'}}>사용자 바코드</span><span
                     style={{color: '#111111', fontSize: 40, fontFamily: 'Pretendard', fontWeight: '600'}}> </span><span
                     style={{color: '#595757', fontSize: 40, fontFamily: 'Pretendard', fontWeight: '400'}}>또는</span><span
                     style={{color: '#111111', fontSize: 40, fontFamily: 'Pretendard', fontWeight: '600'}}> </span><span
-                    style={{color: '#111111', fontSize: 46, fontFamily: 'Pretendard', fontWeight: '700'}}>QR코드</span><span
-                    style={{color: '#595757', fontSize: 40, fontFamily: 'Pretendard', fontWeight: '400'}}>를 리더기에 대주세요.</span>
+                    style={{
+                        color: '#111111',
+                        fontSize: 46,
+                        fontFamily: 'Pretendard',
+                        fontWeight: '700'
+                    }}>QR코드</span><span
+                    style={{
+                        color: '#595757',
+                        fontSize: 40,
+                        fontFamily: 'Pretendard',
+                        fontWeight: '400'
+                    }}>를 리더기에 대주세요.</span>
                 </div>
             </div>
 
@@ -481,9 +512,9 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
             </div>
 
             {/* 알림창 */}
-            <NotificationModal 
-                isVisible={showNotificationModal} 
-                onClose={closeNotificationModal} 
+            <NotificationModal
+                isVisible={showNotificationModal}
+                onClose={closeNotificationModal}
             />
         </div>
     );
