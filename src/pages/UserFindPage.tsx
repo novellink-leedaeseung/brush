@@ -521,27 +521,13 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                         <div style={{
                             width: '88.82px',
                             height: '56px',
-                            background: '#8C9AB7',
                             borderRadius: '8px',
                             display: 'flex',
                             justifyContent: 'center',
                             alignItems: 'center'
                         }}>
                             {/* X 아이콘 */}
-                            <div style={{
-                                width: '28.68px',
-                                height: '28.66px',
-                                background: '#FFFFFF',
-                                borderRadius: '50%',
-                                display: 'flex',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                fontSize: '18px',
-                                fontWeight: '800',
-                                color: '#8C9AB7'
-                            }}>
-                                ×
-                            </div>
+                            <img src="/public/assets/icon/backspace.svg" alt=""/>
                         </div>
                     </button>
                 </div>
