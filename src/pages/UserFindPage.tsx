@@ -12,16 +12,36 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
     const navigate = useNavigate();
     const [inputNumber, setInputNumber] = useState<string>('');
 
-    // 핸드폰번호 마스킹 함수 (오른쪽부터 마스킹, 중간 번호는 보이게)
+    // 핸드폰번호 마스킹 함수 (010 입력 즉시 하이픈 추가, 오른쪽부터 마스킹)
     const maskPhoneNumber = (number: string): string => {
-        if (number.length <= 7) {
-            return number; // 7자리 이하면 그대로 표시
+        // 010으로 시작하는 핸드폰 번호인 경우
+        if (number.startsWith('010')) {
+            if (number.length <= 3) {
+                // 010까지만 입력된 경우
+                return number;
+            } else if (number.length <= 7) {
+                // 010 + 중간번호 입력 중: 010-1234
+                const part1 = number.slice(0, 3);   // 010
+                const part2 = number.slice(3);      // 중간번호
+                return `${part1}-${part2}`;
+            } else if (number.length <= 11) {
+                // 8자리 이상: 010-1234-**** 형태로 마스킹
+                const part1 = number.slice(0, 3);   // 010
+                const part2 = number.slice(3, 7);   // 중간번호 (4자리)
+                const part3 = number.slice(7);      // 뒷번호 실제 입력된 부분
+                
+                // 뒷번호는 입력된 만큼만 *로 마스킹
+                const maskedPart = '*'.repeat(part3.length);
+                return `${part1}-${part2}-${maskedPart}`;
+            }
         }
         
-        // 11자리 핸드폰 번호의 경우: 010-1234-5678 형태로 가정
-        // 처음 7자리는 보여주고 뒤 4자리만 마스킹
-        const visiblePart = number.slice(0, 7); // 010-1234 부분
-        const maskedPart = '*'.repeat(number.length - 7); // 뒤 4자리를 *로
+        // 010이 아닌 경우 기존 로직
+        if (number.length <= 7) {
+            return number;
+        }
+        const visiblePart = number.slice(0, 7);
+        const maskedPart = '*'.repeat(number.length - 7);
         return visiblePart + maskedPart;
     };
 
