@@ -1,4 +1,5 @@
 import React from 'react'
+import UserListItem from './UserListItem'
 
 interface RankingUser {
   rank: number
@@ -7,7 +8,7 @@ interface RankingUser {
   time: string
   profileImage: string
   borderColor: string
-  mealType: string
+  mealType: 'lunch' | 'outside'
 }
 
 const RankingSection: React.FC = () => {
@@ -19,7 +20,7 @@ const RankingSection: React.FC = () => {
       time: '오후 12:20:10',
       profileImage: '/public/assets/images/man.png',
       borderColor: '#F56358',
-      mealType: '점심'
+      mealType: 'lunch'
     },
     {
       rank: 2,
@@ -28,7 +29,7 @@ const RankingSection: React.FC = () => {
       time: '오후 12:22:50',
       profileImage: '/public/assets/images/woman.png',
       borderColor: '#F46059',
-      mealType: '점심'
+      mealType: 'lunch'
     },
     {
       rank: 3,
@@ -37,7 +38,29 @@ const RankingSection: React.FC = () => {
       time: '오후 12:25:20',
       profileImage: '/public/assets/images/woman.png',
       borderColor: '#F89049',
-      mealType: '점심'
+      mealType: 'lunch'
+    }
+  ]
+
+  // 4등, 5등 사용자들
+  const otherUsers: RankingUser[] = [
+    {
+      rank: 4,
+      name: '최지우',
+      className: '2-2반',
+      time: '오후 12:30:42',
+      profileImage: '/public/assets/images/woman.png',
+      borderColor: '',
+      mealType: 'lunch'
+    },
+    {
+      rank: 5,
+      name: '정서윤',
+      className: '3-1반',
+      time: '오후 13:30:45',
+      profileImage: '/public/assets/images/woman.png',
+      borderColor: '',
+      mealType: 'outside'
     }
   ]
 
@@ -128,145 +151,159 @@ const RankingSection: React.FC = () => {
   }
 
   return (
-    <>
-      {/* 오늘의 양치왕 헤더 */}
-      <div style={{ width: '1080px', height: '120px', position: 'relative', background: 'white', overflow: 'hidden' }}>
-        <div style={{
-          left: '425px',
-          top: '32px',
-          position: 'absolute',
-          justifyContent: 'flex-start',
-          alignItems: 'center',
-          gap: '18px',
-          display: 'inline-flex'
-        }}>
+      <>
+        {/* 오늘의 양치왕 헤더 */}
+        <div style={{ width: '1080px', height: '120px', position: 'relative', background: 'white', overflow: 'hidden' }}>
           <div style={{
-            justifyContent: 'center',
-            display: 'flex',
-            flexDirection: 'column',
-            color: '#111111',
-            fontSize: '40px',
-            fontFamily: 'Pretendard',
-            fontWeight: 600,
-            lineHeight: '56px',
-            wordWrap: 'break-word'
+            left: '425px',
+            top: '32px',
+            position: 'absolute',
+            justifyContent: 'flex-start',
+            alignItems: 'center',
+            gap: '18px',
+            display: 'inline-flex'
           }}>
-            오늘의 양치왕
-          </div>
-          <div style={{ width: '52px', height: '52px', position: 'relative', overflow: 'hidden' }}>
-            <img src="/public/assets/icon/trophy.svg" alt="트로피" />
+            <div style={{
+              justifyContent: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              color: '#111111',
+              fontSize: '40px',
+              fontFamily: 'Pretendard',
+              fontWeight: 600,
+              lineHeight: '56px',
+              wordWrap: 'break-word'
+            }}>
+              오늘의 양치왕
+            </div>
+            <div style={{ width: '52px', height: '52px', position: 'relative', overflow: 'hidden' }}>
+              <img src="/public/assets/icon/trophy.svg" alt="트로피" />
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* 상위 3명 랭킹 */}
-      <div style={{
-        width: '1080px',
-        height: '368px',
-        position: 'relative',
-        overflow: 'hidden',
-        borderBottom: '0.50px #B4B4B5 solid'
-      }}>
-        {topThree.map((user) => {
-          const rankStyle = getRankStyle(user.rank)
-          const rankBadgeStyle = getRankBadgeStyle(user.rank)
-          const namePos = getNamePosition(user.rank)
-          const timePos = getTimePosition(user.rank)
-          const mealPos = getMealTagPosition(user.rank)
+        {/* 상위 3명 랭킹 */}
+        <div style={{
+          width: '1080px',
+          height: '368px',
+          position: 'relative',
+          overflow: 'hidden',
+          borderBottom: '0.50px #B4B4B5 solid'
+        }}>
+          {topThree.map((user) => {
+            const rankStyle = getRankStyle(user.rank)
+            const rankBadgeStyle = getRankBadgeStyle(user.rank)
+            const namePos = getNamePosition(user.rank)
+            const timePos = getTimePosition(user.rank)
+            const mealPos = getMealTagPosition(user.rank)
 
-          return (
-            <React.Fragment key={user.rank}>
-              {/* 프로필 이미지 */}
-              <img
-                style={{
-                  ...rankStyle,
-                  position: 'absolute',
-                  borderRadius: '99px',
-                  border: `3px ${user.borderColor} solid`
-                }}
-                src={user.profileImage}
-                alt={user.name}
-              />
-              
-              {/* 랭킹 배지 */}
-              <div style={rankBadgeStyle}>
-                {user.rank}
-              </div>
+            return (
+                <React.Fragment key={user.rank}>
+                  {/* 프로필 이미지 */}
+                  <img
+                      style={{
+                        ...rankStyle,
+                        position: 'absolute',
+                        borderRadius: '99px',
+                        border: `3px ${user.borderColor} solid`
+                      }}
+                      src={user.profileImage}
+                      alt={user.name}
+                  />
 
-              {/* 이름 */}
-              <div style={{
-                width: '250px',
-                height: '43px',
-                ...namePos,
-                position: 'absolute',
-                textAlign: 'center',
-                justifyContent: 'center',
-                display: 'flex',
-                flexDirection: 'column',
-                color: '#111111',
-                fontSize: '36px',
-                fontFamily: 'Pretendard',
-                fontWeight: 600,
-                lineHeight: '56px',
-                wordWrap: 'break-word'
-              }}>
-                {user.className} {user.name}
-              </div>
+                  {/* 랭킹 배지 */}
+                  <div style={rankBadgeStyle}>
+                    {user.rank}
+                  </div>
 
-              {/* 시간 */}
-              <div style={{
-                width: '252px',
-                height: '43px',
-                ...timePos,
-                position: 'absolute',
-                justifyContent: 'center',
-                display: 'flex',
-                flexDirection: 'column',
-                color: '#4C4948',
-                fontSize: '32px',
-                fontFamily: 'Pretendard',
-                fontWeight: 400,
-                lineHeight: '56px',
-                wordWrap: 'break-word'
-              }}>
-                {user.time}
-              </div>
+                  {/* 이름 */}
+                  <div style={{
+                    width: '250px',
+                    height: '43px',
+                    ...namePos,
+                    position: 'absolute',
+                    textAlign: 'center',
+                    justifyContent: 'center',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    color: '#111111',
+                    fontSize: '36px',
+                    fontFamily: 'Pretendard',
+                    fontWeight: 600,
+                    lineHeight: '56px',
+                    wordWrap: 'break-word'
+                  }}>
+                    {user.className} {user.name}
+                  </div>
 
-              {/* 식사 태그 */}
-              <div style={{
-                width: '50px',
-                height: '40px',
-                ...mealPos,
-                position: 'absolute',
-                background: '#B2D7FF',
-                borderRadius: '8px',
-                justifyContent: 'center',
-                alignItems: 'center',
-                gap: '10px',
-                display: 'inline-flex'
-              }}>
-                <div style={{
-                  width: '35px',
-                  height: '18px',
-                  textAlign: 'center',
-                  justifyContent: 'center',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  color: '#227EFF',
-                  fontSize: '16px',
-                  fontFamily: 'Pretendard',
-                  fontWeight: 600,
-                  lineHeight: '6px',
-                  wordWrap: 'break-word'
-                }}>
-                  {user.mealType}
-                </div>
-              </div>
-            </React.Fragment>
-          )
-        })}
-      </div>
-    </>
+                  {/* 시간 */}
+                  <div style={{
+                    width: '252px',
+                    height: '43px',
+                    ...timePos,
+                    position: 'absolute',
+                    justifyContent: 'center',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    color: '#4C4948',
+                    fontSize: '32px',
+                    fontFamily: 'Pretendard',
+                    fontWeight: 400,
+                    lineHeight: '56px',
+                    wordWrap: 'break-word'
+                  }}>
+                    {user.time}
+                  </div>
+
+                  {/* 식사 태그 */}
+                  <div style={{
+                    width: '50px',
+                    height: '40px',
+                    ...mealPos,
+                    position: 'absolute',
+                    background: '#B2D7FF',
+                    borderRadius: '8px',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: '10px',
+                    display: 'inline-flex'
+                  }}>
+                    <div style={{
+                      width: '35px',
+                      height: '18px',
+                      textAlign: 'center',
+                      justifyContent: 'center',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      color: '#227EFF',
+                      fontSize: '16px',
+                      fontFamily: 'Pretendard',
+                      fontWeight: 600,
+                      lineHeight: '6px',
+                      wordWrap: 'break-word'
+                    }}>
+                      {user.mealType === 'lunch' ? '점심' : '외'}
+                    </div>
+                  </div>
+                </React.Fragment>
+            )
+          })}
+        </div>
+
+        {/* 4등, 5등 사용자 리스트 - UserListItem 컴포넌트 사용 */}
+        {otherUsers.map((user, index) => (
+            <UserListItem
+                key={user.rank}
+                rank={user.rank}
+                name={user.name}
+                className={user.className}
+                time={user.time}
+                profileImage={user.profileImage}
+                mealType={user.mealType}
+                isLast={index === otherUsers.length - 1}
+            />
+        ))}
+      </>
   )
 }
 
