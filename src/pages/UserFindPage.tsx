@@ -70,6 +70,7 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
 
                         <div style={{
                             width: '714px',
+                            height: '70px',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -97,15 +98,17 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                             marginBottom: '18px'
                         }}>
                             <span style={{
-                                fontFamily: 'Jalnan 2, Arial, sans-serif',
-                                fontWeight: '400',
-                                fontSize: '74px',
-                                lineHeight: '0.76em',
-                                letterSpacing: '-2.5%',
-                                textAlign: 'center',
-                                color: '#004F99'
+                                color: "#004F99",
+                                textAlign: "center",
+                                fontFeatureSettings: "'liga' off, 'clig' off",
+                                fontFamily: "Jalnan2",
+                                fontSize: "74px",
+                                fontStyle: "normal",
+                                fontWeight: 400,
+                                lineHeight: "56px", // 75.676%
+                                letterSpacing: "-1.85px",
                             }}>
-                                1224
+                                {maskPhoneNumber(inputNumber)}
                             </span>
                         </div>
 
