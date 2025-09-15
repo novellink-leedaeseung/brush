@@ -365,7 +365,7 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                     width: '970px',
                     height: '590px',
                     marginLeft: '55px',
-                    marginTop: '130px',
+                    marginTop: '95px',
                     position: 'relative'
                 }}
             >
@@ -546,7 +546,7 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                     alignItems: 'center',
                     justifyContent: 'center',
                     marginLeft: '225px',
-                    marginTop: '100px',
+                    marginTop: '65px',
                     cursor: 'pointer'
                 }}
             >
