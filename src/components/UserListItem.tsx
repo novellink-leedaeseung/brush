@@ -82,7 +82,7 @@ const UserListItem: React.FC<UserListItemProps> = ({
                         fontFamily: 'Pretendard',
                         fontWeight: '600',
                         textAlign: 'center',
-                        
+
                     }}>
                         {name}
                     </div>
@@ -101,8 +101,8 @@ const UserListItem: React.FC<UserListItemProps> = ({
             </div>
 
             {/* 식사 태그 */}
-            <div style={{
-
+            {mealType === true ? (
+                <div style={{
                 width: '80px',
                 height: '50px',
                 background: '#B2D7FF',
@@ -120,9 +120,33 @@ const UserListItem: React.FC<UserListItemProps> = ({
                     fontWeight: 600,
                     textAlign: 'center'
                 }}>
-                    {mealType === true ? '점심' : '외'}
+                    점심
                 </div>
             </div>
+            ) : (
+                <div style={{
+                width: '80px',
+                height: '50px',
+                background: '#FEEAE2',
+                borderRadius: 16,
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: 10,
+                display: 'inline-flex',
+                marginLeft: '32px',
+            }}>
+                <div style={{
+                    color: '#E5621C',
+                    fontSize: '16px',
+                    fontFamily: 'Pretendard',
+                    fontWeight: 600,
+                    textAlign: 'center'
+                }}>
+                    외
+                </div>
+            </div>
+            )}
+
 
             {/* 시간 */}
             <div style={{
