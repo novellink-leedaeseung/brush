@@ -92,7 +92,7 @@ const RankingSection: React.FC = () => {
   }
 
   // 상위 3명과 나머지 분리
-    const otherUsers = rankedUsers.slice(0)
+    const otherUsers = rankedUsers.slice(0,4)
 
   const formatTime = (date: Date): string => {
     return date.toLocaleTimeString('ko-KR', {
