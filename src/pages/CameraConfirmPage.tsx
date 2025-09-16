@@ -1,7 +1,6 @@
 import React, {useEffect, useState, useRef} from 'react'
 import {useNavigate} from 'react-router-dom'
 import Header from "../components/Header.tsx"
-import RegistrationButton from '../components/RegistrationButton'
 
 // 양치 인증 완료 모달 컴포넌트
 const CompleteModal = ({isVisible, onClose}: { isVisible: boolean; onClose: () => void }) => {
@@ -76,6 +75,114 @@ const CameraConfirmPage: React.FC = () => {
     const [capturedImage, setCapturedImage] = useState<string>('')
     const [showLunchModal, setShowLunchModal] = useState(false)
     const [showCompleteModal, setShowCompleteModal] = useState(false)
+    const [isUploading, setIsUploading] = useState(false)
+
+    /**
+     * 서버에 이미지를 저장하는 함수
+     * @param {string} imageDataUrl - Base64 형태의 이미지 데이터
+     * @param {Object} userInfo - 사용자 정보 객체 (선택사항)
+     * @returns {Promise<Object>} - 서버 응답 결과
+     */
+    const saveImageToServer = async (imageDataUrl: string, userInfo = {}) => {
+        try {
+            // ============ 파일명 생성 부분 (수정 가능) ============
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const hours = String(today.getHours()).padStart(2, '0');
+            const minutes = String(today.getMinutes()).padStart(2, '0');
+            const seconds = String(today.getSeconds()).padStart(2, '0');
+            
+            // 사용자 정보에서 파일명에 포함할 데이터 추출
+            const phoneNumber = localStorage.getItem("phone") || "unknown";
+            const userName = localStorage.getItem("name") || "user";
+            
+            // 파일명 형식: YYYY-MM-DD-HH-MM-SS-전화번호-이름
+            // 필요에 따라 이 부분을 수정하세요
+            const fileName = `${year}${month}${day}-${hours}-${minutes}-${seconds}-${phoneNumber}-${userName}`;
+            
+            // 또는 다른 형식 예시들:
+            // const fileName = `photo_${year}${month}${day}_${phoneNumber}`;
+            // const fileName = `${userName}_${year}-${month}-${day}_${Date.now()}`;
+            // const fileName = `student_photo_${phoneNumber}_${year}${month}${day}${hours}${minutes}`;
+            // ====================================================
+            
+            console.log('📸 이미지 저장 시작:', fileName);
+            
+            // 서버 API 호출
+            const response = await fetch('/api/save-photo', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    imageData: imageDataUrl,
+                    fileName: fileName
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (response.ok && result.success) {
+                console.log('✅ 이미지 저장 성공:', result);
+                return {
+                    success: true,
+                    message: result.message,
+                    fileName: result.fileName,
+                    filePath: result.filePath,
+                    timestamp: result.timestamp
+                };
+            } else {
+                console.error('❌ 서버 응답 오류:', result);
+                throw new Error(result.error || '이미지 저장에 실패했습니다.');
+            }
+            
+        } catch (error) {
+            console.error('❌ 이미지 저장 실패:', error);
+            throw error;
+        }
+    };
+
+    /**
+     * 등록 버튼 클릭 시 이미지 서버 저장 처리
+     */
+    const handleImageSave = async () => {
+        try {
+            setIsUploading(true);
+            
+            // 캡처된 이미지 데이터 가져오기
+            const possibleKeys = ['capturedImage', 'camara.capturedPhoto', 'captured-photo'];
+            let imageDataUrl = null;
+            
+            for (const key of possibleKeys) {
+                imageDataUrl = sessionStorage.getItem(key);
+                if (imageDataUrl) {
+                    console.log(`이미지를 찾았습니다. 키: ${key}`);
+                    break;
+                }
+            }
+            
+            if (!imageDataUrl) {
+                alert('저장할 이미지가 없습니다. 다시 촬영해주세요.');
+                return false;
+            }
+            
+            // 서버에 이미지 저장
+            const result = await saveImageToServer(imageDataUrl);
+            
+            console.log(`✅ 서버 저장 성공: ${result.fileName}`);
+            
+            return true;
+            
+        } catch (error) {
+            console.error('❌ 이미지 저장 실패:', error);
+            alert(`이미지 저장 실패: ${error.message}`);
+            return false;
+        } finally {
+            setIsUploading(false);
+        }
+    };
 
     // 컴포넌트가 마운트될 때 저장된 이미지 불러오기
     useEffect(() => {
@@ -184,7 +291,12 @@ const CameraConfirmPage: React.FC = () => {
     }
 
     // 등록 버튼 클릭
-    const handleRegister = () => {
+    const handleRegister = async () => {
+        // 업로드 중이면 중복 클릭 방지
+        if (isUploading) {
+            return;
+        }
+
         // 사용자 데이터 준비
         const userName = localStorage.getItem("name") || "익명 사용자"
         const userPhone = localStorage.getItem("phone") || ""
@@ -193,19 +305,27 @@ const CameraConfirmPage: React.FC = () => {
             className: '1-1반', // 실제로는 사용자 정보에서 가져와야 함
             profileImage: '/assets/images/man.png' // 실제로는 성별이나 사용자 정보에 따라 결정
         }
+        
         if (!isLunchTime()) {
             setShowLunchModal(true)
             document.body.style.overflow = 'hidden'
         } else {
-            // 완료 모달 표시
-            setShowCompleteModal(true)
+            // 이미지 서버 저장 먼저 실행
+            const saveSuccess = await handleImageSave();
+            
+            if (saveSuccess) {
+                // 완료 모달 표시
+                setShowCompleteModal(true)
 
-            // 2초 후 홈으로 이동
-            setTimeout(() => {
-                setShowCompleteModal(false)
-                sessionStorage.removeItem('capturedImage')
-                navigate('/')
-            }, 2000)
+                // 2초 후 홈으로 이동
+                setTimeout(() => {
+                    setShowCompleteModal(false)
+                    // 세션 스토리지 정리
+                    const possibleKeys = ['capturedImage', 'camara.capturedPhoto', 'captured-photo'];
+                    possibleKeys.forEach(key => sessionStorage.removeItem(key));
+                    navigate('/')
+                }, 2000)
+            }
         }
     }
 
@@ -216,26 +336,34 @@ const CameraConfirmPage: React.FC = () => {
     }
 
     // 점심시간 모달 - 등록 클릭
-    const handleLunchModalRegister = () => {
+    const handleLunchModalRegister = async () => {
         const userName = localStorage.getItem("name") || "익명 사용자"
         const studentData = {
             name: userName,
             className: '1-1반',
             profileImage: '/assets/images/man.png'
         }
+        
         // 점심시간 모달 닫기
         setShowLunchModal(false)
         document.body.style.overflow = 'auto'
 
-        // 완료 모달 표시
-        setShowCompleteModal(true)
+        // 이미지 서버 저장 먼저 실행
+        const saveSuccess = await handleImageSave();
+        
+        if (saveSuccess) {
+            // 완료 모달 표시
+            setShowCompleteModal(true)
 
-        // 2초 후 홈으로 이동
-        setTimeout(() => {
-            setShowCompleteModal(false)
-            sessionStorage.removeItem('capturedImage')
-            navigate('/')
-        }, 2000)
+            // 2초 후 홈으로 이동
+            setTimeout(() => {
+                setShowCompleteModal(false)
+                // 세션 스토리지 정리
+                const possibleKeys = ['capturedImage', 'camara.capturedPhoto', 'captured-photo'];
+                possibleKeys.forEach(key => sessionStorage.removeItem(key));
+                navigate('/')
+            }, 2000)
+        }
     }
 
     // 점심시간 모달 닫기
@@ -249,7 +377,9 @@ const CameraConfirmPage: React.FC = () => {
     // 완료 모달 닫기
     const handleCompleteModalClose = () => {
         setShowCompleteModal(false)
-        sessionStorage.removeItem('capturedImage')
+        // 세션 스토리지 정리
+        const possibleKeys = ['capturedImage', 'camara.capturedPhoto', 'captured-photo'];
+        possibleKeys.forEach(key => sessionStorage.removeItem(key));
         navigate('/')
     }
 
@@ -257,6 +387,12 @@ const CameraConfirmPage: React.FC = () => {
         <div style={{backgroundColor: '#f5f5f5', minHeight: '100vh'}}>
             {/* 스타일 정의 */}
             <style>{`
+        /* 로딩 스피너 애니메이션 */
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+
         /* 알림창 트리거 버튼 */
         .lunch-false-trigger-button {
           display: block;
@@ -715,9 +851,11 @@ const CameraConfirmPage: React.FC = () => {
                             marginRight: '24px',
                             width: '320px',
                             height: '300px',
-                            background: 'white',
+                            background: isUploading ? '#cccccc' : 'white',
                             boxShadow: '2px 2px 2px rgba(0, 0, 0, 0.16)',
                             borderRadius: '32px',
+                            cursor: isUploading ? 'not-allowed' : 'pointer',
+                            opacity: isUploading ? 0.7 : 1,
                         }}
                     >
                         <div
@@ -734,9 +872,18 @@ const CameraConfirmPage: React.FC = () => {
                             }}
                         >
                             <div style={{width: '110px', height: '110.84px'}}>
-                                <img src="/public/assets/icon/toothbrush.svg" alt="양치"/>
-
-
+                                {isUploading ? (
+                                    <div style={{
+                                        width: '110px',
+                                        height: '110px',
+                                        border: '8px solid #f3f3f3',
+                                        borderTop: '8px solid #004F99',
+                                        borderRadius: '50%',
+                                        animation: 'spin 1s linear infinite'
+                                    }}></div>
+                                ) : (
+                                    <img src="/public/assets/icon/toothbrush.svg" alt="양치"/>
+                                )}
                             </div>
                             <div
                                 style={{
@@ -746,7 +893,7 @@ const CameraConfirmPage: React.FC = () => {
                                     justifyContent: 'center',
                                     display: 'flex',
                                     flexDirection: 'column',
-                                    color: '#004F99',
+                                    color: isUploading ? '#999999' : '#004F99',
                                     fontSize: '36px',
                                     fontFamily: 'Pretendard',
                                     fontWeight: 600,
@@ -754,7 +901,7 @@ const CameraConfirmPage: React.FC = () => {
                                     wordWrap: 'break-word',
                                 }}
                             >
-                                등록
+                                {isUploading ? '저장 중...' : '등록'}
                             </div>
                         </div>
                     </div>
