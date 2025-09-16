@@ -205,7 +205,6 @@ async function fetchMembersPage(
                 ? `${m.grade}-${m.classroom}반`
                 : (m.gradeClass && String(m.gradeClass).trim()) || '미정')
 
-        const resolvedMealType: 'lunch' | 'outside' = m.lunch ? 'lunch' : 'outside'
         const rawTime = m.createdAt ?? m.brushingTime;
 
         return {
@@ -215,7 +214,7 @@ async function fetchMembersPage(
             gender: m.gender,
             profileImage: m.gender == "남자" ? '/public/assets/images/man.png' : '/public/assets/images/woman.png',
             brushingTime: toDate(rawTime),
-            mealType: resolvedMealType,
+            mealType: m.lunch,
             duration: typeof m.duration === 'number' ? m.duration : 0,
         }
     })

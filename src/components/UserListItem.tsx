@@ -6,7 +6,7 @@ interface UserListItemProps {
     className: string
     time: string
     profileImage: string
-    mealType: 'lunch' | 'outside'
+    mealType: boolean
     isLast?: boolean
     isCurrentUser?: boolean
 }
@@ -120,7 +120,7 @@ const UserListItem: React.FC<UserListItemProps> = ({
                     fontWeight: 600,
                     textAlign: 'center'
                 }}>
-                    {mealType === 'lunch' ? '점심' : '외'}
+                    {mealType === true ? '점심' : '외'}
                 </div>
             </div>
 
