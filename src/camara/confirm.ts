@@ -22,9 +22,8 @@ function main() {
         // location.href = '/kiosk/camara.html';
     });
 
-    downloadBtn?.addEventListener('click', () => {
+    downloadBtn?.addEventListener('click', async () => {
         const modal = document.getElementById('confirmationModal');
-
 
         // 모달 표시
         modal.classList.add('show');
@@ -45,7 +44,31 @@ function main() {
 
         let fileName = yyyy + '-' + mm + '-' + dd + '-' + phoneNumber + '-' + name;
 
+        // 서버에 이미지 저장
+        try {
+            const response = await fetch('/api/save-photo', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    imageData: dataUrl,
+                    fileName: fileName
+                })
+            });
 
+            const result = await response.json();
+
+            if (result.success) {
+                console.log('사진이 서버에 저장되었습니다:', result.filePath);
+            } else {
+                console.error('서버 저장 실패:', result.error);
+            }
+        } catch (error) {
+            console.error('서버 통신 오류:', error);
+        }
+
+        // 클라이언트 다운로드도 유지
         const a = document.createElement('a');
         a.href = dataUrl;
         a.download = `${fileName}.jpg`;

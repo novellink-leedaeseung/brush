@@ -10,6 +10,11 @@ export default defineConfig({
     host: true,
     https: true,
     proxy: {
+            "/api/save-photo": {
+                target: "http://localhost:3001",
+                changeOrigin: true,
+                secure: false,
+            },
             "/api": {
                 target: "https://novel.rosq.co.kr:8488/",
                 changeOrigin: true,
