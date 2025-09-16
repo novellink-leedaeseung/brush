@@ -71,6 +71,7 @@ class MemberStore {
             grade: payload.grade,
             classroom: payload.classroom,
             gradeClass: payload.gradeClass,
+            gender: payload.gender,
             createdAt: now,
             updatedAt: now
         });
@@ -122,6 +123,7 @@ class MemberStore {
             classroom: entry.classroom ? entry.classroom.toString().trim() : '',
             gradeClass: entry.gradeClass ? entry.gradeClass.toString().trim() : '',
             lunch: entry.lunch ?? false,
+            gender : entry.gender ? entry.gender.toString().trim() : '',
             createdAt: entry.createdAt ?? new Date().toISOString(),
             updatedAt: entry.updatedAt ?? entry.createdAt ?? new Date().toISOString()
         };
@@ -238,7 +240,7 @@ app.get('/api/members/:id', (req, res) => {
 });
 
 app.post('/api/members', (req, res) => {
-    const { name, phone, gradeClass = '' } = req.body ?? {};
+    const { name, phone, gradeClass, gender = '' } = req.body ?? {};
 
     if (!name || !phone) {
         return res.status(400).json({ success: false, error: '이름과 연락처는 필수 항목입니다.' });
@@ -249,7 +251,7 @@ app.post('/api/members', (req, res) => {
         return res.status(400).json({ success: false, error: '휴대폰 번호 형식이 올바르지 않습니다. 010으로 시작하는 11자리 번호여야 합니다.' });
     }
 
-    const member = memberStore.create({ name, phone, gradeClass});
+    const member = memberStore.create({ name, phone, gradeClass, gender});
     res.status(201).json({ success: true, data: member });
 });
 
