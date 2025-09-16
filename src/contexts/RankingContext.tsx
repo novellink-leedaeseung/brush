@@ -1,13 +1,16 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react'
 
+/* =========================
+ * Types
+ * ========================= */
 export interface BrushingRecord {
   id: string
   name: string
   className: string
   profileImage: string
-  brushingTime: Date // 양치 완료 시간 (1초 단위 정밀도)
+  brushingTime: Date // 양치 완료 시간
   mealType: 'lunch' | 'outside'
-  duration: number // 양치 소요 시간 (초)
+  duration: number // 양치 소요 시간(초)
 }
 
 export interface RankedUser extends BrushingRecord {
@@ -20,306 +23,283 @@ interface RankingContextType {
   rankedUsers: RankedUser[]
   currentUserRank: number | null
   isLoading: boolean
+  page: number
+  totalPages: number | null
+  setPage: (p: number) => void
   addRecord: (record: Omit<BrushingRecord, 'id'>) => void
   setCurrentUser: (userId: string) => void
   getCurrentUserRecord: () => RankedUser | null
   clearAllRecords: () => void
 }
 
+/** 서버 응답 아이템(네가 준 스키마 기준) */
+type MemberApiItem = {
+  id: string | number
+  name: string
+  phone?: string
+  grade?: string | number | null
+  classroom?: string | number | null
+  gradeClass?: string | null
+  lunch?: boolean
+  createdAt: string
+  updatedAt?: string
+  // 혹시 확장 필드가 올 수도 있으니 옵션
+  className?: string
+  profileImage?: string
+  brushingTime?: string | number
+  mealType?: 'lunch' | 'outside'
+  duration?: number
+}
+
+/* =========================
+ * Constants / Utils
+ * ========================= */
 const RankingContext = createContext<RankingContextType | undefined>(undefined)
 
-// 순위 색상 지정
 const getRankBorderColor = (rank: number): string => {
   if (rank === 1) return '#F56358'
   if (rank === 2) return '#F46059'
   if (rank === 3) return '#F89049'
-  return '#E5E5E5' // 4위 이하
+  return '#E5E5E5'
 }
 
-// localStorage 키
 const STORAGE_KEY = 'brushing-ranking-records'
 const CURRENT_USER_KEY = 'brushing-current-user-rank'
 
-// 초기 더미 데이터
 const getInitialRecords = (): BrushingRecord[] => {
   const today = new Date()
-  const baseTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12, 20, 0) // 오늘 12:20:00
-  
+  const baseTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12, 20, 0)
   return [
-    {
-      id: 'initial-1',
-      name: '김민준',
-      className: '1-2반',
-      profileImage: '/assets/images/man.png',
-      brushingTime: new Date(baseTime.getTime()),
-      mealType: 'lunch',
-      duration: 120
-    },
-    {
-      id: 'initial-2',
-      name: '이서연',
-      className: '5-1반',
-      profileImage: '/assets/images/woman.png',
-      brushingTime: new Date(baseTime.getTime() + 160000), // +2분 40초
-      mealType: 'lunch',
-      duration: 115
-    },
-    {
-      id: 'initial-3',
-      name: '박하준',
-      className: '1-3반',
-      profileImage: '/assets/images/woman.png',
-      brushingTime: new Date(baseTime.getTime() + 310000), // +5분 10초
-      mealType: 'lunch',
-      duration: 110
-    },
-    {
-      id: 'initial-4',
-      name: '최지우',
-      className: '2-2반',
-      profileImage: '/assets/images/woman.png',
-      brushingTime: new Date(baseTime.getTime() + 642000), // +10분 42초
-      mealType: 'lunch',
-      duration: 105
-    },
-    {
-      id: 'initial-5',
-      name: '정서윤',
-      className: '3-1반',
-      profileImage: '/assets/images/woman.png',
-      brushingTime: new Date(baseTime.getTime() + 4245000), // +1시간 10분 45초
-      mealType: 'outside',
-      duration: 100
-    }
+    { id: 'initial-1', name: '김민준', className: '1-2반', profileImage: '/assets/images/man.png',   brushingTime: new Date(baseTime.getTime()),           mealType: 'lunch',   duration: 120 },
+    { id: 'initial-2', name: '이서연', className: '5-1반', profileImage: '/assets/images/woman.png', brushingTime: new Date(baseTime.getTime() + 160000),  mealType: 'lunch',   duration: 115 },
+    { id: 'initial-3', name: '박하준', className: '1-3반', profileImage: '/assets/images/woman.png', brushingTime: new Date(baseTime.getTime() + 310000),  mealType: 'lunch',   duration: 110 },
+    { id: 'initial-4', name: '최지우', className: '2-2반', profileImage: '/assets/images/woman.png', brushingTime: new Date(baseTime.getTime() + 642000),  mealType: 'lunch',   duration: 105 },
+    { id: 'initial-5', name: '정서윤', className: '3-1반', profileImage: '/assets/images/woman.png', brushingTime: new Date(baseTime.getTime() + 4245000), mealType: 'outside', duration: 100 },
   ]
 }
 
-// localStorage에서 데이터 로드
 const loadRecordsFromStorage = (): BrushingRecord[] => {
   try {
     const stored = localStorage.getItem(STORAGE_KEY)
-    console.log('📀 localStorage에서 로드된 데이터:', stored)
-    
     if (stored) {
-      const parsedRecords = JSON.parse(stored)
-      console.log('📀 파싱된 기록들:', parsedRecords)
-      
-      // Date 객체로 변환
-      const records = parsedRecords.map((record: any) => ({
-        ...record,
-        brushingTime: new Date(record.brushingTime)
-      }))
-      
-      console.log('📀 변환된 기록들:', records)
-      return records
+      const parsed = JSON.parse(stored)
+      return parsed.map((r: any) => ({ ...r, brushingTime: new Date(r.brushingTime) }))
     }
-  } catch (error) {
-    console.error('❌ 랭킹 데이터 로드 실패:', error)
+  } catch (e) {
+    console.error('❌ 랭킹 데이터 로드 실패:', e)
   }
-  
-  console.log('📀 초기 데이터 사용')
   return getInitialRecords()
 }
 
-// localStorage에 데이터 저장
 const saveRecordsToStorage = (records: BrushingRecord[]) => {
   try {
-    const dataToSave = JSON.stringify(records)
-    localStorage.setItem(STORAGE_KEY, dataToSave)
-    console.log('💾 localStorage에 저장:', records.length, '개 기록')
-  } catch (error) {
-    console.error('❌ 랭킹 데이터 저장 실패:', error)
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(records.map(r => ({ ...r, brushingTime: r.brushingTime.toISOString() })))
+    )
+  } catch (e) {
+    console.error('❌ 랭킹 데이터 저장 실패:', e)
   }
 }
 
-// 현재 사용자 순위 로드
 const loadCurrentUserRank = (): number | null => {
   try {
     const stored = localStorage.getItem(CURRENT_USER_KEY)
-    const rank = stored ? parseInt(stored, 10) : null
-    console.log('👤 현재 사용자 순위 로드:', rank)
-    return rank
-  } catch (error) {
-    console.error('❌ 현재 사용자 순위 로드 실패:', error)
+    return stored ? parseInt(stored, 10) : null
+  } catch {
     return null
   }
 }
-
-// 현재 사용자 순위 저장
 const saveCurrentUserRank = (rank: number | null) => {
   try {
-    if (rank !== null) {
-      localStorage.setItem(CURRENT_USER_KEY, rank.toString())
-      console.log('👤 현재 사용자 순위 저장:', rank)
-    } else {
-      localStorage.removeItem(CURRENT_USER_KEY)
-      console.log('👤 현재 사용자 순위 제거')
-    }
-  } catch (error) {
-    console.error('❌ 현재 사용자 순위 저장 실패:', error)
-  }
+    if (rank != null) localStorage.setItem(CURRENT_USER_KEY, String(rank))
+    else localStorage.removeItem(CURRENT_USER_KEY)
+  } catch {}
 }
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3001'
+
+/* =========================
+ * API fetch (data.items 스키마)
+ * ========================= */
+async function fetchMembersPage(
+  page: number
+): Promise<{ items: BrushingRecord[]; page: number; totalPages: number | null }> {
+  const url = `${API_BASE}/api/members?page=${page}`
+  const res = await fetch(url, { headers: { Accept: 'application/json' } })
+  if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`)
+
+  let body: any
+  try {
+    body = await res.json()
+  } catch {
+    throw new Error('JSON 파싱 실패')
+  }
+
+  // 예상: { success, data: { items: [...], total, page, pageSize, totalPages } }
+  const data = body?.data ?? {}
+  const rawList: MemberApiItem[] = Array.isArray(data.items) ? data.items : []
+  let currentPage: number = typeof data.page === 'number' ? data.page : page
+  let totalPages: number | null = typeof data.totalPages === 'number' ? data.totalPages : null
+
+  if (totalPages == null && typeof data.total === 'number' && typeof data.pageSize === 'number' && data.pageSize > 0) {
+    totalPages = Math.ceil(data.total / data.pageSize)
+  }
+
+  const toDate = (v: string | number | undefined) => {
+    if (v == null) return new Date()
+    if (typeof v === 'number') {
+      const ms = v < 1e12 ? v * 1000 : v
+      return new Date(ms)
+    }
+    return new Date(v)
+  }
+
+  // 서버 -> 프론트 모델 매핑
+  const items: BrushingRecord[] = rawList.map((m) => {
+    const resolvedClassName =
+      (m.className && String(m.className).trim()) ||
+      ((m.grade ?? '') !== '' && (m.classroom ?? '') !== ''
+        ? `${m.grade}-${m.classroom}반`
+        : (m.gradeClass && String(m.gradeClass).trim()) || '미정')
+
+    const resolvedMealType: 'lunch' | 'outside' = m.lunch ? 'lunch' : 'outside'
+    const rawTime = m.createdAt ?? m.brushingTime
+
+    return {
+      id: String(m.id),
+      name: m.name,
+      className: resolvedClassName,
+      profileImage: m.profileImage ?? '/assets/images/user.png',
+      brushingTime: toDate(rawTime),
+      mealType: resolvedMealType,
+      duration: typeof m.duration === 'number' ? m.duration : 0,
+    }
+  })
+
+  return { items, page: currentPage, totalPages }
+}
+
+/* =========================
+ * Provider
+ * ========================= */
 export const RankingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [records, setRecords] = useState<BrushingRecord[]>([])
   const [currentUserRank, setCurrentUserRank] = useState<number | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isInitialized, setIsInitialized] = useState(false)
 
-  // 컴포넌트 마운트 시 데이터 로드
-  useEffect(() => {
-    console.log('🔄 RankingProvider 초기화 시작')
-    setIsLoading(true)
-    
-    // 데이터 로드 함수
-    const loadData = () => {
-      try {
-        console.log('📀 localStorage 상태 확인')
-        console.log('- 사용 가능한 키들:', Object.keys(localStorage))
-        console.log('- 총 항목 수:', localStorage.length)
-        
-        const loadedRecords = loadRecordsFromStorage()
-        const loadedUserRank = loadCurrentUserRank()
-        
-        console.log('✅ 데이터 로드 완료:', {
-          recordsCount: loadedRecords.length,
-          currentUserRank: loadedUserRank,
-          firstRecord: loadedRecords[0],
-          lastRecord: loadedRecords[loadedRecords.length - 1]
-        })
-        
-        // 상태 업데이트를 배치로 처리
-        setRecords(loadedRecords)
-        setCurrentUserRank(loadedUserRank)
-        setIsInitialized(true)
-        
-        // DOM 업데이트를 위한 다음 틱에서 로딩 완료
-        setTimeout(() => {
-          setIsLoading(false)
-          console.log('🔄 RankingProvider 초기화 완료')
-        }, 50)
-        
-      } catch (error) {
-        console.error('❌ 데이터 로드 중 오류:', error)
-        // 오류 발생 시 기본 데이터 설정
-        const initialRecords = getInitialRecords()
-        setRecords(initialRecords)
-        setCurrentUserRank(null)
-        setIsInitialized(true)
-        setIsLoading(false)
-      }
-    }
-    
-    // 즉시 로드 (비동기 처리 제거)
-    loadData()
-  }, [])
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState<number | null>(null)
 
-  // 초기화가 완료된 후에만 records 변경 시 localStorage에 저장
+  useEffect(() => {
+    let aborted = false
+    ;(async () => {
+      setIsLoading(true)
+      try {
+        const { items, totalPages: serverTotal } = await fetchMembersPage(page)
+        if (aborted) return
+        setRecords(items)
+        setTotalPages(serverTotal)
+        setIsInitialized(true)
+      } catch (err) {
+        console.error('❌ 서버에서 멤버 로드 실패, localStorage로 fallback:', err)
+        const cache = loadRecordsFromStorage()
+        if (!aborted) {
+          setRecords(cache)
+          setTotalPages(null)
+          setIsInitialized(true)
+        }
+      } finally {
+        if (!aborted) {
+          setCurrentUserRank(loadCurrentUserRank())
+          setIsLoading(false)
+        }
+      }
+    })()
+    return () => { aborted = true }
+  }, [page])
+
   useEffect(() => {
     if (isInitialized && !isLoading && records.length > 0) {
-      console.log('💾 records 변경 감지, localStorage에 저장')
       saveRecordsToStorage(records)
     }
   }, [records, isLoading, isInitialized])
 
-  // 초기화가 완료된 후에만 currentUserRank 변경 시 localStorage에 저장
   useEffect(() => {
     if (isInitialized && !isLoading) {
-      console.log('💾 currentUserRank 변경 감지, localStorage에 저장')
       saveCurrentUserRank(currentUserRank)
     }
   }, [currentUserRank, isLoading, isInitialized])
 
-  // 기록을 양치 완료 시간 순으로 정렬하여 순위 계산
-  const calculateRanking = useCallback((records: BrushingRecord[]): RankedUser[] => {
-    const sorted = [...records].sort((a, b) => a.brushingTime.getTime() - b.brushingTime.getTime())
-    
-    const ranked = sorted.map((record, index) => ({
+  const calculateRanking = useCallback((recs: BrushingRecord[]): RankedUser[] => {
+    const sorted = [...recs].sort((a, b) => {
+      const dt = a.brushingTime.getTime() - b.brushingTime.getTime()
+      return dt !== 0 ? dt : a.id.localeCompare(b.id)
+    })
+    return sorted.map((record, idx) => ({
       ...record,
-      rank: index + 1,
-      borderColor: getRankBorderColor(index + 1)
+      rank: idx + 1,
+      borderColor: getRankBorderColor(idx + 1),
     }))
-    
-    console.log('📊 순위 계산 완료:', ranked)
-    return ranked
   }, [])
 
   const rankedUsers = calculateRanking(records)
 
-  // 새로운 기록 추가
   const addRecord = useCallback((newRecord: Omit<BrushingRecord, 'id'>) => {
     const record: BrushingRecord = {
       ...newRecord,
-      id: Date.now().toString() + Math.random().toString(36).substr(2, 9)
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2),
     }
-    
-    console.log('➕ 새 기록 추가:', record)
-    
-    setRecords(prev => {
-      const updated = [...prev, record]
-      console.log('📝 업데이트된 기록 목록:', updated)
-      return updated
-    })
-
-    // 새로 추가된 사용자의 순위 계산
+    setRecords(prev => [...prev, record])
     const tempRanked = calculateRanking([...records, record])
-    const newUserRank = tempRanked.find(u => u.id === record.id)?.rank || null
+    const newUserRank = tempRanked.find(u => u.id === record.id)?.rank ?? null
     setCurrentUserRank(newUserRank)
-    
-    console.log('🏆 새 사용자 순위:', newUserRank)
   }, [records, calculateRanking])
 
-  // 현재 사용자 설정
   const setCurrentUser = useCallback((userId: string) => {
-    const userRank = rankedUsers.find(user => user.id === userId)?.rank || null
+    const userRank = rankedUsers.find(user => user.id === userId)?.rank ?? null
     setCurrentUserRank(userRank)
-    console.log('👤 현재 사용자 설정:', userId, '순위:', userRank)
   }, [rankedUsers])
 
-  // 현재 사용자 기록 조회
   const getCurrentUserRecord = useCallback((): RankedUser | null => {
-    if (currentUserRank === null) return null
-    const user = rankedUsers.find(user => user.rank === currentUserRank) || null
-    console.log('👤 현재 사용자 기록 조회:', user)
-    return user
+    if (currentUserRank == null) return null
+    return rankedUsers.find(u => u.rank === currentUserRank) ?? null
   }, [rankedUsers, currentUserRank])
 
-  // 모든 기록 삭제 (개발/테스트용)
   const clearAllRecords = useCallback(() => {
-    console.log('🗑️ 모든 랭킹 데이터 초기화')
     setRecords(getInitialRecords())
     setCurrentUserRank(null)
     localStorage.removeItem(STORAGE_KEY)
     localStorage.removeItem(CURRENT_USER_KEY)
   }, [])
 
-  console.log('🔄 RankingProvider 렌더링:', {
-    isLoading,
-    recordsCount: records.length,
-    rankedUsersCount: rankedUsers.length,
-    currentUserRank
-  })
-
   return (
-    <RankingContext.Provider value={{
-      records,
-      rankedUsers,
-      currentUserRank,
-      isLoading,
-      addRecord,
-      setCurrentUser,
-      getCurrentUserRecord,
-      clearAllRecords
-    }}>
+    <RankingContext.Provider
+      value={{
+        records,
+        rankedUsers,
+        currentUserRank,
+        isLoading,
+        page,
+        totalPages,
+        setPage,
+        addRecord,
+        setCurrentUser,
+        getCurrentUserRecord,
+        clearAllRecords,
+      }}
+    >
       {children}
     </RankingContext.Provider>
   )
 }
 
+/* =========================
+ * Hook
+ * ========================= */
 export const useRanking = () => {
   const context = useContext(RankingContext)
-  if (context === undefined) {
-    throw new Error('useRanking must be used within a RankingProvider')
-  }
+  if (context === undefined) throw new Error('useRanking must be used within a RankingProvider')
   return context
 }

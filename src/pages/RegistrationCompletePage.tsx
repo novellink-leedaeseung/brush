@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useRanking } from '../contexts/RankingContext'
+import type { RankedUser } from '../contexts/RankingContext'
 import Header from '../components/Header'
 
 interface RegistrationData {
@@ -18,6 +19,7 @@ const RegistrationCompletePage: React.FC = () => {
   const [countdown, setCountdown] = useState(5)
   const [isRegistered, setIsRegistered] = useState(false)
   const [isNavigating, setIsNavigating] = useState(false)
+  const [currentUser, setCurrentUser] = useState<RankedUser | null>(null)
   
   // URL에서 등록 데이터 가져오기 (실제로는 이전 페이지에서 전달받음)
   const registrationData: RegistrationData = location.state || {
@@ -91,7 +93,32 @@ const RegistrationCompletePage: React.FC = () => {
     navigate('/', { replace: true })
   }
 
-  const currentUser = getCurrentUserRecord()
+  useEffect(() => {
+    let isMounted = true
+
+    const fetchCurrentUser = async () => {
+      try {
+        const user = await getCurrentUserRecord()
+        if (isMounted) {
+          setCurrentUser(user)
+        }
+      } catch (error) {
+        console.error('❌ RegistrationCompletePage 현재 사용자 조회 실패:', error)
+        if (isMounted) {
+          setCurrentUser(null)
+        }
+      }
+    }
+
+    if (isRegistered) {
+      fetchCurrentUser()
+    }
+
+    return () => {
+      isMounted = false
+    }
+  }, [getCurrentUserRecord, isRegistered])
+
   const now = new Date()
   const formattedTime = now.toLocaleTimeString('ko-KR', {
     hour: '2-digit',

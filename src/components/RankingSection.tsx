@@ -1,17 +1,26 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { useRanking } from '../contexts/RankingContext'
 import UserListItem from './UserListItem'
 
 const RankingSection: React.FC = () => {
-  const { rankedUsers, currentUserRank, getCurrentUserRecord, isLoading } = useRanking()
-  
+  const {
+    rankedUsers,
+    currentUserRank,
+    isLoading,
+    page,
+    totalPages,
+    setPage,
+  } = useRanking()
+
   console.log('🔄 RankingSection 렌더링:', {
     isLoading,
     rankedUsersCount: rankedUsers.length,
-    currentUserRank
+    currentUserRank,
+    page,
+    totalPages,
   })
-  
-  // 로딩 중일 때
+
+  // 로딩 중
   if (isLoading) {
     return (
       <div style={{
@@ -49,12 +58,10 @@ const RankingSection: React.FC = () => {
       </div>
     )
   }
-  
 
-  // 상위 3명과 나머지 분리
-    const otherUsers = rankedUsers.slice(0,4)
-
-  const formatTime = (date: Date): string => {
+  // 포맷 안전 처리: Date | string 모두 수용
+  const formatTime = (dt: Date | string): string => {
+    const date = dt instanceof Date ? dt : new Date(dt)
     return date.toLocaleTimeString('ko-KR', {
       hour: '2-digit',
       minute: '2-digit',
@@ -62,13 +69,16 @@ const RankingSection: React.FC = () => {
       hour12: true
     })
   }
-    return (
+
+  const otherUsers = useMemo(() => rankedUsers.slice(0, 5), [rankedUsers])
+
+  return (
     <>
-      {/* 오늘의 양치왕 헤더 */}
+      {/* 오늘의 양치왕 헤더 + 페이지 표시 */}
       <div style={{ width: '1080px', height: '120px', position: 'relative', background: 'white', overflow: 'hidden' }}>
         <div style={{
           left: '425px',
-          top: '32px',
+          top: '24px',
           position: 'absolute',
           justifyContent: 'flex-start',
           alignItems: 'center',
@@ -92,22 +102,80 @@ const RankingSection: React.FC = () => {
             <img src="/assets/icon/trophy.svg" alt="트로피" />
           </div>
         </div>
+
+        {/* 페이지 네비게이션 (우상단) */}
+        <div style={{
+          position: 'absolute',
+          right: 24,
+          top: 24,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10
+        }}>
+          <button
+            onClick={() => setPage(Math.max(1, page - 1))}
+            disabled={page <= 1}
+            style={{
+              padding: '8px 12px',
+              borderRadius: 8,
+              border: '1px solid #E5E7EB',
+              background: page <= 1 ? '#F3F4F6' : 'white',
+              cursor: page <= 1 ? 'not-allowed' : 'pointer'
+            }}
+          >
+            이전
+          </button>
+          <span style={{ fontFamily: 'Pretendard', color: '#6B7280' }}>
+            {page}{totalPages ? ` / ${totalPages}` : ''}
+          </span>
+          <button
+            onClick={() => setPage(totalPages ? Math.min(totalPages, page + 1) : page + 1)}
+            disabled={!!totalPages && page >= totalPages}
+            style={{
+              padding: '8px 12px',
+              borderRadius: 8,
+              border: '1px solid #E5E7EB',
+              background: (!!totalPages && page >= totalPages) ? '#F3F4F6' : 'white',
+              cursor: (!!totalPages && page >= totalPages) ? 'not-allowed' : 'pointer'
+            }}
+          >
+            다음
+          </button>
+        </div>
       </div>
 
-      {/* 사용자 리스트 */}
-      {otherUsers.map((user, index) => (
-        <UserListItem
-          key={user.id}
-          rank={user.rank}
-          name={user.name}
-          className={user.className}
-          time={formatTime(user.brushingTime)}
-          profileImage={user.profileImage}
-          mealType={user.mealType}
-          isLast={index === otherUsers.length - 1}
-          isCurrentUser={currentUserRank === user.rank}
-        />
-      ))}
+      {/* 빈 상태 */}
+      {otherUsers.length === 0 ? (
+        <div style={{
+          width: '1080px',
+          height: '240px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: '#9CA3AF',
+          fontFamily: 'Pretendard',
+          fontSize: 24,
+          background: 'white',
+          borderTop: '1px solid #F3F4F6'
+        }}>
+          데이터가 없습니다.
+        </div>
+      ) : (
+        // 사용자 리스트
+        otherUsers.map((user, index) => (
+          <UserListItem
+            key={user.id}
+            rank={user.rank}
+            name={user.name}
+            className={user.className}
+            time={formatTime(user.brushingTime)}
+            profileImage={user.profileImage}
+            mealType={user.mealType}
+            isLast={index === otherUsers.length - 1}
+            isCurrentUser={currentUserRank === user.rank}
+          />
+        ))
+      )}
 
       {/* 펄스 애니메이션 CSS */}
       <style>{`
