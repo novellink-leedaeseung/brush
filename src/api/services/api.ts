@@ -44,7 +44,7 @@ export async function uploadImage(blob: Blob, filename = `capture_${Date.now()}.
 }
 
 export interface MemberDto {
-  id: string;
+  id: number;
   name: string;
   phone: string;
   grade: string;
@@ -65,7 +65,7 @@ export async function fetchMembers(): Promise<MemberDto[]> {
   return data;
 }
 
-export async function fetchMember(id: string): Promise<MemberDto> {
+export async function fetchMember(id: number | string): Promise<MemberDto> {
   const { data } = await request<{ success: boolean; data: MemberDto }>(`/api/members/${id}`);
   return data;
 }
@@ -78,7 +78,7 @@ export async function createMember(payload: MemberPayload): Promise<MemberDto> {
   return data;
 }
 
-export async function updateMember(id: string, payload: Partial<MemberPayload>): Promise<MemberDto> {
+export async function updateMember(id: number | string, payload: Partial<MemberPayload>): Promise<MemberDto> {
   const { data } = await request<{ success: boolean; data: MemberDto }>(`/api/members/${id}`, {
     method: "PUT",
     body: JSON.stringify(payload),
@@ -86,6 +86,6 @@ export async function updateMember(id: string, payload: Partial<MemberPayload>):
   return data;
 }
 
-export async function removeMember(id: string): Promise<void> {
+export async function removeMember(id: number | string): Promise<void> {
   await request<undefined>(`/api/members/${id}`, { method: "DELETE" });
 }
