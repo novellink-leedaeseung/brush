@@ -2,7 +2,8 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs';
 import cors from 'cors';
-import { fileURLToPath } from 'url';
+import {fileURLToPath} from 'url';
+import {appendMemberToExcel} from "./src/utils/excelStore.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -124,7 +125,7 @@ class MemberStore {
             classroom: entry.classroom ? entry.classroom.toString().trim() : '',
             gradeClass: entry.gradeClass ? entry.gradeClass.toString().trim() : '',
             lunch: entry.lunch ?? false,
-            gender : entry.gender ? entry.gender.toString().trim() : '',
+            gender: entry.gender ? entry.gender.toString().trim() : '',
             createdAt: entry.createdAt ?? new Date().toISOString(),
             updatedAt: entry.updatedAt ?? entry.createdAt ?? new Date().toISOString()
         };
@@ -167,6 +168,7 @@ class MemberStore {
         }
     }
 }
+
 const memberStore = new MemberStore();
 
 app.use(cors({
@@ -175,51 +177,51 @@ app.use(cors({
 }));
 
 app.use(express.static('public'));
-app.use(express.json({ limit: '50mb' }));
+app.use(express.json({limit: '50mb'}));
 
 const studentDir = path.join(__dirname, 'public', 'assets', 'student');
 if (!fs.existsSync(studentDir)) {
-    fs.mkdirSync(studentDir, { recursive: true });
+    fs.mkdirSync(studentDir, {recursive: true});
     console.log('student 디렉토리 생성:', studentDir);
 }
 
 app.post('/api/save-photo', (req, res) => {
     try {
-        const { imageData, fileName } = req.body;
-        
+        const {imageData, fileName} = req.body;
+
         if (!imageData || !fileName) {
-            return res.status(400).json({ 
+            return res.status(400).json({
                 success: false,
-                error: '이미지 데이터와 파일명이 필요합니다.' 
+                error: '이미지 데이터와 파일명이 필요합니다.'
             });
         }
 
         const base64Data = imageData.replace(/^data:image\/[a-z]+;base64,/, '');
         const safeFileName = fileName.replace(/[^a-zA-Z0-9가-힣\-_]/g, '');
         const filePath = path.join(studentDir, `${safeFileName}.jpg`);
-        
+
         fs.writeFileSync(filePath, base64Data, 'base64');
-        
+
         console.log(`이미지 저장 완료: ${filePath}`);
-        
-        res.json({ 
-            success: true, 
+
+        res.json({
+            success: true,
             message: '사진이 성공적으로 저장되었습니다.',
             fileName: `${safeFileName}.jpg`,
             filePath: `/assets/student/${safeFileName}.jpg`
         });
-        
+
     } catch (error) {
         console.error('사진 저장 오류:', error);
-        res.status(500).json({ 
+        res.status(500).json({
             success: false,
-            error: '사진 저장 중 오류가 발생했습니다.' 
+            error: '사진 저장 중 오류가 발생했습니다.'
         });
     }
 });
 
 app.get('/api/members', (req, res) => {
-    const { page } = req.query;
+    const {page} = req.query;
     const result = memberStore.list({
         page: page !== undefined ? Number(page) : undefined,
         pageSize: 5,
@@ -234,33 +236,40 @@ app.get('/api/members', (req, res) => {
 app.get('/api/members/:id', (req, res) => {
     const member = memberStore.get(req.params.id);
     if (!member) {
-        return res.status(404).json({ success: false, error: '회원을 찾을 수 없습니다.' });
+        return res.status(404).json({success: false, error: '회원을 찾을 수 없습니다.'});
     }
 
-    res.json({ success: true, data: member });
+    res.json({success: true, data: member});
 });
 
-app.post('/api/members', (req, res) => {
-    const { name, phone, gradeClass, gender, lunch = '' } = req.body ?? {};
+app.post('/api/members', async (req, res) => {
+    const {name, phone, gradeClass, gender, lunch = ''} = req.body ?? {};
 
     if (!name || !phone) {
-        return res.status(400).json({ success: false, error: '이름과 연락처는 필수 항목입니다.' });
+        return res.status(400).json({success: false, error: '이름과 연락처는 필수 항목입니다.'});
     }
 
     const isPhone = /^010\d{8}$/.test(phone);
     if (!isPhone) {
-        return res.status(400).json({ success: false, error: '휴대폰 번호 형식이 올바르지 않습니다. 010으로 시작하는 11자리 번호여야 합니다.' });
+        return res.status(400).json({success: false, error: '휴대폰 번호 형식이 올바르지 않습니다. 010으로 시작하는 11자리 번호여야 합니다.'});
     }
 
-    const member = memberStore.create({ name, phone, gradeClass, gender, lunch});
-    res.status(201).json({ success: true, data: member });
+    try {
+        await appendMemberToExcel({ name, phone, gradeClass, gender });
+    } catch (error) {
+        console.error('엑셀 저장 실패:', error);
+        return res.status(500).json({success: false, error: '엑셀 저장 중 오류가 발생했습니다.'});
+    }
+
+    const member = memberStore.create({name, phone, gradeClass, gender, lunch});
+    res.status(201).json({success: true, data: member});
 });
 
 app.put('/api/members/:id', (req, res) => {
-    const { name, phone, grade, classroom } = req.body ?? {};
+    const {name, phone, grade, classroom} = req.body ?? {};
 
     if (phone && !/^010\d{8}$/.test(phone)) {
-        return res.status(400).json({ success: false, error: '휴대폰 번호 형식이 올바르지 않습니다. 010으로 시작하는 11자리 번호여야 합니다.' });
+        return res.status(400).json({success: false, error: '휴대폰 번호 형식이 올바르지 않습니다. 010으로 시작하는 11자리 번호여야 합니다.'});
     }
 
     const patch = {};
@@ -271,24 +280,24 @@ app.put('/api/members/:id', (req, res) => {
 
     const updated = memberStore.update(req.params.id, patch);
     if (!updated) {
-        return res.status(404).json({ success: false, error: '회원을 찾을 수 없습니다.' });
+        return res.status(404).json({success: false, error: '회원을 찾을 수 없습니다.'});
     }
 
-    res.json({ success: true, data: updated });
+    res.json({success: true, data: updated});
 });
 
 app.delete('/api/members/:id', (req, res) => {
     const removed = memberStore.delete(req.params.id);
     if (!removed) {
-        return res.status(404).json({ success: false, error: '회원을 찾을 수 없습니다.' });
+        return res.status(404).json({success: false, error: '회원을 찾을 수 없습니다.'});
     }
 
     res.status(204).end();
 });
 
 app.get('/api/health', (req, res) => {
-    res.json({ 
-        status: 'OK', 
+    res.json({
+        status: 'OK',
         studentDir: studentDir
     });
 });
