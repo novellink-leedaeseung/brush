@@ -291,7 +291,6 @@ const CameraConfirmPage: React.FC = () => {
     }
 
     // 등록 버튼 클릭
-    // 등록 버튼 클릭
     const handleRegister = async () => {
         if (isUploading) return;
 
@@ -337,7 +336,7 @@ const CameraConfirmPage: React.FC = () => {
                 // 세션스토리지 정리
                 const keys = ["capturedImage", "camara.capturedPhoto", "captured-photo"];
                 keys.forEach((k) => sessionStorage.removeItem(k));
-                navigate("/");
+                window.location.replace("/");
             }, 2000);
         } catch (err) {
             console.error("❌ 등록 실패:", err);
