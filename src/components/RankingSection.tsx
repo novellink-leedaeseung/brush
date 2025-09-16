@@ -1,6 +1,9 @@
+// RankingSection.tsx (교체/수정)
 import React, { useMemo } from 'react'
 import { useRanking } from '../contexts/RankingContext'
 import UserListItem from './UserListItem'
+
+const PAGE_SIZE = 5
 
 const RankingSection: React.FC = () => {
   const {
@@ -12,15 +15,6 @@ const RankingSection: React.FC = () => {
     setPage,
   } = useRanking()
 
-  console.log('🔄 RankingSection 렌더링:', {
-    isLoading,
-    rankedUsersCount: rankedUsers.length,
-    currentUserRank,
-    page,
-    totalPages,
-  })
-
-  // 로딩 중
   if (isLoading) {
     return (
       <div style={{
@@ -41,12 +35,7 @@ const RankingSection: React.FC = () => {
           borderRadius: '50%',
           animation: 'spin 1s linear infinite'
         }} />
-        <div style={{
-          fontSize: '36px',
-          fontFamily: 'Pretendard',
-          fontWeight: 500,
-          color: '#6B7280'
-        }}>
+        <div style={{ fontSize: '36px', fontFamily: 'Pretendard', fontWeight: 500, color: '#6B7280' }}>
           랭킹 데이터를 불러오는 중...
         </div>
         <style>{`
@@ -59,7 +48,6 @@ const RankingSection: React.FC = () => {
     )
   }
 
-  // 포맷 안전 처리: Date | string 모두 수용
   const formatTime = (dt: Date | string): string => {
     const date = dt instanceof Date ? dt : new Date(dt)
     return date.toLocaleTimeString('ko-KR', {
@@ -70,11 +58,25 @@ const RankingSection: React.FC = () => {
     })
   }
 
-  const otherUsers = useMemo(() => rankedUsers.slice(0, 5), [rankedUsers])
+  // 총 페이지 수: 서버에서 내려주면 그 값 사용, 없으면 클라이언트에서 계산
+  const computedTotalPages = useMemo(() => {
+    return totalPages ?? Math.max(1, Math.ceil(rankedUsers.length / PAGE_SIZE))
+  }, [totalPages, rankedUsers.length])
+
+  // 현재 페이지의 구간 계산 (서버 페이징 시 rankedUsers가 이미 해당 페이지라면 slice가 0~PAGE_SIZE로 동일 동작)
+  const pagedUsers = useMemo(() => {
+    if (totalPages) {
+      // 서버가 페이지 단위로 내려주는 경우: 상위 5명만 노출(디자인 스펙 유지)
+      return rankedUsers.slice(0, PAGE_SIZE)
+    }
+    const start = (page - 1) * PAGE_SIZE
+    const end = start + PAGE_SIZE
+    return rankedUsers.slice(start, end)
+  }, [rankedUsers, page, totalPages])
 
   return (
     <>
-      {/* 오늘의 양치왕 헤더 + 페이지 표시 */}
+      {/* 헤더 */}
       <div style={{ width: '1080px', height: '120px', position: 'relative', background: 'white', overflow: 'hidden' }}>
         <div style={{
           left: '425px',
@@ -103,11 +105,8 @@ const RankingSection: React.FC = () => {
           </div>
         </div>
 
-        {/* 페이지 네비게이션 (우상단) */}
+        {/* 페이지 네비게이션 */}
         <div style={{
-          position: 'absolute',
-          right: 24,
-          top: 24,
           display: 'flex',
           alignItems: 'center',
           gap: 10
@@ -126,17 +125,17 @@ const RankingSection: React.FC = () => {
             이전
           </button>
           <span style={{ fontFamily: 'Pretendard', color: '#6B7280' }}>
-            {page}{totalPages ? ` / ${totalPages}` : ''}
+            {page} / {computedTotalPages}
           </span>
           <button
-            onClick={() => setPage(totalPages ? Math.min(totalPages, page + 1) : page + 1)}
-            disabled={!!totalPages && page >= totalPages}
+            onClick={() => setPage(Math.min(computedTotalPages, page + 1))}
+            disabled={page >= computedTotalPages}
             style={{
               padding: '8px 12px',
               borderRadius: 8,
               border: '1px solid #E5E7EB',
-              background: (!!totalPages && page >= totalPages) ? '#F3F4F6' : 'white',
-              cursor: (!!totalPages && page >= totalPages) ? 'not-allowed' : 'pointer'
+              background: page >= computedTotalPages ? '#F3F4F6' : 'white',
+              cursor: page >= computedTotalPages ? 'not-allowed' : 'pointer'
             }}
           >
             다음
@@ -144,8 +143,8 @@ const RankingSection: React.FC = () => {
         </div>
       </div>
 
-      {/* 빈 상태 */}
-      {otherUsers.length === 0 ? (
+      {/* 목록 */}
+      {pagedUsers.length === 0 ? (
         <div style={{
           width: '1080px',
           height: '240px',
@@ -161,8 +160,7 @@ const RankingSection: React.FC = () => {
           데이터가 없습니다.
         </div>
       ) : (
-        // 사용자 리스트
-        otherUsers.map((user, index) => (
+        pagedUsers.map((user, index) => (
           <UserListItem
             key={user.id}
             rank={user.rank}
@@ -171,21 +169,16 @@ const RankingSection: React.FC = () => {
             time={formatTime(user.brushingTime)}
             profileImage={user.profileImage}
             mealType={user.mealType}
-            isLast={index === otherUsers.length - 1}
+            isLast={index === pagedUsers.length - 1}
             isCurrentUser={currentUserRank === user.rank}
           />
         ))
       )}
 
-      {/* 펄스 애니메이션 CSS */}
       <style>{`
         @keyframes pulse {
-          0%, 100% {
-            box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.7);
-          }
-          50% {
-            box-shadow: 0 0 0 12px rgba(34, 197, 94, 0.3);
-          }
+          0%, 100% { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.7); }
+          50% { box-shadow: 0 0 0 12px rgba(34, 197, 94, 0.3); }
         }
       `}</style>
     </>
