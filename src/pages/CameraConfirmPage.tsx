@@ -3,10 +3,69 @@ import {useNavigate} from 'react-router-dom'
 import Header from "../components/Header.tsx"
 import RegistrationButton from '../components/RegistrationButton'
 
+// 양치 인증 완료 모달 컴포넌트
+const CompleteModal = ({isVisible, onClose}: { isVisible: boolean; onClose: () => void }) => {
+    if (!isVisible) return null;
+
+    return (
+        <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: 'rgba(49, 49, 49, 0.6)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 2000
+        }}>
+            <div style={{
+                width: '740px',
+                height: '475px',
+                background: '#FFFFFF',
+                borderRadius: '50px',
+                boxShadow: '2px 2px 2px 0px rgba(42, 73, 148, 0.09), 2px 2px 2px 0px rgba(0, 79, 153, 0.09)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '60px 0'
+            }}>
+                {/* 체크 아이콘 */}
+                <div style={{
+                    marginBottom: '75px'
+                }}>
+                    <img src="/public/assets/icon/ticktick.svg" alt="완료" style={{
+                        width: '130px',
+                        height: '130px',
+                        objectFit: 'contain'
+                    }}/>
+                </div>
+
+                {/* 완료 메시지 */}
+                <h1 style={{
+                    fontFamily: 'Pretendard, Arial, sans-serif',
+                    fontWeight: 700,
+                    fontSize: '64px',
+                    lineHeight: '1.4em',
+                    letterSpacing: '-2.5%',
+                    textAlign: 'center',
+                    color: '#004F99',
+                    margin: 0
+                }}>
+                    양치 인증 완료!
+                </h1>
+            </div>
+        </div>
+    );
+};
+
 const CameraConfirmPage: React.FC = () => {
     const navigate = useNavigate()
     const [capturedImage, setCapturedImage] = useState<string>('')
     const [showLunchModal, setShowLunchModal] = useState(false)
+    const [showCompleteModal, setShowCompleteModal] = useState(false)
 
     // 컴포넌트가 마운트될 때 저장된 이미지 불러오기
     useEffect(() => {
@@ -124,16 +183,12 @@ const CameraConfirmPage: React.FC = () => {
             className: '1-1반', // 실제로는 사용자 정보에서 가져와야 함
             profileImage: '/assets/images/man.png' // 실제로는 성별이나 사용자 정보에 따라 결정
         }
-
-        const mealType = isLunchTime() ? 'lunch' : 'outside'
-        const brushingDuration = 120 // 실제로는 양치 시간 측정 결과
-
         if (!isLunchTime()) {
             setShowLunchModal(true)
             document.body.style.overflow = 'hidden'
         } else {
             // 점심시간이면 바로 등록 완료 페이지로 이동
-            navigate('/registration-complete', {
+            /*navigate('/registration-complete', {
                 state: {
                     name: studentData.name,
                     className: studentData.className,
@@ -141,7 +196,7 @@ const CameraConfirmPage: React.FC = () => {
                     mealType,
                     brushingDuration
                 }
-            })
+            })*/
         }
     }
 
@@ -159,16 +214,19 @@ const CameraConfirmPage: React.FC = () => {
             className: '1-1반',
             profileImage: '/assets/images/man.png'
         }
+        // 점심시간 모달 닫기
+        setShowLunchModal(false)
+        document.body.style.overflow = 'auto'
 
-        navigate('/registration-complete', {
-            state: {
-                name: studentData.name,
-                className: studentData.className,
-                profileImage: studentData.profileImage,
-                mealType: 'outside', // 점심시간이 아니므로 외부식사로 분류
-                brushingDuration: 120
-            }
-        })
+        // 완료 모달 표시
+        setShowCompleteModal(true)
+
+        /*// 2초 후 홈으로 이동
+        setTimeout(() => {
+            setShowCompleteModal(false)
+            sessionStorage.removeItem('capturedImage')
+            navigate('/')
+        }, 2000)*/
     }
 
     // 점심시간 모달 닫기
@@ -177,6 +235,13 @@ const CameraConfirmPage: React.FC = () => {
             setShowLunchModal(false)
             document.body.style.overflow = 'auto'
         }
+    }
+
+    // 완료 모달 닫기
+    const handleCompleteModalClose = () => {
+        setShowCompleteModal(false)
+        sessionStorage.removeItem('capturedImage')
+        navigate('/')
     }
 
     return (
@@ -748,6 +813,12 @@ const CameraConfirmPage: React.FC = () => {
                     </button>
                 </div>
             )}
+
+            {/* 양치 인증 완료 모달 */}
+            <CompleteModal
+                isVisible={showCompleteModal}
+                onClose={handleCompleteModalClose}
+            />
         </div>
     )
 }
