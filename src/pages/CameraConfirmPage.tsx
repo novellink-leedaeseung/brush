@@ -93,23 +93,23 @@ const CameraConfirmPage: React.FC = () => {
             const hours = String(today.getHours()).padStart(2, '0');
             const minutes = String(today.getMinutes()).padStart(2, '0');
             const seconds = String(today.getSeconds()).padStart(2, '0');
-            
+
             // 사용자 정보에서 파일명에 포함할 데이터 추출
             const phoneNumber = localStorage.getItem("phone") || "unknown";
             const userName = localStorage.getItem("name") || "user";
-            
+
             // 파일명 형식: YYYY-MM-DD-HH-MM-SS-전화번호-이름
             // 필요에 따라 이 부분을 수정하세요
             const fileName = `${year}${month}${day}-${hours}-${minutes}-${seconds}-${phoneNumber}-${userName}`;
-            
+
             // 또는 다른 형식 예시들:
             // const fileName = `photo_${year}${month}${day}_${phoneNumber}`;
             // const fileName = `${userName}_${year}-${month}-${day}_${Date.now()}`;
             // const fileName = `student_photo_${phoneNumber}_${year}${month}${day}${hours}${minutes}`;
             // ====================================================
-            
+
             console.log('📸 이미지 저장 시작:', fileName);
-            
+
             // 서버 API 호출
             const response = await fetch('/api/save-photo', {
                 method: 'POST',
@@ -121,9 +121,9 @@ const CameraConfirmPage: React.FC = () => {
                     fileName: fileName
                 })
             });
-            
+
             const result = await response.json();
-            
+
             if (response.ok && result.success) {
                 console.log('✅ 이미지 저장 성공:', result);
                 return {
@@ -137,7 +137,7 @@ const CameraConfirmPage: React.FC = () => {
                 console.error('❌ 서버 응답 오류:', result);
                 throw new Error(result.error || '이미지 저장에 실패했습니다.');
             }
-            
+
         } catch (error) {
             console.error('❌ 이미지 저장 실패:', error);
             throw error;
@@ -150,11 +150,11 @@ const CameraConfirmPage: React.FC = () => {
     const handleImageSave = async () => {
         try {
             setIsUploading(true);
-            
+
             // 캡처된 이미지 데이터 가져오기
             const possibleKeys = ['capturedImage', 'camara.capturedPhoto', 'captured-photo'];
             let imageDataUrl = null;
-            
+
             for (const key of possibleKeys) {
                 imageDataUrl = sessionStorage.getItem(key);
                 if (imageDataUrl) {
@@ -162,19 +162,19 @@ const CameraConfirmPage: React.FC = () => {
                     break;
                 }
             }
-            
+
             if (!imageDataUrl) {
                 alert('저장할 이미지가 없습니다. 다시 촬영해주세요.');
                 return false;
             }
-            
+
             // 서버에 이미지 저장
             const result = await saveImageToServer(imageDataUrl);
-            
+
             console.log(`✅ 서버 저장 성공: ${result.fileName}`);
-            
+
             return true;
-            
+
         } catch (error) {
             console.error('❌ 이미지 저장 실패:', error);
             alert(`이미지 저장 실패: ${error.message}`);
@@ -291,43 +291,62 @@ const CameraConfirmPage: React.FC = () => {
     }
 
     // 등록 버튼 클릭
+    // 등록 버튼 클릭
     const handleRegister = async () => {
-        // 업로드 중이면 중복 클릭 방지
-        if (isUploading) {
-            return;
-        }
+        if (isUploading) return;
 
-        // 사용자 데이터 준비
-        const userName = localStorage.getItem("name") || "익명 사용자"
-        const userPhone = localStorage.getItem("phone") || ""
-        const studentData = {
-            name: userName,
-            className: '1-1반', // 실제로는 사용자 정보에서 가져와야 함
-            profileImage: '/assets/images/man.png' // 실제로는 성별이나 사용자 정보에 따라 결정
-        }
-        
-        if (!isLunchTime()) {
-            setShowLunchModal(true)
-            document.body.style.overflow = 'hidden'
-        } else {
-            // 이미지 서버 저장 먼저 실행
+        // 로컬스토리지 값 불러오기
+        const name = localStorage.getItem("name") || "익명";
+        const phone = localStorage.getItem("phone") || "";
+        const gradeClass = localStorage.getItem("gradeClass") || "";
+        let gender = localStorage.getItem("gender") || "";
+        gender = gender === "M" ? "남자" : "여자";
+
+
+        try {
+            setIsUploading(true);
+
+            // 1. 이미지 서버 저장
             const saveSuccess = await handleImageSave();
-            
-            if (saveSuccess) {
-                // 완료 모달 표시
-                setShowCompleteModal(true)
+            if (!saveSuccess) return;
 
-                // 2초 후 홈으로 이동
-                setTimeout(() => {
-                    setShowCompleteModal(false)
-                    // 세션 스토리지 정리
-                    const possibleKeys = ['capturedImage', 'camara.capturedPhoto', 'captured-photo'];
-                    possibleKeys.forEach(key => sessionStorage.removeItem(key));
-                    navigate('/')
-                }, 2000)
+
+            // 2. 학생 데이터 API 호출
+            const response = await fetch("http://localhost:3001/api/members", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    name,
+                    phone,
+                    gradeClass,
+                    gender,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
             }
+
+            const result = await response.json();
+            console.log("✅ 학생 데이터 전송 성공:", result);
+
+            // 3. 완료 모달 표시
+            setShowCompleteModal(true);
+            setTimeout(() => {
+                setShowCompleteModal(false);
+                // 세션스토리지 정리
+                const keys = ["capturedImage", "camara.capturedPhoto", "captured-photo"];
+                keys.forEach((k) => sessionStorage.removeItem(k));
+                navigate("/");
+            }, 2000);
+        } catch (err) {
+            console.error("❌ 등록 실패:", err);
+            alert("등록 실패: " + err.message);
+        } finally {
+            setIsUploading(false);
         }
-    }
+    };
+
 
     // 점심시간 모달 - 아니요 클릭
     const handleLunchModalNo = () => {
@@ -343,14 +362,14 @@ const CameraConfirmPage: React.FC = () => {
             className: '1-1반',
             profileImage: '/assets/images/man.png'
         }
-        
+
         // 점심시간 모달 닫기
         setShowLunchModal(false)
         document.body.style.overflow = 'auto'
 
         // 이미지 서버 저장 먼저 실행
         const saveSuccess = await handleImageSave();
-        
+
         if (saveSuccess) {
             // 완료 모달 표시
             setShowCompleteModal(true)
@@ -907,68 +926,6 @@ const CameraConfirmPage: React.FC = () => {
                     </div>
                 </div>
             </div>
-
-            {/* 점심시간 확인 모달 */}
-            {showLunchModal && (
-                <div className="lunch-false-modal-overlay" onClick={closeLunchModal}>
-                    <div className="lunch-false-container" onClick={(e) => e.stopPropagation()}>
-                        {/* 배경 */}
-                        <div className="lunch-false-background"></div>
-
-                        {/* 시계 아이콘 */}
-                        <div className="lunch-false-clock-container">
-                            <img src="/public/assets/icon/time.svg" alt="시계"/>
-                        </div>
-
-                        {/* 메인 메시지 */}
-                        <div className="lunch-false-main-message">지금은 점심 시간이 아닙니다</div>
-
-                        {/* 보조 메시지 */}
-                        <div className="lunch-false-secondary-message">그래도 등록 할까요?</div>
-
-                        {/* 버튼 컨테이너 */}
-                        <div className="lunch-false-buttons-container">
-                            {/* 아니요 버튼 */}
-                            <button
-                                className="lunch-false-button lunch-false-button-secondary"
-                                onClick={handleLunchModalNo}
-                            >
-                                아니요
-                            </button>
-
-                            {/* 등록 버튼 */}
-                            <button
-                                className="lunch-false-button lunch-false-button-primary"
-                                onClick={handleLunchModalRegister}
-                            >
-                                등록
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* 개발용 테스트 버튼들 */}
-            {process.env.NODE_ENV === 'development' && (
-                <div style={{textAlign: 'center', padding: '20px'}}>
-                    <button
-                        className="lunch-false-trigger-button"
-                        onClick={() => {
-                            setShowLunchModal(true)
-                            document.body.style.overflow = 'hidden'
-                        }}
-                    >
-                        점심시간 확인 알림창 열기 (개발용)
-                    </button>
-
-                    <button
-                        className="test-download-button"
-                        onClick={downloadImage}
-                    >
-                        이미지 다운로드 테스트
-                    </button>
-                </div>
-            )}
 
             {/* 양치 인증 완료 모달 */}
             <CompleteModal
