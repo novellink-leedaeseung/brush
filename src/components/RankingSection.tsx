@@ -50,46 +50,6 @@ const RankingSection: React.FC = () => {
     )
   }
   
-  // 데이터가 없을 때
-  if (!rankedUsers || rankedUsers.length === 0) {
-    return (
-      <div style={{
-        width: '1080px',
-        height: '800px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexDirection: 'column',
-        gap: '20px',
-        backgroundColor: 'white'
-      }}>
-        <div style={{
-          fontSize: '48px',
-          marginBottom: '20px'
-        }}>
-          📊
-        </div>
-        <div style={{
-          fontSize: '36px',
-          fontFamily: 'Pretendard',
-          fontWeight: 600,
-          color: '#111111',
-          textAlign: 'center'
-        }}>
-          아직 등록된 기록이 없습니다
-        </div>
-        <div style={{
-          fontSize: '28px',
-          fontFamily: 'Pretendard',
-          fontWeight: 400,
-          color: '#6B7280',
-          textAlign: 'center'
-        }}>
-          첫 번째 양치왕이 되어보세요!
-        </div>
-      </div>
-    )
-  }
 
   // 상위 3명과 나머지 분리
     const otherUsers = rankedUsers.slice(0,4)
