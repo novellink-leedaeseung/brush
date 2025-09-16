@@ -197,16 +197,15 @@ const CameraConfirmPage: React.FC = () => {
             setShowLunchModal(true)
             document.body.style.overflow = 'hidden'
         } else {
-            // 점심시간이면 바로 등록 완료 페이지로 이동
-            /*navigate('/registration-complete', {
-                state: {
-                    name: studentData.name,
-                    className: studentData.className,
-                    profileImage: studentData.profileImage,
-                    mealType,
-                    brushingDuration
-                }
-            })*/
+            // 완료 모달 표시
+            setShowCompleteModal(true)
+
+            // 2초 후 홈으로 이동
+            setTimeout(() => {
+                setShowCompleteModal(false)
+                sessionStorage.removeItem('capturedImage')
+                navigate('/')
+            }, 2000)
         }
     }
 
@@ -231,12 +230,12 @@ const CameraConfirmPage: React.FC = () => {
         // 완료 모달 표시
         setShowCompleteModal(true)
 
-        /*// 2초 후 홈으로 이동
+        // 2초 후 홈으로 이동
         setTimeout(() => {
             setShowCompleteModal(false)
             sessionStorage.removeItem('capturedImage')
             navigate('/')
-        }, 2000)*/
+        }, 2000)
     }
 
     // 점심시간 모달 닫기
