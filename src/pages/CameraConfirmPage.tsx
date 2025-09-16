@@ -18,23 +18,27 @@ const CompleteModal = ({isVisible, onClose}: { isVisible: boolean; onClose: () =
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            zIndex: 2000
+            zIndex: 2000,
+            padding: '20px'
         }}>
             <div style={{
                 width: '740px',
                 height: '475px',
+                maxWidth: '90vw',
+                maxHeight: '80vh',
                 background: '#FFFFFF',
                 borderRadius: '50px',
                 boxShadow: '2px 2px 2px 0px rgba(42, 73, 148, 0.09), 2px 2px 2px 0px rgba(0, 79, 153, 0.09)',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                justifyContent: 'center',
-                padding: '60px 0'
             }}>
                 {/* 체크 아이콘 */}
                 <div style={{
-                    marginBottom: '75px'
+                    marginTop: '60px',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center'
                 }}>
                     <img src="/public/assets/icon/ticktick.svg" alt="완료" style={{
                         width: '130px',
@@ -44,7 +48,12 @@ const CompleteModal = ({isVisible, onClose}: { isVisible: boolean; onClose: () =
                 </div>
 
                 {/* 완료 메시지 */}
-                <h1 style={{
+                <div style={{
+                    width: '570px',
+                    height: '90px',
+                    marginTop: '75px',
+                }}><h1 style={{
+                    marginTop: '75px',
                     fontFamily: 'Pretendard, Arial, sans-serif',
                     fontWeight: 700,
                     fontSize: '64px',
@@ -52,10 +61,11 @@ const CompleteModal = ({isVisible, onClose}: { isVisible: boolean; onClose: () =
                     letterSpacing: '-2.5%',
                     textAlign: 'center',
                     color: '#004F99',
-                    margin: 0
+                    margin: 0,
+                    padding: 0
                 }}>
                     양치 인증 완료!
-                </h1>
+                </h1></div>
             </div>
         </div>
     );
