@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, {useEffect, useState, useRef} from 'react'
+import {useNavigate} from 'react-router-dom'
 import Header from "../components/Header.tsx"
 import RegistrationButton from '../components/RegistrationButton'
 
@@ -12,7 +12,7 @@ const CameraConfirmPage: React.FC = () => {
     useEffect(() => {
         // 여러 가능한 키 이름으로 시도
         const possibleKeys = ['capturedImage', 'camara.capturedPhoto', 'captured-photo']
-        
+
         let savedImage = null
         for (const key of possibleKeys) {
             savedImage = sessionStorage.getItem(key)
@@ -22,7 +22,7 @@ const CameraConfirmPage: React.FC = () => {
                 break
             }
         }
-        
+
         if (!savedImage) {
             console.log('세션 스토리지에서 이미지를 찾을 수 없습니다.')
             // 세션 스토리지의 모든 키를 출력해서 디버깅
@@ -54,7 +54,7 @@ const CameraConfirmPage: React.FC = () => {
     const downloadImage = () => {
         const possibleKeys = ['capturedImage', 'camara.capturedPhoto', 'captured-photo']
         let imageData = null
-        
+
         // 세션 스토리지에서 이미지 데이터 찾기
         for (const key of possibleKeys) {
             imageData = sessionStorage.getItem(key)
@@ -63,7 +63,7 @@ const CameraConfirmPage: React.FC = () => {
                 break
             }
         }
-        
+
         if (!imageData) {
             console.error('다운로드할 이미지가 없습니다.')
             alert('저장된 이미지가 없습니다.')
@@ -77,20 +77,20 @@ const CameraConfirmPage: React.FC = () => {
             let name = localStorage.getItem("name");
             let phone = localStorage.getItem("phone");
             const fileName = `${dateStr}-${phone}-${name}.jpg`
-            
+
             // 가상의 다운로드 링크 생성
             const link = document.createElement('a')
             link.href = imageData
             link.download = fileName
             link.style.display = 'none'
-            
+
             // DOM에 추가하고 클릭한 후 제거
             document.body.appendChild(link)
             link.click()
             document.body.removeChild(link)
-            
+
             console.log(`이미지 다운로드 완료: ${fileName}`)
-            
+
         } catch (error) {
             console.error('이미지 다운로드 실패:', error)
             alert('이미지 다운로드에 실패했습니다.')
@@ -124,10 +124,10 @@ const CameraConfirmPage: React.FC = () => {
             className: '1-1반', // 실제로는 사용자 정보에서 가져와야 함
             profileImage: '/assets/images/man.png' // 실제로는 성별이나 사용자 정보에 따라 결정
         }
-        
+
         const mealType = isLunchTime() ? 'lunch' : 'outside'
         const brushingDuration = 120 // 실제로는 양치 시간 측정 결과
-        
+
         if (!isLunchTime()) {
             setShowLunchModal(true)
             document.body.style.overflow = 'hidden'
@@ -159,7 +159,7 @@ const CameraConfirmPage: React.FC = () => {
             className: '1-1반',
             profileImage: '/assets/images/man.png'
         }
-        
+
         navigate('/registration-complete', {
             state: {
                 name: studentData.name,
@@ -180,7 +180,7 @@ const CameraConfirmPage: React.FC = () => {
     }
 
     return (
-        <div style={{ backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
+        <div style={{backgroundColor: '#f5f5f5', minHeight: '100vh'}}>
             {/* 스타일 정의 */}
             <style>{`
         /* 알림창 트리거 버튼 */
@@ -476,7 +476,7 @@ const CameraConfirmPage: React.FC = () => {
       `}</style>
 
             <div id="app-viewport">
-                <Header />
+                <Header/>
 
                 {/* 촬영된 이미지 또는 플레이스홀더 */}
                 {capturedImage ? (
@@ -485,7 +485,7 @@ const CameraConfirmPage: React.FC = () => {
                         alt="촬영 이미지"
                         width="798"
                         height="1418"
-                        style={{ marginLeft: '141px' }}
+                        style={{marginLeft: '141px'}}
                         src={capturedImage}
                         onError={(e) => {
                             console.error('이미지 로드 실패:', e)
@@ -499,7 +499,7 @@ const CameraConfirmPage: React.FC = () => {
                         <div style={{fontSize: '18px', marginTop: '10px', color: '#999'}}>
                             카메라에서 사진을 촬영해주세요
                         </div>
-                        <button 
+                        <button
                             onClick={handleRetake}
                             style={{
                                 marginTop: '30px',
@@ -534,8 +534,8 @@ const CameraConfirmPage: React.FC = () => {
                             marginTop: '26px',
                             marginLeft: '31px',
                             marginRight: '24px',
-                            width: '300px',
-                            height: '320px',
+                            width: '320px',
+                            height: '300px',
                             background: 'white',
                             boxShadow: '2px 2px 2px rgba(0, 0, 0, 0.16)',
                             borderRadius: '32px',
@@ -544,6 +544,7 @@ const CameraConfirmPage: React.FC = () => {
                         <div
                             style={{
                                 marginTop: '55px',
+                                marginLeft: '40px',
                                 width: '250px',
                                 height: '190px',
                                 flexDirection: 'column',
@@ -553,8 +554,8 @@ const CameraConfirmPage: React.FC = () => {
                                 display: 'inline-flex',
                             }}
                         >
-                            <div style={{ width: '110px', height: '110.84px' }}>
-                                <img src="/public/assets/icon/retake.svg" alt="재촬영" />
+                            <div style={{width: '110px', height: '110.84px'}}>
+                                <img src="/public/assets/icon/retake.svg" alt="재촬영"/>
                             </div>
                             <div
                                 style={{
@@ -583,9 +584,10 @@ const CameraConfirmPage: React.FC = () => {
                         onClick={handleHome}
                         style={{
                             marginTop: '26px',
+                            marginLeft: '31px',
                             marginRight: '24px',
-                            width: '300px',
-                            height: '320px',
+                            width: '320px',
+                            height: '300px',
                             background: 'white',
                             boxShadow: '2px 2px 2px rgba(0, 0, 0, 0.16)',
                             borderRadius: '32px',
@@ -594,6 +596,7 @@ const CameraConfirmPage: React.FC = () => {
                         <div
                             style={{
                                 marginTop: '55px',
+                                marginLeft: '40px',
                                 width: '250px',
                                 height: '190px',
                                 flexDirection: 'column',
@@ -603,8 +606,9 @@ const CameraConfirmPage: React.FC = () => {
                                 display: 'inline-flex',
                             }}
                         >
-                            <div style={{ width: '110px', height: '110.84px' }}>
-                                <img src="/public/assets/icon/home.svg" alt="홈" />
+                            <div style={{width: '110px', height: '110.84px'}}>
+                                <img src="/public/assets/icon/home.svg" alt="홈"/>
+
                             </div>
                             <div
                                 style={{
@@ -633,8 +637,10 @@ const CameraConfirmPage: React.FC = () => {
                         onClick={handleRegister}
                         style={{
                             marginTop: '26px',
-                            width: '300px',
-                            height: '320px',
+                            marginLeft: '31px',
+                            marginRight: '24px',
+                            width: '320px',
+                            height: '300px',
                             background: 'white',
                             boxShadow: '2px 2px 2px rgba(0, 0, 0, 0.16)',
                             borderRadius: '32px',
@@ -643,6 +649,7 @@ const CameraConfirmPage: React.FC = () => {
                         <div
                             style={{
                                 marginTop: '55px',
+                                marginLeft: '35px',
                                 width: '250px',
                                 height: '190px',
                                 flexDirection: 'column',
@@ -652,8 +659,10 @@ const CameraConfirmPage: React.FC = () => {
                                 display: 'inline-flex',
                             }}
                         >
-                            <div style={{ width: '110px', height: '110.84px' }}>
-                                <img src="/public/assets/icon/toothbrush.svg" alt="양치" />
+                            <div style={{width: '110px', height: '110.84px'}}>
+                                <img src="/public/assets/icon/toothbrush.svg" alt="양치"/>
+
+
                             </div>
                             <div
                                 style={{
@@ -687,7 +696,7 @@ const CameraConfirmPage: React.FC = () => {
 
                         {/* 시계 아이콘 */}
                         <div className="lunch-false-clock-container">
-                            <img src="/public/assets/icon/time.svg" alt="시계" />
+                            <img src="/public/assets/icon/time.svg" alt="시계"/>
                         </div>
 
                         {/* 메인 메시지 */}
@@ -720,7 +729,7 @@ const CameraConfirmPage: React.FC = () => {
 
             {/* 개발용 테스트 버튼들 */}
             {process.env.NODE_ENV === 'development' && (
-                <div style={{ textAlign: 'center', padding: '20px' }}>
+                <div style={{textAlign: 'center', padding: '20px'}}>
                     <button
                         className="lunch-false-trigger-button"
                         onClick={() => {
@@ -730,7 +739,7 @@ const CameraConfirmPage: React.FC = () => {
                     >
                         점심시간 확인 알림창 열기 (개발용)
                     </button>
-                    
+
                     <button
                         className="test-download-button"
                         onClick={downloadImage}
