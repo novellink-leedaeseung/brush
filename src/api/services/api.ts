@@ -53,6 +53,14 @@ export interface MemberDto {
   updatedAt: string;
 }
 
+export interface MembersPage {
+  items: MemberDto[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
 export type MemberPayload = {
   name: string;
   phone: string;
@@ -60,8 +68,19 @@ export type MemberPayload = {
   classroom?: string;
 };
 
-export async function fetchMembers(): Promise<MemberDto[]> {
-  const { data } = await request<{ success: boolean; data: MemberDto[] }>("/api/members");
+export async function fetchMembers(params: { page?: number; pageSize?: number } = {}): Promise<MembersPage> {
+  const search = new URLSearchParams();
+  if (params.page !== undefined) {
+    search.set("page", String(params.page));
+  }
+  if (params.pageSize !== undefined) {
+    search.set("pageSize", String(params.pageSize));
+  }
+
+  const query = search.toString();
+  const path = `/api/members${query ? `?${query}` : ""}`;
+
+  const { data } = await request<{ success: boolean; data: MembersPage }>(path);
   return data;
 }
 

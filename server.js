@@ -26,8 +26,32 @@ class MemberStore {
         });
     }
 
-    list() {
-        return Array.from(this.members.values());
+    list(options = {}) {
+        const rawPage = Number(options.page ?? 1);
+        const rawPageSize = Number(options.pageSize ?? 5);
+        const pageSize = Number.isInteger(rawPageSize) && rawPageSize > 0 ? rawPageSize : 5;
+
+        const all = Array.from(this.members.values()).sort((a, b) => a.id - b.id);
+        const total = all.length;
+        const totalPages = pageSize > 0 ? Math.ceil(total / pageSize) : 0;
+
+        let page = Number.isInteger(rawPage) && rawPage > 0 ? rawPage : 1;
+        if (totalPages === 0) {
+            page = 1;
+        } else if (page > totalPages) {
+            page = totalPages;
+        }
+
+        const start = (page - 1) * pageSize;
+        const items = all.slice(start, start + pageSize);
+
+        return {
+            items,
+            total,
+            page,
+            pageSize,
+            totalPages
+        };
     }
 
     get(id) {
@@ -189,9 +213,15 @@ app.post('/api/save-photo', (req, res) => {
 });
 
 app.get('/api/members', (req, res) => {
+    const { page } = req.query;
+    const result = memberStore.list({
+        page: page !== undefined ? Number(page) : undefined,
+        pageSize: 5,
+    });
+
     res.json({
         success: true,
-        data: memberStore.list()
+        data: result
     });
 });
 
