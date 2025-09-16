@@ -2,7 +2,6 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs';
 import cors from 'cors';
-import { randomUUID } from 'crypto';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -11,49 +10,19 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = 3001;
 
-const dataDir = path.join(__dirname, 'data');
-const membersSnapshotPath = path.join(dataDir, 'members.json');
-
-const ensureDir = (dirPath) => {
-    if (!fs.existsSync(dirPath)) {
-        fs.mkdirSync(dirPath, { recursive: true });
-    }
-};
-
-const loadMemberSnapshot = (filePath) => {
-    try {
-        if (fs.existsSync(filePath)) {
-            const raw = fs.readFileSync(filePath, 'utf8');
-            if (raw.trim().length === 0) {
-                return [];
-            }
-            const parsed = JSON.parse(raw);
-            if (Array.isArray(parsed)) {
-                return parsed;
-            }
-        }
-    } catch (error) {
-        console.error('회원 스냅샷 로드 실패:', error);
-    }
-    return [];
-};
-
-const persistMembersSnapshot = (filePath, members) => {
-    try {
-        ensureDir(path.dirname(filePath));
-        fs.writeFileSync(filePath, JSON.stringify(members, null, 2), 'utf8');
-    } catch (error) {
-        console.error('회원 스냅샷 저장 실패:', error);
-    }
-};
-
 class MemberStore {
-    constructor(seed = [], options = {}) {
+    constructor(seed = []) {
         this.members = new Map();
-        this.persist = options.persist ?? (() => {});
+        this.nextId = 1;
+
         seed.forEach((entry) => {
-            const member = this.#normalize(entry);
+            const seededId = this.#coerceSeedId(entry?.id);
+            const member = this.#normalize({
+                ...entry,
+                id: seededId
+            });
             this.members.set(member.id, member);
+            this.#trackNextId(member.id);
         });
     }
 
@@ -62,13 +31,17 @@ class MemberStore {
     }
 
     get(id) {
-        return this.members.get(id) ?? null;
+        const parsed = this.#parseId(id);
+        if (parsed === null) {
+            return null;
+        }
+        return this.members.get(parsed) ?? null;
     }
 
     create(payload) {
         const now = new Date().toISOString();
         const base = this.#normalize({
-            id: randomUUID(),
+            id: this.#issueId(),
             name: payload.name,
             phone: payload.phone,
             grade: payload.grade,
@@ -78,12 +51,16 @@ class MemberStore {
         });
 
         this.members.set(base.id, base);
-        this.persist(this.list());
         return base;
     }
 
     update(id, patch) {
-        const current = this.members.get(id);
+        const parsed = this.#parseId(id);
+        if (parsed === null) {
+            return null;
+        }
+
+        const current = this.members.get(parsed);
         if (!current) return null;
 
         const next = this.#normalize({
@@ -93,22 +70,27 @@ class MemberStore {
             updatedAt: new Date().toISOString()
         });
 
-        this.members.set(id, next);
-        this.persist(this.list());
+        this.members.set(parsed, next);
         return next;
     }
 
     delete(id) {
-        const removed = this.members.delete(id);
-        if (removed) {
-            this.persist(this.list());
+        const parsed = this.#parseId(id);
+        if (parsed === null) {
+            return false;
         }
-        return removed;
+
+        return this.members.delete(parsed);
     }
 
     #normalize(entry) {
+        const id = this.#parseId(entry.id);
+        if (id === null) {
+            throw new Error('유효하지 않은 회원 ID 입니다.');
+        }
+
         return {
-            id: entry.id ?? randomUUID(),
+            id,
             name: (entry.name ?? '').toString().trim(),
             phone: (entry.phone ?? '').toString().trim(),
             grade: entry.grade ? entry.grade.toString().trim() : '',
@@ -117,14 +99,45 @@ class MemberStore {
             updatedAt: entry.updatedAt ?? entry.createdAt ?? new Date().toISOString()
         };
     }
-}
 
-ensureDir(dataDir);
-const initialMembers = loadMemberSnapshot(membersSnapshotPath);
-const memberStore = new MemberStore(initialMembers, {
-    persist: (members) => persistMembersSnapshot(membersSnapshotPath, members)
-});
-persistMembersSnapshot(membersSnapshotPath, memberStore.list());
+    #parseId(value) {
+        if (value === undefined || value === null) {
+            return null;
+        }
+
+        const parsed = Number(value);
+        if (!Number.isInteger(parsed) || parsed <= 0) {
+            return null;
+        }
+
+        return parsed;
+    }
+
+    #issueId() {
+        const issued = this.nextId;
+        this.nextId += 1;
+        return issued;
+    }
+
+    #coerceSeedId(value) {
+        const parsed = this.#parseId(value);
+        if (parsed !== null) {
+            if (parsed >= this.nextId) {
+                this.nextId = parsed + 1;
+            }
+            return parsed;
+        }
+
+        return this.#issueId();
+    }
+
+    #trackNextId(id) {
+        if (id >= this.nextId) {
+            this.nextId = id + 1;
+        }
+    }
+}
+const memberStore = new MemberStore();
 
 app.use(cors({
     origin: ['http://localhost:5173', 'https://localhost:5173'],
