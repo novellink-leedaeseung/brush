@@ -310,12 +310,13 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
 
             {/* 오버레이 전환 버튼들 */}
             <div style={{
-                position: 'absolute',
+                position: 'fixed',
+                top: '669px',
                 bottom: '20px',
                 left: '50%',
                 transform: 'translateX(-50%)',
                 display: 'flex',
-                gap: '10px',
+                gap: '862px',
                 zIndex: 10
             }}>
                 <button
@@ -354,22 +355,6 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
                 >
                     →
                 </button>
-            </div>
-
-            {/* 오버레이 인디케이터 */}
-            <div style={{
-                position: 'absolute',
-                top: '20px',
-                right: '20px',
-                background: 'rgba(0, 0, 0, 0.5)',
-                color: 'white',
-                padding: '10px 15px',
-                borderRadius: '20px',
-                fontSize: '16px',
-                fontFamily: 'Pretendard',
-                zIndex: 10
-            }}>
-                {currentOverlayIndex + 1} / {overlayImages.length}
             </div>
 
             {/* 캔버스 (숨겨진 상태) */}
