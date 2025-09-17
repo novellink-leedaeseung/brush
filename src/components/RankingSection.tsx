@@ -26,16 +26,33 @@ interface MembersApiResponse {
 }
 
 /** ===== 화면 표시용 타입 ===== */
+// 화면용 타입에 표시용 플래그 추가
 interface RankingUser {
-    rank: number
-    name: string
-    className: string
-    time: string
-    profileImage: string
-    borderColor: string
-    // UserListItem은 boolean을 기대하므로 boolean으로 유지
-    mealType: boolean
+    rank: number;
+    name: string;
+    className: string;
+    time: string;
+    profileImage: string;
+    borderColor: string;
+    mealType: boolean;
+    isVacant?: boolean;   // ← 추가
 }
+
+// 사람모양 아이콘(네 프로젝트 경로로 바꿔도 됨)
+const PLACEHOLDER_IMG = '/public/assets/icon/user.svg';
+
+// 빈자리용 사용자 생성 함수
+const makeVacantUser = (rank: number): RankingUser => ({
+    rank,
+    name: '현재 빈자리!',
+    className: '',
+    time: '',
+    profileImage: PLACEHOLDER_IMG,
+    borderColor: '#B5B5B6', // 회색 테두리
+    mealType: false,
+    isVacant: true,
+});
+
 
 /** API → 화면 모델 매핑 */
 const mapApiToRankingUser = (item: MembersApiItem, rank: number): RankingUser => {
@@ -159,12 +176,21 @@ const RankingSection: React.FC = () => {
     // 1페이지일 때만 상단 1·2·3 분리, 4·5 목록. 그 외 페이지는 모두 목록으로 처리.
     const {topThree, otherUsers, listOnly} = useMemo(() => {
         if (page !== 1) {
-            return {topThree: [] as RankingUser[], otherUsers: [] as RankingUser[], listOnly: members}
+            return {topThree: [] as RankingUser[], otherUsers: [] as RankingUser[], listOnly: members};
         }
-        const top = members.filter(u => [1, 2, 3].includes(u.rank))
-        const others = members.filter(u => [4, 5].includes(u.rank))
-        return {topThree: top, otherUsers: others, listOnly: [] as RankingUser[]}
-    }, [members, page])
+
+        // 1~3등을 맵으로
+        const topMap = new Map<number, RankingUser>();
+        members.forEach(u => {
+            if (u.rank >= 1 && u.rank <= 3) topMap.set(u.rank, u);
+        });
+
+        // 없으면 빈자리로 채움
+        const top = [1, 2, 3].map(r => topMap.get(r) ?? makeVacantUser(r));
+
+        const others = members.filter(u => u.rank === 4 || u.rank === 5);
+        return {topThree: top, otherUsers: others, listOnly: [] as RankingUser[]};
+    }, [members, page]);
 
     if (loading) return <div style={{padding: 24}}>불러오는 중…</div>
     if (error) return <div style={{padding: 24, color: '#d33'}}>에러: {error}</div>
@@ -260,118 +286,136 @@ const RankingSection: React.FC = () => {
 
             {/* 1페이지: 상단 1·2·3 */}
             {members.length === 0 &&
-                <NoneLayer />
+                <NoneLayer/>
             }
             {page === 1 && members.length > 0 && (
                 <div style={{
-                    width: '1080px', height: '388px', position: 'relative',
-                    overflow: 'hidden', borderBottom: '0.50px #B4B4B5 solid',
+                    width: '1080px',
+                    height: '388px',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    borderBottom: '0.50px #B4B4B5 solid'
                 }}>
                     {topThree.map(user => {
-                        const rankStyle = getRankStyle(user.rank)
-                        const badgeStyle = getRankBadgeStyle(user.rank)
-                        const namePos = getNamePosition(user.rank)
-                        const timePos = getTimePosition(user.rank)
-                        const mealPos = getMealTagPosition(user.rank)
+                        const rankStyle = getRankStyle(user.rank);
+                        const badgeStyle = getRankBadgeStyle(user.rank);
+                        const namePos = getNamePosition(user.rank);
+                        const timePos = getTimePosition(user.rank);
 
                         return (
                             <React.Fragment key={user.rank}>
                                 {/* 프로필 */}
-                                <img
+                                {/* 기존 <img ... /> 대신 아래로 교체 */}
+                                <div
                                     style={{
-                                        ...rankStyle,
-                                        position: 'absolute',
-                                        borderRadius: '999px',
-                                        border: `3px ${user.borderColor} solid`
+                                        ...rankStyle,                           // 위치/크기 포함
+                                        position: "absolute",
+                                        borderRadius: "999px",
+                                        border: `3px ${user.isVacant ? "#B5B5B6" : user.borderColor} solid`,
+                                        background: user.isVacant ? "#fff" : "transparent",
+                                        overflow: "hidden",                     // 원형으로 잘라내기
+                                        boxSizing: "border-box",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
                                     }}
-                                    src={user.profileImage}
-                                    alt={user.name}
-                                />
+                                >
+                                    <img
+                                        // width={`${user.isVacant ? 120 : 100}px`}
+                                        src={user.profileImage}
+                                        alt={user.isVacant ? "빈자리" : user.name}
+                                        draggable={false}
+                                        style={{
+                                            width: `${user.isVacant ? 120 : 240}px`,
+                                            height: "100%",
+                                            objectFit: user.isVacant ? "contain" : "cover", // 아이콘은 여백 유지, 사진은 꽉 채움
+                                            display: "block",
+                                        }}
+                                    />
+                                </div>
+
+
                                 {/* 랭킹 배지 */}
                                 <div style={badgeStyle}>{user.rank}</div>
 
-                                {/* 이름 */}
-                                <div style={{
-                                    ...namePos, position: 'absolute', width: '250px', height: '43px',
-                                    color: '#111111', fontSize: 36, fontFamily: 'Pretendard',
-                                    fontWeight: 600, lineHeight: '56px',
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-
-                                }}>
-                                    {user.className == '' ? '미확인' : user.className} {user.name}
-                                </div>
-
-
-                                {/* 시간 + 식사 태그 (같은 컨테이너) */}
+                                {/* 이름 또는 "현재 빈자리!" */}
                                 <div
                                     style={{
+                                        ...namePos,
                                         position: 'absolute',
-                                        left: (timePos as any).left,
-                                        top: (timePos as any).top,
+                                        width: '250px',
+                                        height: '43px',
+                                        color: user.isVacant ? '#7A7A7A' : '#111111',
+                                        fontSize: 36,
+                                        fontFamily: 'Pretendard',
+                                        fontWeight: 600,
+                                        lineHeight: '56px',
                                         display: 'flex',
                                         alignItems: 'center',
-                                        gap: 12,
+                                        justifyContent: 'center',
                                     }}
                                 >
-                                    {/* 시간 */}
-                                    <div style={{fontSize: '32px', color: '#4C4948'}}>
-                                        {user.time}
-                                    </div>
-
-                                    {/* 식사 태그 */}
-                                    {user.mealType ? (
-                                        <div style={{
-                                            width: '80px',
-                                            height: '50px',
-                                            background: '#B2D7FF',
-                                            borderRadius: 16,
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            gap: 10,
-                                            display: 'inline-flex',
-                                        }}>
-                                            <div style={{
-                                                color: '#227EFF',
-                                                fontSize: '16px',
-                                                fontFamily: 'Pretendard',
-                                                fontWeight: 600,
-                                                textAlign: 'center'
-                                            }}>
-                                                점심
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div style={{
-                                            width: '80px',
-                                            height: '50px',
-                                            background: '#FEEAE2',
-                                            borderRadius: 16,
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            gap: 10,
-                                            display: 'inline-flex',
-                                        }}>
-                                            <div style={{
-                                                color: '#E5621C',
-                                                fontSize: '16px',
-                                                fontFamily: 'Pretendard',
-                                                fontWeight: 600,
-                                                textAlign: 'center'
-                                            }}>
-                                                외
-                                            </div>
-                                        </div>
-                                    )}
-
+                                    {user.isVacant ? '현재 빈자리!' : `${user.className === '' ? '미확인' : user.className} ${user.name}`}
                                 </div>
 
+                                {/* 시간/식사태그 — 빈자리는 표시하지 않음 */}
+                                {!user.isVacant && (
+                                    <div
+                                        style={{
+                                            position: 'absolute',
+                                            left: (timePos as any).left,
+                                            top: (timePos as any).top,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 12,
+                                        }}
+                                    >
+                                        <div style={{fontSize: '32px', color: '#4C4948'}}>{user.time}</div>
+                                        {user.mealType ? (
+                                            <div style={{
+                                                width: 80,
+                                                height: 50,
+                                                background: '#B2D7FF',
+                                                borderRadius: 16,
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center'
+                                            }}>
+                                                <div style={{
+                                                    color: '#227EFF',
+                                                    fontSize: 16,
+                                                    fontFamily: 'Pretendard',
+                                                    fontWeight: 600
+                                                }}>점심
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div style={{
+                                                width: 80,
+                                                height: 50,
+                                                background: '#FEEAE2',
+                                                borderRadius: 16,
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center'
+                                            }}>
+                                                <div style={{
+                                                    color: '#E5621C',
+                                                    fontSize: 16,
+                                                    fontFamily: 'Pretendard',
+                                                    fontWeight: 600
+                                                }}>외
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                             </React.Fragment>
-                        )
+                        );
                     })}
                 </div>
             )}
+
 
             {/* 목록: 1페이지는 4·5등만, 나머지 페이지는 해당 페이지의 전체 5명 */}
             {(page === 1 ? otherUsers : listOnly).map((user, idx, arr) => (
