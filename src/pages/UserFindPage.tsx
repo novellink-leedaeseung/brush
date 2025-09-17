@@ -5,12 +5,14 @@ import {useNavigate} from 'react-router-dom';
 
 import Header from "../components/Header.tsx";
 import {HomeComponent} from "../components/HomeComponent.tsx";
+import axios from "axios";
 
 
 const UserFindPage: React.FC<UserFindPageProps> = () => {
     const navigate = useNavigate();
     const [inputNumber, setInputNumber] = useState<string>('');
     const [showNotificationModal, setShowNotificationModal] = useState<boolean>(false);
+    const [notificationMessage, setNotificationMessage] = useState("");
 
     // ⬇️ 추가: 현재 눌리고 있는 숫자 키 상태 (눌린 동안만 숫자 흰색)
     const [activeKey, setActiveKey] = useState<number | 'clear' | 'backspace' | null>(null);
@@ -22,7 +24,11 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
     };
 
     // 알림창 컴포넌트
-    const NotificationModal = ({isVisible, onClose}: { isVisible: boolean; onClose: () => void }) => {
+    const NotificationModal = ({isVisible, onClose, message}: {
+        isVisible: boolean;
+        onClose: () => void,
+        message: '일치하는 회원 정보가 없습니다.'
+    }) => {
         if (!isVisible) return null;
 
         return (
@@ -85,7 +91,7 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                                 textAlign: 'center',
                                 color: '#4B4948'
                             }}>
-                                일치하는 회원 정보가 없습니다.
+                                {message}
                             </span>
                         </div>
 
@@ -225,19 +231,50 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
 
     // 확인 버튼 클릭 처리
     const handleConfirm = async () => {
-        if (inputNumber.trim()) {
-            try {
-                const getUser = await findUser(inputNumber);
-                if (getUser != null) {
-                    localStorage.setItem('inputNumber', inputNumber);
-                    setTimeout(() => navigate("/kiosk/user-confirm"), 1000);
-                } else {
-                    setShowNotificationModal(true);
-                }
-            } catch (error) {
-                console.error('사용자 조회 실패:', error);
+        const n = inputNumber.trim();
+        if (!n) return;
+
+        /** 1) 키오스크 회원 조회 */
+        try {
+            const kioskUser = await findUser(n);
+
+            // 키오스크에 '회원 없음'
+            if (!kioskUser) {
+                setNotificationMessage("일치하는 회원 정보가 없습니다.");
                 setShowNotificationModal(true);
+                return;
             }
+        } catch (e) {
+            // 키오스크 서버/통신 에러
+            setNotificationMessage("네트워크 연결이 불안정 합니다.");
+            setShowNotificationModal(true);
+            return;
+        }
+
+        /** 2) 구강인증(서버) 회원 조회 */
+        try {
+            // userNo로 조회하는 라우트를 만든 경우 권장
+            await axios.get(`http://localhost:3001/api/members/${n}`);
+            // 만약 기존 라우트가 /api/members/:id 가 'id' 기반이면 위 경로를 프로젝트에 맞게 바꿔줘
+
+            localStorage.setItem("inputNumber", n);
+            setTimeout(() => navigate("/kiosk/user-confirm"), 1000);
+        } catch (err) {
+            if (axios.isAxiosError(err)) {
+                const status = err.response?.status;
+                console.log(err)
+
+                if (status === 404) {
+                    // 구강인증에 '회원 없음'
+                    setNotificationMessage(err.response.data.error);
+                } else {
+                    // 구강인증 서버/통신 에러
+                    setNotificationMessage("구강인증 서버 통신 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+                }
+            } else {
+                setNotificationMessage("구강인증 조회 중 알 수 없는 오류가 발생했습니다.");
+            }
+            setShowNotificationModal(true);
         }
     };
 
@@ -516,26 +553,26 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                             />
                         </div>
                     </button>
+                </div>
             </div>
-        </div>
 
-    {/* 확인 버튼 */}
-    <div
-        onClick={handleConfirm}
-        style={{
-            width: '630px',
-            height: '120px',
-            background: '#004F99',
-            borderRadius: '16px',
-            boxShadow: '0px 4px 2px rgba(0,0,0,0.09)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginLeft: '225px',
-            marginTop: '65px',
-            cursor: 'pointer'
-        }}
-    >
+            {/* 확인 버튼 */}
+            <div
+                onClick={handleConfirm}
+                style={{
+                    width: '630px',
+                    height: '120px',
+                    background: '#004F99',
+                    borderRadius: '16px',
+                    boxShadow: '0px 4px 2px rgba(0,0,0,0.09)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginLeft: '225px',
+                    marginTop: '65px',
+                    cursor: 'pointer'
+                }}
+            >
                 <span
                     style={{
                         color: '#ffffff',
@@ -547,56 +584,57 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                 >
                     확인
                 </span>
-    </div>
+            </div>
 
-    {/* 바코드/QR코드 영역 */
-    }
-    <div
-        style={{
-            width: '900px',
-            height: '120px',
-            background: '#383839',
-            boxShadow: '0px 4px 2px rgba(0, 0, 0, 0.09)',
-            borderTopLeftRadius: '16px',
-            borderTopRightRadius: '16px',
-            marginTop: '189px',
-            marginLeft: '90px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-        }}
-    >
-        <div
-            style={{
-                textAlign: 'center',
-                color: 'white',
-                fontSize: '44px',
-                fontWeight: '600',
-                lineHeight: '56px',
-                display: 'flex',
-                alignItems: 'center'
-            }}
-        >
-            <img
-                src="/assets/icon/barcode_location.svg"
-                alt=""
-                width="40"
-                height="34"
-                style={{marginRight: '30px'}}
+            {/* 바코드/QR코드 영역 */
+            }
+            <div
+                style={{
+                    width: '900px',
+                    height: '120px',
+                    background: '#383839',
+                    boxShadow: '0px 4px 2px rgba(0, 0, 0, 0.09)',
+                    borderTopLeftRadius: '16px',
+                    borderTopRightRadius: '16px',
+                    marginTop: '189px',
+                    marginLeft: '90px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                }}
+            >
+                <div
+                    style={{
+                        textAlign: 'center',
+                        color: 'white',
+                        fontSize: '44px',
+                        fontWeight: '600',
+                        lineHeight: '56px',
+                        display: 'flex',
+                        alignItems: 'center'
+                    }}
+                >
+                    <img
+                        src="/assets/icon/barcode_location.svg"
+                        alt=""
+                        width="40"
+                        height="34"
+                        style={{marginRight: '30px'}}
+                    />
+                    바코드 / QR 코드 대는 곳
+                </div>
+            </div>
+
+            {/* 알림창 */
+            }
+            <NotificationModal
+                isVisible={showNotificationModal}
+                onClose={closeNotificationModal}
+                message={notificationMessage}
             />
-            바코드 / QR 코드 대는 곳
         </div>
-    </div>
-
-    {/* 알림창 */
-    }
-    <NotificationModal
-        isVisible={showNotificationModal}
-        onClose={closeNotificationModal}
-    />
-</div>
-)
-    ;
+    )
+        ;
 };
 
 export default UserFindPage;
