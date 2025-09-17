@@ -24,6 +24,7 @@ export class MembersService {
             name: String(body.name).trim(),
             phone: String(body.phone).trim(),
             gradeClass: String(body.gradeClass ?? '').trim(),
+            userNo: String(body.userNo ?? '').trim(),
             gender: String(body.gender ?? '').trim(),
             lunch: toBool(body.lunch),
         };
