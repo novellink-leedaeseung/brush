@@ -806,6 +806,7 @@ const CameraConfirmPage: React.FC = () => {
                         height: '352px',
                         backgroundColor: 'white',
                         display: 'flex',
+
                     }}
                 >
                     {/* 재촬영 버튼 */}
@@ -813,20 +814,26 @@ const CameraConfirmPage: React.FC = () => {
                         className="btn-container"
                         onClick={handleRetake}
                         style={{
+                            display: "flex",
+                            flexWrap: "wrap",
+                            justifyContent: "center",
+                            alignContent: 'center',
                             marginTop: '26px',
                             marginLeft: '31px',
                             marginRight: '24px',
                             width: '320px',
                             height: '300px',
-                            background: 'white',
-                            boxShadow: '2px 2px 2px rgba(0, 0, 0, 0.16)',
+                            backgroundColor: "#FFFFFF",
+                            boxShadow: `
+      2px 2px 2px rgba(0, 0, 0, 0.16),
+      1px 1px 7px rgba(0, 0, 0, 0.09)
+    `,
                             borderRadius: '32px',
+
                         }}
                     >
                         <div
                             style={{
-                                marginTop: '55px',
-                                marginLeft: '40px',
                                 width: '250px',
                                 height: '190px',
                                 flexDirection: 'column',
@@ -865,20 +872,25 @@ const CameraConfirmPage: React.FC = () => {
                         className="btn-container"
                         onClick={handleHome}
                         style={{
+                            display: "flex",
+                            flexWrap: "wrap",
+                            justifyContent: "center",
+                            alignContent: 'center',
                             marginTop: '26px',
                             marginLeft: '31px',
                             marginRight: '24px',
                             width: '320px',
                             height: '300px',
-                            background: 'white',
-                            boxShadow: '2px 2px 2px rgba(0, 0, 0, 0.16)',
+                            backgroundColor: "#FFFFFF",
+                            boxShadow: `
+      2px 2px 2px rgba(0, 0, 0, 0.16),
+      1px 1px 7px rgba(0, 0, 0, 0.09)
+    `,
                             borderRadius: '32px',
                         }}
                     >
                         <div
                             style={{
-                                marginTop: '55px',
-                                marginLeft: '40px',
                                 width: '250px',
                                 height: '190px',
                                 flexDirection: 'column',
@@ -886,6 +898,7 @@ const CameraConfirmPage: React.FC = () => {
                                 alignItems: 'center',
                                 gap: '36px',
                                 display: 'inline-flex',
+
                             }}
                         >
                             <div style={{width: '110px', height: '110.84px'}}>
@@ -918,22 +931,25 @@ const CameraConfirmPage: React.FC = () => {
                         className="btn-container"
                         onClick={handleRegister}
                         style={{
+                           display: "flex",
+                            flexWrap: "wrap",
+                            justifyContent: "center",
+                            alignContent: 'center',
                             marginTop: '26px',
                             marginLeft: '31px',
                             marginRight: '24px',
                             width: '320px',
                             height: '300px',
-                            background: isUploading ? '#cccccc' : 'white',
-                            boxShadow: '2px 2px 2px rgba(0, 0, 0, 0.16)',
+                            backgroundColor: "#FFFFFF",
+                            boxShadow: `
+      2px 2px 2px rgba(0, 0, 0, 0.16),
+      1px 1px 7px rgba(0, 0, 0, 0.09)
+    `,
                             borderRadius: '32px',
-                            cursor: isUploading ? 'not-allowed' : 'pointer',
-                            opacity: isUploading ? 0.7 : 1,
                         }}
                     >
                         <div
                             style={{
-                                marginTop: '55px',
-                                marginLeft: '35px',
                                 width: '250px',
                                 height: '190px',
                                 flexDirection: 'column',
