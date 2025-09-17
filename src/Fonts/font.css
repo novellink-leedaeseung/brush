@@ -23,3 +23,29 @@
 .font-family-jalnan2 {
   font-family: 'Jalnan2', sans-serif;
 }
+
+/* 드래그/선택 방지 */
+html, body {
+  overscroll-behavior: none;      /* 스크롤 체이닝/바운스 방지 */
+}
+
+.no-drag {
+  user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* 이미지/링크 드래그 방지 (클릭은 유지) */
+.no-drag img,
+.no-drag a,
+.no-drag svg {
+  -webkit-user-drag: none;
+  user-drag: none;
+}
+
+/* 화면 자체 스크롤도 막고 싶다면(완전 고정 화면) */
+.lock-scroll {
+  overflow: hidden;
+  height: 100vh;  /* 필요 시 */
+}
