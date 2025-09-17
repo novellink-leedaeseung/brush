@@ -20,18 +20,24 @@ export class JsonMemberRepo {
     seed.forEach((e) => this.#addSeed(e));
   }
 
-  list({ page=1, pageSize=5 }={}) {
-    const all = [...this.#map.values()].sort((a,b)=>a.id-b.id);
-    const total = all.length;
-    const totalPages = Math.max(1, Math.ceil(total / pageSize));
-    const cur = Math.min(Math.max(1, page), totalPages);
-    const items = all.slice((cur-1)*pageSize, (cur-1)*pageSize + pageSize);
-    return { items, total, page: cur, pageSize, totalPages };
-  }
+  list({ page = 1, pageSize = 5, lunchOnly = true } = {}) {
+  const rows = [...this.#map.values()];
+  const filtered = lunchOnly
+    ? rows.filter(r => r.lunch === true || r.lunch === 'true' || r.lunch === 1 || r.lunch === '1')
+    : rows;
+
+  const all = filtered.sort((a, b) => a.id - b.id);
+  const total = all.length;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const cur = Math.min(Math.max(1, page), totalPages);
+  const items = all.slice((cur - 1) * pageSize, (cur - 1) * pageSize + pageSize);
+  return { items, total, page: cur, pageSize, totalPages };
+}
+
   get(id) { return this.#map.get(Number(id)) ?? null; }
 
   create(data) {
-    const now = new Date().toISOString();
+    const now = new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });
     const id = this.#issueId();
     const row = { id, ...data, createdAt: now, updatedAt: now };
     this.#map.set(id, row);
@@ -41,7 +47,7 @@ export class JsonMemberRepo {
   update(id, patch) {
     const cur = this.get(id);
     if (!cur) return null;
-    const row = { ...cur, ...patch, id: cur.id, updatedAt: new Date().toISOString() };
+    const row = { ...cur, ...patch, id: cur.id, updatedAt: new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })};
     this.#map.set(cur.id, row);
     this.#persistSoon();
     return row;
