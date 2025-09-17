@@ -29,6 +29,11 @@ export default function IdleRedirect({
 
     setShowTimeoutWarning(false);
 
+    // 메인 화면에서는 경고 창을 띄우지 않음
+    if (location.pathname === to) {
+      return;
+    }
+
     // 테스트용: 경고창을 바로 표시 (1초 후)
     /*warningTimerRef.current = setTimeout(() => {
       setShowTimeoutWarning(true);
