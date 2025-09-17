@@ -24,7 +24,7 @@ const UserListItem: React.FC<UserListItemProps> = ({
     return (
         <div style={{
             width: '1080px',
-            height: '150px',
+            height: '138px',
             position: 'relative',
             background: isCurrentUser ? 'linear-gradient(90deg, #F0FDF4 0%, #DCFCE7 100%)' : 'white',
             borderBottom: isLast ? 'none' : '0.50px #B4B4B5 solid',
