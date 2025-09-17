@@ -3,10 +3,8 @@ import {findUser} from "../api/UserFind.ts";
 import {useNavigate} from 'react-router-dom';
 
 import Header from "../components/Header.tsx";
+import {HomeComponent} from "../components/HomeComponent.tsx";
 
-
-interface UserFindPageProps {
-}
 
 const UserFindPage: React.FC<UserFindPageProps> = () => {
     const navigate = useNavigate();
@@ -289,6 +287,7 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
         >
             {/* 기존 헤더 코드를 Header 컴포넌트로 교체 */}
             <Header/>
+            <HomeComponent right={0} bottom={0} onClick={undefined}/>
 
             {/* 안내문 */}
             <div
