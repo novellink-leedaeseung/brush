@@ -123,7 +123,7 @@ const Header: React.FC<HeaderProps> = ({
                     color: 'white',
                     letterSpacing: '-0.9px',
                     width: '190px',
-                    textAlign: 'left'
+                    textAlign: 'center'
                 }}>
                     <p style={{marginBottom: 0}}>{currentDate}</p>
                     <p style={{margin: 0}}>{currentTime}</p>
