@@ -1,3 +1,4 @@
+// UserFindPage.tsx
 import React, {useState} from 'react';
 import {findUser} from "../api/UserFind.ts";
 import {useNavigate} from 'react-router-dom';
@@ -11,10 +12,12 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
     const [inputNumber, setInputNumber] = useState<string>('');
     const [showNotificationModal, setShowNotificationModal] = useState<boolean>(false);
 
+    // ⬇️ 추가: 현재 눌리고 있는 숫자 키 상태 (눌린 동안만 숫자 흰색)
+    const [activeKey, setActiveKey] = useState<number | null>(null);
+
     // 알림창 닫기 함수
     const closeNotificationModal = () => {
         setShowNotificationModal(false);
-        // 키패드 화면으로 이동 (현재 화면 유지이므로 특별한 처리 없음)
     };
 
     // 알림창 컴포넌트
@@ -42,7 +45,6 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                     boxShadow: '2px 2px 2px 0px rgba(0, 79, 153, 0.09)',
                     display: 'flex',
                     flexDirection: 'column',
-                    // alignItems: 'center',
                     justifyContent: 'space-between',
                     boxSizing: 'border-box'
                 }}>
@@ -63,7 +65,6 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                             marginBottom: '20px'
                         }}>
                             <img src="/public/assets/icon/warning.svg" alt=""/>
-
                         </div>
 
                         <div style={{
@@ -188,32 +189,21 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
 
     // 핸드폰번호 마스킹 함수 (010 입력 즉시 하이픈 추가, 오른쪽부터 마스킹)
     const maskPhoneNumber = (number: string): string => {
-        // 010으로 시작하는 핸드폰 번호인 경우
         if (number.startsWith('010')) {
-            if (number.length <= 3) {
-                // 010까지만 입력된 경우
-                return number;
-            } else if (number.length <= 7) {
-                // 010 + 중간번호 입력 중: 010-1234
-                const part1 = number.slice(0, 3);   // 010
-                const part2 = number.slice(3);      // 중간번호
+            if (number.length <= 3) return number;
+            else if (number.length <= 7) {
+                const part1 = number.slice(0, 3);
+                const part2 = number.slice(3);
                 return `${part1}-${part2}`;
             } else if (number.length <= 11) {
-                // 8자리 이상: 010-1234-**** 형태로 마스킹
-                const part1 = number.slice(0, 3);   // 010
-                const part2 = number.slice(3, 7);   // 중간번호 (4자리)
-                const part3 = number.slice(7);      // 뒷번호 실제 입력된 부분
-
-                // 뒷번호는 입력된 만큼만 *로 마스킹
+                const part1 = number.slice(0, 3);
+                const part2 = number.slice(3, 7);
+                const part3 = number.slice(7);
                 const maskedPart = '*'.repeat(part3.length);
                 return `${part1}-${part2}-${maskedPart}`;
             }
         }
-
-        // 010이 아닌 경우 기존 로직
-        if (number.length <= 7) {
-            return number;
-        }
+        if (number.length <= 7) return number;
         const visiblePart = number.slice(0, 7);
         const maskedPart = '*'.repeat(number.length - 7);
         return visiblePart + maskedPart;
@@ -222,15 +212,12 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
     // 키패드 입력 처리
     const handlePress = (value: number | string) => {
         if (typeof value === 'number') {
-            // 숫자는 최대 11자리까지만 입력 가능
             if (inputNumber.length < 11) {
                 setInputNumber(prev => prev + value);
             }
         } else if (value === 'clear') {
-            // 전체 삭제
             setInputNumber('');
         } else if (value === 'backspace') {
-            // 마지막 숫자 삭제
             setInputNumber(prev => prev.slice(0, -1));
         }
     };
@@ -238,23 +225,15 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
     // 확인 버튼 클릭 처리
     const handleConfirm = async () => {
         if (inputNumber.trim()) {
-            console.log('입력된 번호:', inputNumber);
             try {
-                // API 호출 로직 추가
-                let getUser = await findUser(inputNumber);
-
-                // 사용자 이름을 가져오지 못할 경우 에러창
+                const getUser = await findUser(inputNumber);
                 if (getUser != null) {
-                    setTimeout(() => {
-                        navigate("/kiosk/user-confirm");
-                    }, 1000);
+                    setTimeout(() => navigate("/kiosk/user-confirm"), 1000);
                 } else {
-                    // 알림창 표시
                     setShowNotificationModal(true);
                 }
             } catch (error) {
                 console.error('사용자 조회 실패:', error);
-                // 알림창 표시
                 setShowNotificationModal(true);
             }
         }
@@ -263,32 +242,51 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
     // 키패드 버튼 스타일
     const keypadButtonStyle: React.CSSProperties = {
         width: '310px',
-  height: '140px',
-  background: 'transparent',
-  border: 'none',
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  cursor: 'pointer',
-  fontFamily: 'Pretendard, Arial, sans-serif',
-  fontWeight: '700',
-  fontSize: '60px',
-  lineHeight: '0.93em',
-  textAlign: 'center',
-  color: '#111111',
-  // 하이라이트/포커스 제거용
-  outline: 'none',
-  WebkitTapHighlightColor: 'transparent' as any,
-  userSelect: 'none',
-  WebkitUserSelect: 'none',
-  MozUserSelect: 'none',
-  msUserSelect: 'none',
-  appearance: 'none' as any,
-  WebkitAppearance: 'none' as any,
+        height: '140px',
+        background: 'transparent',
+        border: 'none',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        cursor: 'pointer',
+        fontFamily: 'Pretendard, Arial, sans-serif',
+        fontWeight: '700',
+        fontSize: '60px',
+        lineHeight: '0.93em',
+        textAlign: 'center',
+        color: '#111111',
+        // 하이라이트/포커스 제거용
+        outline: 'none',
+        WebkitTapHighlightColor: 'transparent' as any,
+        userSelect: 'none',
+        WebkitUserSelect: 'none',
+        MozUserSelect: 'none',
+        msUserSelect: 'none',
+        appearance: 'none' as any,
+        WebkitAppearance: 'none' as any,
     };
 
-    return (
+    // ⬇️ 추가: 숫자 버튼 렌더링 헬퍼 (눌리는 동안만 숫자 흰색)
+    const renderNumButton = (num: number) => (
+        <button
+            key={num}
+            type="button"
+            aria-label={String(num)}
+            style={keypadButtonStyle}
+            onMouseDown={() => setActiveKey(num)}
+            onMouseUp={() => setActiveKey(null)}
+            onMouseLeave={() => setActiveKey(null)}
+            onTouchStart={() => setActiveKey(num)}
+            onTouchEnd={() => setActiveKey(null)}
+            onClick={() => handlePress(num)}
+        >
+            <span style={{ color: activeKey === num ? '#FFFFFF' : '#111111' }}>
+                {num}
+            </span>
+        </button>
+    );
 
+    return (
         <div
             style={{
                 width: '1080px', height: '1920px', background: 'linear-gradient(180deg, white 0%, #D4E1F3 100%)',
@@ -360,7 +358,6 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                     }}
                 >
                     {inputNumber === '' ? (
-                        // 플레이스홀더 텍스트 (기존 스타일 유지)
                         <span style={{
                             color: '#B5B5B6',
                             fontSize: '44px',
@@ -370,9 +367,7 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                             사용자 번호 또는 휴대폰 번호
                         </span>
                     ) : (
-                        // 입력된 텍스트 (여기에 커스텀 스타일 적용 가능)
                         <span style={{
-                            // 기본 스타일 - 원하는 대로 수정 가능
                             color: "#111111",
                             fontSize: 68,
                             fontFamily: "Jalnan2",
@@ -405,27 +400,9 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                     width: '100%',
                     justifyContent: 'space-between'
                 }}>
-                    <button
-                        onClick={() => handlePress(1)}
-                        aria-label="1"
-                        style={keypadButtonStyle}
-                    >
-                        1
-                    </button>
-                    <button
-                        onClick={() => handlePress(2)}
-                        aria-label="2"
-                        style={keypadButtonStyle}
-                    >
-                        2
-                    </button>
-                    <button
-                        onClick={() => handlePress(3)}
-                        aria-label="3"
-                        style={keypadButtonStyle}
-                    >
-                        3
-                    </button>
+                    {renderNumButton(1)}
+                    {renderNumButton(2)}
+                    {renderNumButton(3)}
                 </div>
 
                 {/* 두 번째 줄: 4, 5, 6 */}
@@ -437,27 +414,9 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                     width: '100%',
                     justifyContent: 'space-between'
                 }}>
-                    <button
-                        onClick={() => handlePress(4)}
-                        aria-label="4"
-                        style={keypadButtonStyle}
-                    >
-                        4
-                    </button>
-                    <button
-                        onClick={() => handlePress(5)}
-                        aria-label="5"
-                        style={keypadButtonStyle}
-                    >
-                        5
-                    </button>
-                    <button
-                        onClick={() => handlePress(6)}
-                        aria-label="6"
-                        style={keypadButtonStyle}
-                    >
-                        6
-                    </button>
+                    {renderNumButton(4)}
+                    {renderNumButton(5)}
+                    {renderNumButton(6)}
                 </div>
 
                 {/* 세 번째 줄: 7, 8, 9 */}
@@ -469,27 +428,9 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                     width: '100%',
                     justifyContent: 'space-between'
                 }}>
-                    <button
-                        onClick={() => handlePress(7)}
-                        aria-label="7"
-                        style={keypadButtonStyle}
-                    >
-                        7
-                    </button>
-                    <button
-                        onClick={() => handlePress(8)}
-                        aria-label="8"
-                        style={keypadButtonStyle}
-                    >
-                        8
-                    </button>
-                    <button
-                        onClick={() => handlePress(9)}
-                        aria-label="9"
-                        style={keypadButtonStyle}
-                    >
-                        9
-                    </button>
+                    {renderNumButton(7)}
+                    {renderNumButton(8)}
+                    {renderNumButton(9)}
                 </div>
 
                 {/* 네 번째 줄: 전체삭제, 0, 삭제 */}
@@ -523,13 +464,9 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                     >
                         전체삭제
                     </button>
-                    <button
-                        onClick={() => handlePress(0)}
-                        aria-label="0"
-                        style={keypadButtonStyle}
-                    >
-                        0
-                    </button>
+
+                    {renderNumButton(0)}
+
                     <button
                         onClick={() => handlePress('backspace')}
                         aria-label="삭제"
@@ -544,7 +481,6 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                             cursor: 'pointer'
                         }}
                     >
-                        {/* 삭제 버튼 배경 */}
                         <div style={{
                             width: '88.82px',
                             height: '56px',
@@ -553,7 +489,6 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                             justifyContent: 'center',
                             alignItems: 'center'
                         }}>
-                            {/* X 아이콘 */}
                             <img src="/public/assets/icon/backspace.svg" alt=""/>
                         </div>
                     </button>
@@ -577,19 +512,18 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                     cursor: 'pointer'
                 }}
             >
-        <span
-            style={{
-                color: '#ffffff',
-                fontSize: '44px',
-                fontWeight: '600',
-                lineHeight: 1.27,
-                textAlign: 'center'
-            }}
-        >
-          확인
-        </span>
+                <span
+                    style={{
+                        color: '#ffffff',
+                        fontSize: '44px',
+                        fontWeight: '600',
+                        lineHeight: 1.27,
+                        textAlign: 'center'
+                    }}
+                >
+                    확인
+                </span>
             </div>
-
 
             {/* 바코드/QR코드 영역 */}
             <div
