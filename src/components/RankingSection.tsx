@@ -155,7 +155,10 @@ const RankingSection: React.FC = () => {
             </div>
 
             {/* 목록 */}
-            {pagedUsers.length === 0 ? (
+            <div style={{
+               width: '1080px',
+               height: '688px',
+            }}>{pagedUsers.length === 0 ? (
                 <div style={{
                     width: '1080px',
                     height: '240px',
@@ -184,7 +187,7 @@ const RankingSection: React.FC = () => {
                         isCurrentUser={currentUserRank === user.rank}
                     />
                 ))
-            )}
+            )}</div>
 
             <style>{`
         @keyframes pulse {
