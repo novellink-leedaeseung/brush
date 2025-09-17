@@ -13,7 +13,8 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
     const [showNotificationModal, setShowNotificationModal] = useState<boolean>(false);
 
     // ⬇️ 추가: 현재 눌리고 있는 숫자 키 상태 (눌린 동안만 숫자 흰색)
-    const [activeKey, setActiveKey] = useState<number | null>(null);
+    const [activeKey, setActiveKey] = useState<number | 'clear' | null>(null)
+
 
     // 알림창 닫기 함수
     const closeNotificationModal = () => {
@@ -280,13 +281,15 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
             onTouchEnd={() => setActiveKey(null)}
             onClick={() => handlePress(num)}
         >
-            <span style={{ color: activeKey === num ? '#FFFFFF' : '#111111' }}>
+            <span style={{color: activeKey === num ? '#FFFFFF' : '#111111'}}>
                 {num}
             </span>
         </button>
     );
+    const clearActive = () => setActiveKey(null)
 
     return (
+
         <div
             style={{
                 width: '1080px', height: '1920px', background: 'linear-gradient(180deg, white 0%, #D4E1F3 100%)',
@@ -443,27 +446,21 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                     justifyContent: 'space-between'
                 }}>
                     <button
-                        onClick={() => handlePress('clear')}
+                        type="button"
                         aria-label="전체삭제"
-                        style={{
-                            width: '310px',
-                            height: '140px',
-                            background: 'transparent',
-                            border: 'none',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            cursor: 'pointer',
-                            fontFamily: 'Pretendard, Arial, sans-serif',
-                            fontWeight: '700',
-                            fontSize: '38px',
-                            lineHeight: '1.47em',
-                            textAlign: 'center',
-                            color: '#111111'
-                        }}
+                        style={{...keypadButtonStyle, fontSize: '38px', lineHeight: '1.47em'}}
+                        onPointerDown={() => setActiveKey('clear')}
+                        onPointerUp={clearActive}
+                        onPointerCancel={clearActive}
+                        onPointerLeave={clearActive}
+                        onFocus={(e) => e.currentTarget.blur()}
+                        onClick={() => handlePress('clear')}
                     >
-                        전체삭제
+  <span style={{color: activeKey === 'clear' ? '#FFFFFF' : '#111111'}}>
+    전체삭제
+  </span>
                     </button>
+
 
                     {renderNumButton(0)}
 
