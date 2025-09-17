@@ -13,32 +13,38 @@ type Props = {
 export default function IdleRedirect({
   timeout = 60000,           // 60초
   to = "/",
-  warningTime = 10000,       // 10초 전에 경고 표시
+  warningTime = 3000,       // 10초 전에 경고 표시
   children,
 }: Props) {
   const navigate = useNavigate();
   const location = useLocation();
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const warningTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [showTimeoutWarning, setShowTimeoutWarning] = useState(true); // 테스트용으로 true로 변경
+  const [showTimeoutWarning, setShowTimeoutWarning] = useState(false); // 테스트용으로 true로 변경
 
   const start = () => {
     // 기존 타이머들 정리
     if (timerRef.current) clearTimeout(timerRef.current);
     if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
-    
-    // 테스트용: 경고창 바로 표시
-    setShowTimeoutWarning(true);
+
+    setShowTimeoutWarning(false);
 
     // 테스트용: 경고창을 바로 표시 (1초 후)
-    warningTimerRef.current = setTimeout(() => {
+    /*warningTimerRef.current = setTimeout(() => {
       setShowTimeoutWarning(true);
-    }, 1000); // 1초 후에 경고창 표시
+    }, 1000); // 1초 후에 경고창 표시*/
 
     // 메인 타이머 설정 (timeout 후에 페이지 이동)
-    timerRef.current = setTimeout(() => {
-      window.location.href = to;
-    }, timeout);
+    const warningDelay = Math.max(timeout - warningTime, 0);
+
+    warningTimerRef.current = setTimeout(() => {
+      setShowTimeoutWarning(true);
+
+      timerRef.current = setTimeout(() => {
+        setShowTimeoutWarning(false);
+        navigate(to, { replace: true });
+      }, warningTime);
+    }, warningDelay);
   };
 
   const reset = () => {
@@ -46,9 +52,18 @@ export default function IdleRedirect({
   };
 
   const handleWarningClose = () => {
-    setShowTimeoutWarning(false); // false로 변경
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+    if (warningTimerRef.current) {
+      clearTimeout(warningTimerRef.current);
+      warningTimerRef.current = null;
+    }
+
+    setShowTimeoutWarning(false);
     // 경고창을 닫으면 타이머 리셋 (사용자 활동으로 간주)
-    reset();
+    start();
   };
 
   useEffect(() => {
@@ -87,7 +102,7 @@ export default function IdleRedirect({
         isVisible={showTimeoutWarning}
         primaryMessage="시간이 초과되었습니다."
         secondaryMessage="대기화면으로 이동합니다."
-        autoCloseDelay={warningTime} // 경고 표시 후 남은 시간만큼 자동 닫기
+        autoCloseDelay={0}
         onClose={handleWarningClose}
         showIcon={true}
       />
