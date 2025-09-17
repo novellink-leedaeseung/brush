@@ -364,26 +364,57 @@ const CameraConfirmPage: React.FC = () => {
 
     // 점심시간 모달 - 등록 클릭
     const handleLunchModalRegister = async () => {
-        const userName = localStorage.getItem("name") || "익명 사용자"
-// 점심시간 모달 닫기
+        // 로컬스토리지 값 불러오기
+        const name = localStorage.getItem("name") || "익명";
+        const phone = localStorage.getItem("phone") || "";
+        const gradeClass = localStorage.getItem("gradeClass") || "";
+        let gender = localStorage.getItem("gender") || "";
+        gender = gender === "M" ? "남자" : "여자";
+        // 점심시간 모달 닫기
         setShowLunchModal(false)
         document.body.style.overflow = 'auto'
 
-        // 이미지 서버 저장 먼저 실행
-        const saveSuccess = await handleImageSave();
+        try {
+            setIsUploading(true);
 
-        if (saveSuccess) {
-            // 완료 모달 표시
-            setShowCompleteModal(true)
+            // 1. 이미지 서버 저장
+            const saveSuccess = await handleImageSave();
+            if (!saveSuccess) return;
 
-            // 2초 후 홈으로 이동
+
+            // 2. 학생 데이터 API 호출
+            const response = await fetch("http://localhost:3001/api/members", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    name,
+                    phone,
+                    gradeClass,
+                    gender,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log("✅ 학생 데이터 전송 성공:", result);
+
+            // 3. 완료 모달 표시
+            setShowCompleteModal(true);
             setTimeout(() => {
-                setShowCompleteModal(false)
-                // 세션 스토리지 정리
-                const possibleKeys = ['capturedImage', 'camara.capturedPhoto', 'captured-photo'];
-                possibleKeys.forEach(key => sessionStorage.removeItem(key));
-                window.location.replace('/')
-            }, 2000)
+                setShowCompleteModal(false);
+                // 세션스토리지 정리
+                const keys = ["capturedImage", "camara.capturedPhoto", "captured-photo"];
+                keys.forEach((k) => sessionStorage.removeItem(k));
+                window.location.replace("/");
+            }, 2000);
+        } catch (err) {
+            console.error("❌ 등록 실패:", err);
+            alert("등록 실패: " + err.message);
+        } finally {
+            setIsUploading(false);
         }
     }
 
