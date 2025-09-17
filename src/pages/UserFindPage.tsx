@@ -13,7 +13,7 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
     const [showNotificationModal, setShowNotificationModal] = useState<boolean>(false);
 
     // ⬇️ 추가: 현재 눌리고 있는 숫자 키 상태 (눌린 동안만 숫자 흰색)
-    const [activeKey, setActiveKey] = useState<number | 'clear' | null>(null)
+    const [activeKey, setActiveKey] = useState<number | 'clear' | 'backspace' | null>(null);
 
 
     // 알림창 닫기 함수
@@ -466,8 +466,15 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                     {renderNumButton(0)}
 
                     <button
-                        onClick={() => handlePress('backspace')}
+                        type="button"
                         aria-label="삭제"
+                        onMouseDown={(e) => e.preventDefault()}   // 포커스 잔상 제거
+                        onPointerDown={() => setActiveKey('backspace')}
+                        onPointerUp={() => setActiveKey(null)}
+                        onPointerCancel={() => setActiveKey(null)}
+                        onPointerLeave={() => setActiveKey(null)}
+                        onContextMenu={(e) => e.preventDefault()}
+                        onClick={() => handlePress('backspace')}
                         style={{
                             width: '310px',
                             height: '140px',
@@ -488,37 +495,47 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                             touchAction: 'manipulation',
                         }}
                     >
-                        <div style={{
-                            width: '88.82px',
-                            height: '56px',
-                            borderRadius: '8px',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center'
-                        }}>
-                            <img src="/public/assets/icon/backspace.svg" alt=""/>
+                        <div
+                            style={{
+                                width: '88.82px',
+                                height: '56px',
+                                borderRadius: '8px',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <img
+                                src={
+                                    activeKey === 'backspace'
+                                        ? '/public/assets/icon/backspace_active.svg' // 눌렀을 때 아이콘
+                                        : '/public/assets/icon/backspace.svg'        // 기본 아이콘
+                                }
+                                alt="삭제"
+                                draggable={false}
+                            />
                         </div>
                     </button>
-                </div>
             </div>
+        </div>
 
-            {/* 확인 버튼 */}
-            <div
-                onClick={handleConfirm}
-                style={{
-                    width: '630px',
-                    height: '120px',
-                    background: '#004F99',
-                    borderRadius: '16px',
-                    boxShadow: '0px 4px 2px rgba(0,0,0,0.09)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginLeft: '225px',
-                    marginTop: '65px',
-                    cursor: 'pointer'
-                }}
-            >
+    {/* 확인 버튼 */}
+    <div
+        onClick={handleConfirm}
+        style={{
+            width: '630px',
+            height: '120px',
+            background: '#004F99',
+            borderRadius: '16px',
+            boxShadow: '0px 4px 2px rgba(0,0,0,0.09)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginLeft: '225px',
+            marginTop: '65px',
+            cursor: 'pointer'
+        }}
+    >
                 <span
                     style={{
                         color: '#ffffff',
@@ -530,53 +547,56 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                 >
                     확인
                 </span>
-            </div>
+    </div>
 
-            {/* 바코드/QR코드 영역 */}
-            <div
-                style={{
-                    width: '900px',
-                    height: '120px',
-                    background: '#383839',
-                    boxShadow: '0px 4px 2px rgba(0, 0, 0, 0.09)',
-                    borderTopLeftRadius: '16px',
-                    borderTopRightRadius: '16px',
-                    marginTop: '189px',
-                    marginLeft: '90px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                }}
-            >
-                <div
-                    style={{
-                        textAlign: 'center',
-                        color: 'white',
-                        fontSize: '44px',
-                        fontWeight: '600',
-                        lineHeight: '56px',
-                        display: 'flex',
-                        alignItems: 'center'
-                    }}
-                >
-                    <img
-                        src="/assets/icon/barcode_location.svg"
-                        alt=""
-                        width="40"
-                        height="34"
-                        style={{marginRight: '30px'}}
-                    />
-                    바코드 / QR 코드 대는 곳
-                </div>
-            </div>
-
-            {/* 알림창 */}
-            <NotificationModal
-                isVisible={showNotificationModal}
-                onClose={closeNotificationModal}
+    {/* 바코드/QR코드 영역 */
+    }
+    <div
+        style={{
+            width: '900px',
+            height: '120px',
+            background: '#383839',
+            boxShadow: '0px 4px 2px rgba(0, 0, 0, 0.09)',
+            borderTopLeftRadius: '16px',
+            borderTopRightRadius: '16px',
+            marginTop: '189px',
+            marginLeft: '90px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+        }}
+    >
+        <div
+            style={{
+                textAlign: 'center',
+                color: 'white',
+                fontSize: '44px',
+                fontWeight: '600',
+                lineHeight: '56px',
+                display: 'flex',
+                alignItems: 'center'
+            }}
+        >
+            <img
+                src="/assets/icon/barcode_location.svg"
+                alt=""
+                width="40"
+                height="34"
+                style={{marginRight: '30px'}}
             />
+            바코드 / QR 코드 대는 곳
         </div>
-    );
+    </div>
+
+    {/* 알림창 */
+    }
+    <NotificationModal
+        isVisible={showNotificationModal}
+        onClose={closeNotificationModal}
+    />
+</div>
+)
+    ;
 };
 
 export default UserFindPage;
