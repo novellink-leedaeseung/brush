@@ -229,6 +229,7 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
             try {
                 const getUser = await findUser(inputNumber);
                 if (getUser != null) {
+                    localStorage.setItem('inputNumber', inputNumber);
                     setTimeout(() => navigate("/kiosk/user-confirm"), 1000);
                 } else {
                     setShowNotificationModal(true);
