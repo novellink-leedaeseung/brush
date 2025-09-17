@@ -2,6 +2,7 @@ import React, {useEffect, useState, useRef} from 'react'
 import {useNavigate} from 'react-router-dom'
 import Header from "../components/Header.tsx"
 import LunchFalseModal from "../components/LunchFalseModal.tsx";
+import {parseGradeClass} from "../utils/gradeClass.ts";
 
 // 양치 인증 완료 모달 컴포넌트
 const CompleteModal = ({isVisible, onClose}: { isVisible: boolean; onClose: () => void }) => {
@@ -306,10 +307,17 @@ const CameraConfirmPage: React.FC = () => {
         // 로컬스토리지 값 불러오기
         const name = localStorage.getItem("name") || "익명";
         const phone = localStorage.getItem("phone") || "";
-        const gradeClass = localStorage.getItem("gradeClass") || "";
         let gender = localStorage.getItem("gender") || "";
+        let gradeClass = localStorage.getItem("gradeClass") || "";
+        let inputNumber = localStorage.getItem("inputNumber") || "";
         gender = gender === "M" ? "남자" : "여자";
 
+        // 회원번호가 6글자인경우
+        if (inputNumber.length !== 6) {
+            let gradeClassParts = parseGradeClass(inputNumber);
+            gradeClass = gradeClassParts.grade.toString() + "-" + gradeClassParts.classNo.toString();
+            return;
+        }
 
         try {
             setIsUploading(true);
@@ -365,11 +373,23 @@ const CameraConfirmPage: React.FC = () => {
     // 점심시간 모달 - 등록 클릭
     const handleLunchModalRegister = async () => {
         // 로컬스토리지 값 불러오기
+        // 로컬스토리지 값 불러오기
         const name = localStorage.getItem("name") || "익명";
         const phone = localStorage.getItem("phone") || "";
-        const gradeClass = localStorage.getItem("gradeClass") || "";
+        let gradeClass = localStorage.getItem("gradeClass") || "";
         let gender = localStorage.getItem("gender") || "";
+        let inputNumber = localStorage.getItem("inputNumber") || "";
         gender = gender === "M" ? "남자" : "여자";
+
+
+        // 회원번호가 6글자인경우
+        if (inputNumber.length !== 6) {
+            let gradeClassParts = parseGradeClass(inputNumber);
+            gradeClass = gradeClassParts.grade.toString() + "-" + gradeClassParts.classNo.toString();
+            return;
+        }
+
+
         // 점심시간 모달 닫기
         setShowLunchModal(false)
         document.body.style.overflow = 'auto'
