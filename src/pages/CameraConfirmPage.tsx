@@ -313,7 +313,7 @@ const CameraConfirmPage: React.FC = () => {
         gender = gender === "M" ? "남자" : "여자";
 
         // 회원번호가 6글자인경우
-        if (inputNumber.length !== 6) {
+        if (inputNumber.length == 6) {
             let gradeClassParts = parseGradeClass(inputNumber);
             gradeClass = gradeClassParts.grade.toString() + "-" + gradeClassParts.classNo.toString();
             return;
@@ -383,7 +383,7 @@ const CameraConfirmPage: React.FC = () => {
 
 
         // 회원번호가 6글자인경우
-        if (inputNumber.length !== 6) {
+        if (inputNumber.length == 6) {
             let gradeClassParts = parseGradeClass(inputNumber);
             gradeClass = gradeClassParts.grade.toString() + "-" + gradeClassParts.classNo.toString();
             return;
