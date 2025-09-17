@@ -379,14 +379,14 @@ const CameraConfirmPage: React.FC = () => {
         let gradeClass = localStorage.getItem("gradeClass") || "";
         let gender = localStorage.getItem("gender") || "";
         let inputNumber = localStorage.getItem("inputNumber") || "";
+        let userNo = inputNumber;
         gender = gender === "M" ? "남자" : "여자";
 
 
         // 회원번호가 6글자인경우
-        if (inputNumber.length == 6) {
+        if (inputNumber.length == 6 || inputNumber.length == 5) {
             let gradeClassParts = parseGradeClass(inputNumber);
             gradeClass = gradeClassParts.grade.toString() + "-" + gradeClassParts.classNo.toString();
-            return;
         }
 
 
@@ -411,6 +411,7 @@ const CameraConfirmPage: React.FC = () => {
                     phone,
                     gradeClass,
                     gender,
+                    userNo
                 }),
             });
 
@@ -931,7 +932,7 @@ const CameraConfirmPage: React.FC = () => {
                         className="btn-container"
                         onClick={handleRegister}
                         style={{
-                           display: "flex",
+                            display: "flex",
                             flexWrap: "wrap",
                             justifyContent: "center",
                             alignContent: 'center',
