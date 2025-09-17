@@ -310,6 +310,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
 
             {/* 오버레이 전환 버튼들 */}
             <div style={{
+                height: "100px",
                 position: 'fixed',
                 top: '669px',
                 bottom: '20px',
