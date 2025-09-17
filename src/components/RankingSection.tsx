@@ -1,6 +1,7 @@
 // src/components/RankingSection.tsx
 import React, {useEffect, useMemo, useState} from 'react'
 import UserListItem from './UserListItem'
+import {splitKoKRDateTime} from "../utils/koreanDateTime.ts";
 
 /** ===== API 타입 ===== */
 interface MembersApiItem {
@@ -34,11 +35,6 @@ interface RankingUser {
     // UserListItem은 boolean을 기대하므로 boolean으로 유지
     mealType: boolean
 }
-
-/** 시간 포맷: "오전/오후 HH:MM:SS" */
-const formatKoreanTime = (iso: string) =>
-    new Date(iso).toLocaleTimeString('ko-KR', {hour12: true})
-
 /** API → 화면 모델 매핑 */
 const mapApiToRankingUser = (item: MembersApiItem): RankingUser => {
     const rank = item.id
@@ -57,7 +53,7 @@ const mapApiToRankingUser = (item: MembersApiItem): RankingUser => {
         rank,
         name: item.name,
         className: item.gradeClass,
-        time: formatKoreanTime(item.createdAt),
+        time: splitKoKRDateTime(item.createdAt).timeRaw,
         profileImage,
         borderColor,
         mealType: item.lunch, // boolean 유지
@@ -121,7 +117,7 @@ const RankingSection: React.FC = () => {
             try {
                 setLoading(true)
                 setError(null)
-                const res = await fetch(`http://localhost:3001/api/members?page=${page}`)
+                const res = await fetch(`http://localhost:3001/api/members?page=${page}&lunchOnly=true`)
                 if (!res.ok) throw new Error(`HTTP ${res.status}`)
                 const json: MembersApiResponse = await res.json()
 
