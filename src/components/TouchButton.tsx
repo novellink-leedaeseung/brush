@@ -27,7 +27,7 @@ const TouchButton: React.FC<TouchButtonProps> = ({ to, text = "화면을 터치�
       justifyContent: 'center',
         margin: 0,
     }}>
-      <div style={{ marginTop: '40px' }}>
+      <div style={{ }}>
         <img src="/public/assets/icon/pinger.gif" style={{
           width: 'auto',
           height: 'auto',
@@ -35,8 +35,8 @@ const TouchButton: React.FC<TouchButtonProps> = ({ to, text = "화면을 터치�
         }} alt="터치 애니메이션" />
       </div>
       <div style={{
-        width: '100%',
-        height: '100%',
+        width: '600px',
+        height: '100px',
         textAlign: 'center',
         justifyContent: 'center',
         display: 'flex',
@@ -45,7 +45,8 @@ const TouchButton: React.FC<TouchButtonProps> = ({ to, text = "화면을 터치�
         fontSize: '52px',
         fontFamily: 'Jalnan2',
         fontWeight: 400,
-        wordWrap: 'break-word'
+        wordWrap: 'break-word',
+          marginBottom: '30px',
       }}>
         {text}
       </div>

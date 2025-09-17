@@ -30,7 +30,7 @@ const UserListItem: React.FC<UserListItemProps> = ({
             borderBottom: isLast ? 'none' : '0.50px #B4B4B5 solid',
             display: 'flex',
             alignItems: 'center',
-            boxSizing: 'border-box'
+            boxSizing: 'border-box',
         }}>
             {/* 순위 */}
             <div style={{
