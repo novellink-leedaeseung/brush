@@ -35,14 +35,14 @@ const UserListItem: React.FC<UserListItemProps> = ({
             {/* 순위 */}
             <div style={{
                 // 4
-                color: '#111111',
                 fontSize: 32,
-                fontFamily: 'Inter',
+                fontFamily: 'Pretendard',
                 fontWeight: '600',
-                lineHeight: 56,
+                lineHeight: "56px",
                 wordWrap: 'break-word',
-                marginLeft: '52px',
-                marginRight: '32px',
+                width: 40,
+                color: "#4B4948",
+                marginLeft: '32px',
             }}>
                 {rank}
             </div>
@@ -50,8 +50,8 @@ const UserListItem: React.FC<UserListItemProps> = ({
             {/* 프로필 이미지 */}
             <img
                 style={{
-                    width: '100px',
-                    height: '100px',
+                    width: '86px',
+                    height: '86px',
                     borderRadius: '50px',
                     border: isCurrentUser ? '3px #22C55E solid' : '2px #E5E5E5 solid',
                 }}
@@ -103,48 +103,50 @@ const UserListItem: React.FC<UserListItemProps> = ({
             {/* 식사 태그 */}
             {mealType ? (
                 <div style={{
-                width: '80px',
-                height: '50px',
-                background: '#B2D7FF',
-                borderRadius: 16,
-                justifyContent: 'center',
-                alignItems: 'center',
-                gap: 10,
-                display: 'inline-flex',
-                marginLeft: '32px',
-            }}>
-                <div style={{
-                    color: '#227EFF',
-                    fontSize: '16px',
-                    fontFamily: 'Pretendard',
-                    fontWeight: 600,
-                    textAlign: 'center'
+                    width: '80px',
+                    height: '50px',
+                    background: '#B2D7FF',
+                    borderRadius: 16,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: 10,
+                    display: 'inline-flex',
+                    marginLeft: '32px',
                 }}>
-                    점심
+                    <div style={{
+                        // 점심
+                        color: '#227EFF',
+                        fontSize: 20,
+                        fontFamily: 'Pretendard',
+                        fontWeight: '600',
+                        lineHeight: 6,
+                        wordWrap: 'break-word'
+                    }}>
+                        점심
+                    </div>
                 </div>
-            </div>
             ) : (
                 <div style={{
-                width: '80px',
-                height: '50px',
-                background: '#FEEAE2',
-                borderRadius: 16,
-                justifyContent: 'center',
-                alignItems: 'center',
-                gap: 10,
-                display: 'inline-flex',
-                marginLeft: '32px',
-            }}>
-                <div style={{
-                    color: '#E5621C',
-                    fontSize: '16px',
-                    fontFamily: 'Pretendard',
-                    fontWeight: 600,
-                    textAlign: 'center'
+                    width: '80px',
+                    height: '50px',
+                    background: '#FEEAE2',
+                    borderRadius: 16,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: 10,
+                    display: 'inline-flex',
+                    marginLeft: '32px',
                 }}>
-                    외
+                    <div style={{
+                        color: '#E5621C',
+                        fontSize: '16px',
+                        fontFamily: 'Pretendard',
+                        fontWeight: 600,
+                        textAlign: 'center'
+                    }}>
+                        외
+                    </div>
                 </div>
-            </div>
             )}
 
 
