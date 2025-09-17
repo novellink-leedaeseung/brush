@@ -261,29 +261,50 @@ const RankingSection: React.FC = () => {
                                     </div>
 
                                     {/* 식사 태그 */}
-                                    <div
-                                        style={{
-                                            width: 50,
-                                            height: 40,
+                                    {user.mealType ? (
+                                        <div style={{
+                                            width: '80px',
+                                            height: '50px',
                                             background: '#B2D7FF',
-                                            borderRadius: 8,
-                                            display: 'flex',
-                                            alignItems: 'center',
+                                            borderRadius: 16,
                                             justifyContent: 'center',
-                                        }}
-                                    >
-                                        <div
-                                            style={{
+                                            alignItems: 'center',
+                                            gap: 10,
+                                            display: 'inline-flex',
+                                        }}>
+                                            <div style={{
                                                 color: '#227EFF',
                                                 fontSize: '16px',
                                                 fontFamily: 'Pretendard',
                                                 fontWeight: 600,
-                                                lineHeight: '16px',
-                                            }}
-                                        >
-                                            {user.mealType ? '점심' : '외'}
+                                                textAlign: 'center'
+                                            }}>
+                                                점심
+                                            </div>
                                         </div>
-                                    </div>
+                                    ) : (
+                                        <div style={{
+                                            width: '80px',
+                                            height: '50px',
+                                            background: '#FEEAE2',
+                                            borderRadius: 16,
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            gap: 10,
+                                            display: 'inline-flex',
+                                        }}>
+                                            <div style={{
+                                                color: '#E5621C',
+                                                fontSize: '16px',
+                                                fontFamily: 'Pretendard',
+                                                fontWeight: 600,
+                                                textAlign: 'center'
+                                            }}>
+                                                외
+                                            </div>
+                                        </div>
+                                    )}
+
                                 </div>
 
                             </React.Fragment>

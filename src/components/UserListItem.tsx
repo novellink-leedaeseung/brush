@@ -95,13 +95,13 @@ const UserListItem: React.FC<UserListItemProps> = ({
                         height: '43px',
                         textAlign: 'center',
                     }}>
-                        {className}
+                        {className == '' ? '미확인' : className + '반'}
                     </div>
                 </div>
             </div>
 
             {/* 식사 태그 */}
-            {mealType === true ? (
+            {mealType ? (
                 <div style={{
                 width: '80px',
                 height: '50px',
