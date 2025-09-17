@@ -13,7 +13,8 @@ function App() {
     return (
         <RankingProvider>
             <Router>
-                <IdleRedirect timeout={60000} to="/">
+                {/*todo 나중에 보여줄 때는 타이머 조정할것!*/}
+                <IdleRedirect timeout={20000} to="/">
                     <div style={{width: '1080px', height: '1920px', margin: '0 auto'}}>
                         <Routes>
                             <Route path="/" element={<HomePage/>}/>
