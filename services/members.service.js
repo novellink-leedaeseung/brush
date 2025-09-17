@@ -75,22 +75,25 @@ export class MembersService {
         const worksheet = workbook.addWorksheet('All Members');
 
         worksheet.columns = [
-            {header: 'ID', key: 'id', width: 10},
-            {header: 'Timestamp', key: 'createdAt', width: 22},
-            {header: 'Name', key: 'name', width: 16},
-            {header: 'Phone', key: 'phone', width: 16},
+            // 날짜, 시간, 학년, 반, 이름, 점심시간 여부
+            {header: '날짜', key: 'createdAt', width: 22},
+            {header: '이름', key: 'name', width: 16},
             {header: 'Grade/Class', key: 'gradeClass', width: 12},
-            {header: 'Gender', key: 'gender', width: 8},
             {header: 'Lunch', key: 'lunch', width: 8},
-            {header: 'Updated At', key: 'updatedAt', width: 22},
         ];
 
         worksheet.addRows(allMembers);
 
-        // 5. Save the file
+        // 5. Save the file with today's date
+        const d = new Date();
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const todayString = `${y}-${m}-${day}`;
+
         const DATA_DIR = path.join(process.cwd(), 'data');
         await fs.ensureDir(DATA_DIR);
-        const exportFilePath = path.join(DATA_DIR, 'members_export_all.xlsx');
+        const exportFilePath = path.join(DATA_DIR, `양치기록_${todayString}.xlsx`);
         await workbook.xlsx.writeFile(exportFilePath);
 
         console.log(`Exported ${allMembers.length} members to ${exportFilePath}`);
