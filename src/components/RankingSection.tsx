@@ -2,6 +2,7 @@
 import React, {useEffect, useMemo, useState} from 'react'
 import UserListItem from './UserListItem'
 import {splitKoKRDateTime} from "../utils/koreanDateTime.ts";
+import NoneLayer from "../components/ranking/NoneLayer.tsx";
 
 /** ===== API 타입 ===== */
 interface MembersApiItem {
@@ -258,7 +259,10 @@ const RankingSection: React.FC = () => {
             </div>
 
             {/* 1페이지: 상단 1·2·3 */}
-            {page === 1 && (
+            {members.length === 0 &&
+                <NoneLayer />
+            }
+            {page === 1 && members.length > 0 && (
                 <div style={{
                     width: '1080px', height: '388px', position: 'relative',
                     overflow: 'hidden', borderBottom: '0.50px #B4B4B5 solid',
