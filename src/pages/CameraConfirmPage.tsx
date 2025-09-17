@@ -1,6 +1,7 @@
 import React, {useEffect, useState, useRef} from 'react'
 import {useNavigate} from 'react-router-dom'
 import Header from "../components/Header.tsx"
+import LunchFalseModal from "../components/LunchFalseModal.tsx";
 
 // 양치 인증 완료 모달 컴포넌트
 const CompleteModal = ({isVisible, onClose}: { isVisible: boolean; onClose: () => void }) => {
@@ -293,6 +294,14 @@ const CameraConfirmPage: React.FC = () => {
     // 등록 버튼 클릭
     const handleRegister = async () => {
         if (isUploading) return;
+
+        // ⬇️ 점심시간이 '아닐' 때 모달 오픈
+        if (!isLunchTime()) {
+            setShowLunchModal(true);
+            document.body.style.overflow = 'hidden';
+            return;
+        }
+
 
         // 로컬스토리지 값 불러오기
         const name = localStorage.getItem("name") || "익명";
@@ -925,6 +934,13 @@ const CameraConfirmPage: React.FC = () => {
                     </div>
                 </div>
             </div>
+            <LunchFalseModal
+                isOpen={showLunchModal}
+                onClose={closeLunchModal}
+                onNo={handleLunchModalNo}
+                onRegister={handleLunchModalRegister}
+            />
+
 
             {/* 양치 인증 완료 모달 */}
             <CompleteModal
