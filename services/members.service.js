@@ -17,6 +17,9 @@ export class MembersService {
     get(id) {
         return this.repo.get(id);
     }
+    getUserNo(id) {
+        return this.repo.getByUserNo(id);
+    }
 
     async create(body) {
         assertCreateMember(body);

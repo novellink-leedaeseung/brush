@@ -13,7 +13,7 @@ export const membersRoutes = (svc) => {
     }));
 
     r.get('/:id', asyncHandler(async (req, res) => {
-        const data = svc.get(req.params.id);
+        const data = svc.getUserNo(req.params.id);
         if (!data) return res.status(404).json({success: false, error: '회원을 찾을 수 없습니다.'});
         res.json({success: true, data});
     }));
