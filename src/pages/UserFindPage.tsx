@@ -263,19 +263,28 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
     // 키패드 버튼 스타일
     const keypadButtonStyle: React.CSSProperties = {
         width: '310px',
-        height: '140px',
-        background: 'transparent',
-        border: 'none',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        cursor: 'pointer',
-        fontFamily: 'Pretendard, Arial, sans-serif',
-        fontWeight: '700',
-        fontSize: '60px',
-        lineHeight: '0.93em',
-        textAlign: 'center',
-        color: '#111111'
+  height: '140px',
+  background: 'transparent',
+  border: 'none',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  cursor: 'pointer',
+  fontFamily: 'Pretendard, Arial, sans-serif',
+  fontWeight: '700',
+  fontSize: '60px',
+  lineHeight: '0.93em',
+  textAlign: 'center',
+  color: '#111111',
+  // 하이라이트/포커스 제거용
+  outline: 'none',
+  WebkitTapHighlightColor: 'transparent' as any,
+  userSelect: 'none',
+  WebkitUserSelect: 'none',
+  MozUserSelect: 'none',
+  msUserSelect: 'none',
+  appearance: 'none' as any,
+  WebkitAppearance: 'none' as any,
     };
 
     return (
