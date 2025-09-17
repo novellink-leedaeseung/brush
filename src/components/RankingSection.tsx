@@ -1,212 +1,265 @@
-import React, {useEffect, useState, useMemo} from 'react'
+// src/components/RankingSection.tsx
+import React, { useEffect, useMemo, useState } from 'react'
 import UserListItem from './UserListItem'
 
+/** ===== API 타입 ===== */
 interface MembersApiItem {
-    id: number
-    name: string
-    gradeClass: string
-    lunch: boolean
-    gender: string
-    createdAt: string
+  id: number
+  name: string
+  gradeClass: string
+  lunch: boolean
+  gender: string
+  createdAt: string
 }
-
 interface MembersApiResponse {
-    success: boolean
-    data: {
-        items: MembersApiItem[]
-        total: number
-        page: number
-        pageSize: number
-        totalPages: number
-    }
+  success: boolean
+  data: {
+    items: MembersApiItem[]
+    total: number
+    page: number
+    pageSize: number
+    totalPages: number
+  }
 }
 
+/** ===== 화면 표시용 타입 ===== */
 interface RankingUser {
-    rank: number
-    name: string
-    className: string
-    time: string
-    profileImage: string
-    borderColor: string
-    mealType: 'lunch' | 'outside'
+  rank: number
+  name: string
+  className: string
+  time: string
+  profileImage: string
+  borderColor: string
+  // UserListItem은 boolean을 기대하므로 boolean으로 유지
+  mealType: boolean
 }
 
+/** 시간 포맷: "오전/오후 HH:MM:SS" */
 const formatKoreanTime = (iso: string) =>
-    new Date(iso).toLocaleTimeString('ko-KR', {hour12: true})
+  new Date(iso).toLocaleTimeString('ko-KR', { hour12: true })
 
+/** API → 화면 모델 매핑 */
 const mapApiToRankingUser = (item: MembersApiItem): RankingUser => {
-    const rank = item.id
-    const borderColor =
-        rank === 1 ? '#F56358'
-            : rank === 2 ? '#F46059'
-                : rank === 3 ? '#F89049'
-                    : ''
+  const rank = item.id
+  const borderColor =
+    rank === 1 ? '#F56358'
+      : rank === 2 ? '#F46059'
+      : rank === 3 ? '#F89049'
+      : ''
 
-    const profileImage =
-        item.gender === '남자'
-            ? '/public/assets/images/man.png'
-            : '/public/assets/images/woman.png'
+  const profileImage =
+    item.gender === '남자'
+      ? '/public/assets/images/man.png'
+      : '/public/assets/images/woman.png'
 
-    return {
-        rank,
-        name: item.name,
-        className: item.gradeClass,
-        time: formatKoreanTime(item.createdAt),
-        profileImage,
-        borderColor,
-        mealType: item.lunch ? 'lunch' : 'outside'
-    }
+  return {
+    rank,
+    name: item.name,
+    className: item.gradeClass,
+    time: formatKoreanTime(item.createdAt),
+    profileImage,
+    borderColor,
+    mealType: item.lunch, // boolean 유지
+  }
 }
 
+/** ===== 등수별 위치/스타일(디자인 그대로) ===== */
+const getRankStyle = (rank: number) => {
+  if (rank === 1) return { width: '240px', height: '240px', top: '15px', left: '420px' }
+  if (rank === 2) return { width: '204px', height: '204px', top: '51px', left: '52px' }
+  return { width: '204px', height: '204px', top: '51px', left: '824px' } // 3등
+}
+const getRankBadgeStyle = (rank: number) => {
+  const base: React.CSSProperties = {
+    position: 'absolute',
+    borderRadius: '999px',
+    border: '2px white solid',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: 'white',
+    fontFamily: 'Inter',
+    fontWeight: 600
+  }
+  if (rank === 1) return { ...base, width: '68px', height: '68px', left: '590px', top: '198px',
+    background: 'linear-gradient(180deg, #F4585C 0%, #F89846 100%)', fontSize: '32px' }
+  if (rank === 2) return { ...base, width: '52px', height: '52px', left: '202px', top: '201px',
+    background: '#F56159', fontSize: '26px' }
+  return { ...base, width: '52px', height: '52px', left: '974px', top: '201px',
+    background: '#F89148', fontSize: '26px' } // 3등
+}
+const getNamePosition = (rank: number) =>
+  rank === 1 ? { left: '415px', top: '268px' }
+    : rank === 2 ? { left: '29px', top: '268px' }
+    : { left: '801px', top: '268px' }
+const getTimePosition = (rank: number) =>
+  rank === 1 ? { left: '414px', top: '311px' }
+    : rank === 2 ? { left: '28px', top: '311px' }
+    : { left: '800px', top: '311px' }
+const getMealTagPosition = (rank: number) =>
+  rank === 1 ? { left: '604px', top: '313px' }
+    : rank === 2 ? { left: '218px', top: '313px' }
+    : { left: '990px', top: '313px' }
+
+/** ===== 메인 컴포넌트 ===== */
 const RankingSection: React.FC = () => {
-    const [members, setMembers] = useState<RankingUser[]>([])
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState<number>(1)
+  const [members, setMembers] = useState<RankingUser[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-    useEffect(() => {
-        const fetchMembers = async () => {
-            try {
-                const res = await fetch('http://localhost:3001/api/members?page=1')
-                const json: MembersApiResponse = await res.json()
-                const users = (json.data?.items ?? []).map(mapApiToRankingUser)
-                setMembers(users)
-            } catch (e) {
-                console.error('API 불러오기 실패', e)
-            }
-        }
-        fetchMembers()
-    }, [])
+  useEffect(() => {
+    const fetchMembers = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const res = await fetch(`http://localhost:3001/api/members?page=${page}`)
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        const json: MembersApiResponse = await res.json()
 
-    const {topThree, otherUsers} = useMemo(() => {
-        const top = members.filter(u => [1, 2, 3].includes(u.rank))
-        const others = members.filter(u => [4, 5].includes(u.rank))
-        return {topThree: top, otherUsers: others}
-    }, [members])
-
-    /** ======= 기존 디자인 함수들 유지 ======= */
-    const getRankStyle = (rank: number) => {
-        if (rank === 1) return {width: '240px', height: '240px', top: '15px', left: '420px'}
-        if (rank === 2) return {width: '204px', height: '204px', top: '51px', left: '52px'}
-        return {width: '204px', height: '204px', top: '51px', left: '824px'}
+        const users = (json.data?.items ?? []).map(mapApiToRankingUser)
+        setMembers(users)
+        setTotalPages(json.data?.totalPages ?? 1)
+      } catch (e: any) {
+        setError(e?.message ?? '데이터를 불러오지 못했습니다.')
+      } finally {
+        setLoading(false)
+      }
     }
+    fetchMembers()
+  }, [page])
 
-    const getRankBadgeStyle = (rank: number) => {
-        const base = {
-            position: 'absolute' as const,
-            borderRadius: '999px',
-            border: '2px white solid',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'white',
-            fontFamily: 'Inter',
-            fontWeight: 600
-        }
-        if (rank === 1) return {
-            ...base, width: '68px', height: '68px', left: '590px', top: '198px',
-            background: 'linear-gradient(180deg, #F4585C 0%, #F89846 100%)', fontSize: '32px'
-        }
-        if (rank === 2) return {
-            ...base, width: '52px', height: '52px', left: '202px', top: '201px',
-            background: '#F56159', fontSize: '26px'
-        }
-        return {
-            ...base, width: '52px', height: '52px', left: '974px', top: '201px',
-            background: '#F89148', fontSize: '26px'
-        }
+  // 1페이지일 때만 상단 1·2·3 분리, 4·5 목록. 그 외 페이지는 모두 목록으로 처리.
+  const { topThree, otherUsers, listOnly } = useMemo(() => {
+    if (page !== 1) {
+      return { topThree: [] as RankingUser[], otherUsers: [] as RankingUser[], listOnly: members }
     }
+    const top = members.filter(u => [1, 2, 3].includes(u.rank))
+    const others = members.filter(u => [4, 5].includes(u.rank))
+    return { topThree: top, otherUsers: others, listOnly: [] as RankingUser[] }
+  }, [members, page])
 
-    const getNamePosition = (rank: number) =>
-        rank === 1 ? {left: '415px', top: '268px'}
-            : rank === 2 ? {left: '29px', top: '268px'}
-                : {left: '801px', top: '268px'}
+  if (loading) return <div style={{ padding: 24 }}>불러오는 중…</div>
+  if (error) return <div style={{ padding: 24, color: '#d33' }}>에러: {error}</div>
 
-    const getTimePosition = (rank: number) =>
-        rank === 1 ? {left: '414px', top: '311px'}
-            : rank === 2 ? {left: '28px', top: '311px'}
-                : {left: '800px', top: '311px'}
+  return (
+    <>
+      {/* 헤더 (좌/우 페이지 네비게이션 포함) */}
+      <div style={{ width: '1080px', height: '120px', position: 'relative', background: 'white', overflow: 'hidden' }}>
+        <button
+          onClick={() => setPage(p => Math.max(1, p - 1))}
+          disabled={page <= 1}
+          style={{
+            marginLeft: '32px', marginTop: '24px', borderRadius: 8,
+            background: 'transparent', border: 'none', padding: 0,
+            cursor: page <= 1 ? 'not-allowed' : 'pointer'
+          }}
+        >
+          <img src="/public/assets/icon/left.svg" alt="prev"/>
+        </button>
 
-    const getMealTagPosition = (rank: number) =>
-        rank === 1 ? {left: '604px', top: '313px'}
-            : rank === 2 ? {left: '218px', top: '313px'}
-                : {left: '990px', top: '313px'}
+        <div style={{
+          left: '425px', top: '24px', position: 'absolute',
+          justifyContent: 'flex-start', alignItems: 'center', gap: '18px', display: 'inline-flex'
+        }}>
+          <div style={{
+            justifyContent: 'center', display: 'flex', flexDirection: 'column',
+            color: '#111111', fontSize: '40px', fontFamily: 'Pretendard',
+            fontWeight: 600, lineHeight: '56px'
+          }}>
+            오늘의 양치왕
+          </div>
+          <div style={{ width: '52px', height: '52px', position: 'relative', overflow: 'hidden' }}>
+            <img src="/assets/icon/trophy.svg" alt="트로피"/>
+          </div>
 
-    return (
-        <>
-            {/* 헤더 */}
-            <div style={{width: '1080px', height: '120px', position: 'relative', background: 'white'}}>
-                <div style={{
-                    left: '425px', top: '32px', position: 'absolute',
-                    display: 'inline-flex', alignItems: 'center', gap: '18px'
-                }}>
-                    <div style={{fontSize: '40px', fontFamily: 'Pretendard', fontWeight: 600, color: '#111111'}}>
-                        오늘의 양치왕
-                    </div>
-                    <img src="/public/assets/icon/trophy.svg" alt="트로피" width={52} height={52}/>
-                </div>
-            </div>
+          <button
+            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+            disabled={page >= totalPages}
+            style={{
+              marginLeft: '260px', borderRadius: 8,
+              cursor: page >= totalPages ? 'not-allowed' : 'pointer',
+              background: 'transparent', border: 'none', padding: 0
+            }}
+          >
+            <img src="/public/assets/icon/right.svg" alt="next"/>
+          </button>
+        </div>
+      </div>
 
-            {/* 상위 3명 */}
-            <div style={{width: '1080px', height: '368px', position: 'relative', borderBottom: '0.5px #B4B4B5 solid'}}>
-                {topThree.map(user => {
-                    const rankStyle = getRankStyle(user.rank)
-                    const badgeStyle = getRankBadgeStyle(user.rank)
-                    const namePos = getNamePosition(user.rank)
-                    const timePos = getTimePosition(user.rank)
-                    const mealPos = getMealTagPosition(user.rank)
+      {/* 1페이지: 상단 1·2·3 */}
+      {page === 1 && (
+        <div style={{
+          width: '1080px', height: '368px', position: 'relative',
+          overflow: 'hidden', borderBottom: '0.50px #B4B4B5 solid'
+        }}>
+          {topThree.map(user => {
+            const rankStyle = getRankStyle(user.rank)
+            const badgeStyle = getRankBadgeStyle(user.rank)
+            const namePos = getNamePosition(user.rank)
+            const timePos = getTimePosition(user.rank)
+            const mealPos = getMealTagPosition(user.rank)
 
-                    return (
-                        <React.Fragment key={user.rank}>
-                            {/* 프로필 */}
-                            <img style={{
-                                ...rankStyle, position: 'absolute', borderRadius: '999px',
-                                border: `3px ${user.borderColor} solid`
-                            }} src={user.profileImage} alt={user.name}/>
-                            {/* 랭킹 배지 */}
-                            <div style={badgeStyle}>{user.rank}</div>
-                            {/* 이름 */}
-                            <div style={{
-                                ...namePos,
-                                position: 'absolute', // 5-1반 이서연
-                                width: '250px',
-                                height: '86px',
-                                color: '#111111',
-                                fontSize: 36,
-                                fontFamily: 'Pretendard',
-                                fontWeight: '600',
-                                lineHeight: "56px",
-                                textAlign: 'center',
-                            }}>
-                                {user.className} {user.name}
-                            </div>
-                            {/* 시간 */}
-                            <div style={{...timePos, position: 'absolute', fontSize: '32px', color: '#4C4948'}}>
-                                {user.time}
-                            </div>
-                            {/* 식사 태그 */}
-                            <div style={{...mealPos, position: 'absolute', width:50, height:40, background: '#B2D7FF', borderRadius: 8}}>
-                                <div style={{color: '#227EFF', width:"35px", height: "18px", fontSize: '16px', fontWeight: 600, lineHeight: "16px", marginLeft: '7.5px', marginTop: '11px', textAlign: 'center'}}>
-                                    {user.mealType === 'lunch' ? '점심' : '외'}
-                                </div>
-                            </div>
-                        </React.Fragment>
-                    )
-                })}
-            </div>
-
-            {/* 4,5등 리스트 */}
-            {otherUsers.map((user, idx) => (
-                <UserListItem
-                    key={user.rank}
-                    rank={user.rank}
-                    name={user.name}
-                    className={user.className}
-                    time={user.time}
-                    profileImage={user.profileImage}
-                    mealType={user.mealType}
-                    isLast={idx === otherUsers.length - 1}
+            return (
+              <React.Fragment key={user.rank}>
+                {/* 프로필 */}
+                <img
+                  style={{ ...rankStyle, position: 'absolute', borderRadius: '999px', border: `3px ${user.borderColor} solid` }}
+                  src={user.profileImage}
+                  alt={user.name}
                 />
-            ))}
-        </>
-    )
+                {/* 랭킹 배지 */}
+                <div style={badgeStyle}>{user.rank}</div>
+
+                {/* 이름 */}
+                <div style={{
+                  ...namePos, position: 'absolute', width: '250px', height: '86px',
+                  color: '#111111', fontSize: 36, fontFamily: 'Pretendard',
+                  fontWeight: 600, lineHeight: '56px', textAlign: 'center'
+                }}>
+                  {user.className} {user.name}
+                </div>
+
+                {/* 시간 */}
+                <div style={{ ...timePos, position: 'absolute', fontSize: '32px', color: '#4C4948' }}>
+                  {user.time}
+                </div>
+
+                {/* 식사 태그 */}
+                <div style={{
+                  ...mealPos, position: 'absolute', width: 50, height: 40,
+                  background: '#B2D7FF', borderRadius: 8
+                }}>
+                  <div style={{
+                    color: '#227EFF', width: '35px', height: '18px',
+                    fontSize: '16px', fontWeight: 600, lineHeight: '16px',
+                    marginLeft: '7.5px', marginTop: '11px', textAlign: 'center'
+                  }}>
+                    {user.mealType ? '점심' : '외'}
+                  </div>
+                </div>
+              </React.Fragment>
+            )
+          })}
+        </div>
+      )}
+
+      {/* 목록: 1페이지는 4·5등만, 나머지 페이지는 해당 페이지의 전체 5명 */}
+      {(page === 1 ? otherUsers : listOnly).map((user, idx, arr) => (
+        <UserListItem
+          key={user.rank}
+          rank={user.rank}
+          name={user.name}
+          className={user.className}
+          time={user.time}
+          profileImage={user.profileImage}
+          mealType={user.mealType}
+          isLast={idx === arr.length - 1}
+        />
+      ))}
+    </>
+  )
 }
 
 export default RankingSection
