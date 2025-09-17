@@ -5,11 +5,6 @@ import {asyncHandler} from '../core/asyncHandler.js';
 export const membersRoutes = (svc) => {
     const r = Router();
 
-    r.get('/export', asyncHandler(async (req, res) => {
-        const result = await svc.exportToExcel();
-        res.json({success: true, data: result});
-    }));
-
     r.get('/', asyncHandler(async (req, res) => {
         const page = Number(req.query.page ?? 1);
         const lunchOnly = req.query.lunchOnly === 'true' || req.query.lunchOnly === '1';
