@@ -19,7 +19,7 @@ export const membersRoutes = (svc) => {
     }));
 
     r.post('/', asyncHandler(async (req, res) => {
-        const data = svc.create(req.body);
+        const data = await svc.create(req.body);
         res.status(201).json({success: true, data});
     }));
 

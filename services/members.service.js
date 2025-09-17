@@ -1,5 +1,6 @@
 // services/members.service.js
 import { toBool, assertCreateMember, isValidPhone } from '../core/validate.js';
+import { appendMemberToExcel } from '../src/utils/excelStore.js';
 
 export class MembersService {
   constructor(repo) { this.repo = repo; }
@@ -7,7 +8,7 @@ export class MembersService {
   list(q) { return this.repo.list(q); }
   get(id) { return this.repo.get(id); }
 
-  create(body) {
+  async create(body) {
     assertCreateMember(body);
     const data = {
       name: String(body.name).trim(),
@@ -16,6 +17,7 @@ export class MembersService {
       gender: String(body.gender ?? '').trim(),
       lunch: toBool(body.lunch),
     };
+    await appendMemberToExcel(data);
     return this.repo.create(data);
   }
 
