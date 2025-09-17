@@ -37,7 +37,7 @@ const LunchFalseModal: React.FC<LunchFalseModalProps> = ({
 
         {/* 시계 아이콘 */}
         <div className="lunch-false-clock-container">
-          <img src="/public/assets/icon/time.svg" alt="시간 아이콘" />
+          <img src="/public/assets/icon/clock.svg" alt="시간 아이콘" />
         </div>
 
         {/* 메인 메시지 */}
