@@ -52,6 +52,43 @@ export class MembersService {
     }
 
     async exportToExcel() {
+        // Helper function to parse Korean date strings
+        function parseKoreanDateString(s) {
+            if (!s) return new Date(); // Return current date if string is empty
+            // Check for ISO format or other formats new Date() can handle
+            if (!s.includes('오전') && !s.includes('오후')) {
+                const d = new Date(s);
+                if (!isNaN(d.getTime())) return d;
+            }
+
+            // Handle Korean format like '2025. 9. 18. 오후 3:14:05'
+            const parts = s.replace(/\. /g, ' ').replace(/\./g, '').split(' ');
+            if (parts.length < 5) return new Date(); // Return current date on parse error
+
+            const year = parseInt(parts[0], 10);
+            const month = parseInt(parts[1], 10) - 1; // JS months are 0-indexed
+            const day = parseInt(parts[2], 10);
+
+            const timeParts = parts[4].split(':');
+            let hour = parseInt(timeParts[0], 10);
+            const minute = parseInt(timeParts[1], 10);
+            const second = parseInt(timeParts[2], 10);
+
+            if (isNaN(hour) || isNaN(minute) || isNaN(second)) return new Date();
+
+            if (parts[3] === '오후' && hour < 12) {
+                hour += 12;
+            }
+            if (parts[3] === '오전' && hour === 12) { // Handle 12 AM (midnight)
+                hour = 0;
+            }
+            
+            const resultDate = new Date(year, month, day, hour, minute, second);
+            if (isNaN(resultDate.getTime())) return new Date(); // Final check
+
+            return resultDate;
+        }
+
         // 1. Get all dates from the repo
         const allDates = await this.repo.getAllDates();
         if (allDates.length === 0) {
@@ -72,15 +109,14 @@ export class MembersService {
 
         // 4. Format data to match new columns
         const formattedMembers = allMembers.map(member => {
-            const d = new Date(member.createdAt);
+            const d = parseKoreanDateString(member.createdAt);
             const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
             const time = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
 
-            // Assuming gradeClass cannot be reliably split into grade and class.
-            const grade = member.gradeClass;
-            const aClass = ''; // Leaving '반' empty.
-
-            const lunchStatus = (member.lunch === true || member.lunch === 'true' || member.lunch === 1 || member.lunch === '1') ? 'O' : 'X';
+            const grade = member.gradeClass.split('-')[0] ?? '';
+            const aClass = member.gradeClass.split('-')[1] ?? '';
+            // 점심시간 여부 O,X
+            const lunchStatus = (member.lunch === true || member.lunch === 'true' || member.lunch === 1 || member.lunch === '1') ? 'Y' : 'N';
 
             return {
                 date: date,
