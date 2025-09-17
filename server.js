@@ -5,6 +5,30 @@ import cors from 'cors';
 import {fileURLToPath} from 'url';
 import {appendMemberToExcel} from "./src/utils/excelStore.js";
 
+// JSON 백업용 함수 추가
+async function saveToJSON(data) {
+    const fs = await import('fs-extra');
+    const path = await import('path');
+    
+    const jsonPath = path.default.join(process.cwd(), "data", "members.json");
+    
+    let existingData = [];
+    if (await fs.default.pathExists(jsonPath)) {
+        const jsonContent = await fs.default.readFile(jsonPath, 'utf8');
+        existingData = JSON.parse(jsonContent);
+    }
+    
+    existingData.push({
+        ...data,
+        timestamp: new Date().toISOString(),
+        id: Date.now()
+    });
+    
+    await fs.default.writeFile(jsonPath, JSON.stringify(existingData, null, 2));
+    console.log('JSON 백업 저장 완료');
+    return existingData;
+}
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -255,10 +279,18 @@ app.post('/api/members', async (req, res) => {
     }
 
     try {
+        console.log('엑셀 저장 시도');
+        
+        // JSON으로도 백업 저장
+        await saveToJSON({ name, phone, gradeClass, gender });
+        
+        // 엑셀 저장 시도
         await appendMemberToExcel({ name, phone, gradeClass, gender });
+        console.log('엑셀 저장 성공');
     } catch (error) {
         console.error('엑셀 저장 실패:', error);
-        return res.status(500).json({success: false, error: '엑셀 저장 중 오류가 발생했습니다.'});
+        console.log('JSON 백업은 저장됨');
+        // 엑셀 저장 실패해도 JSON으로는 저장되었으므로 계속 진행
     }
 
     const member = memberStore.create({name, phone, gradeClass, gender, lunch});
@@ -300,6 +332,80 @@ app.get('/api/health', (req, res) => {
         status: 'OK',
         studentDir: studentDir
     });
+});
+
+// JSON 데이터를 Excel로 변환하는 API
+app.get('/api/convert-to-excel', async (req, res) => {
+    try {
+        const fs = await import('fs-extra');
+        const path = await import('path');
+        
+        const jsonPath = path.default.join(process.cwd(), "data", "members.json");
+        const excelPath = path.default.join(process.cwd(), "data", "members.xlsx");
+        
+        if (!(await fs.default.pathExists(jsonPath))) {
+            return res.status(404).json({
+                success: false,
+                error: 'JSON 파일이 존재하지 않습니다.'
+            });
+        }
+        
+        // JSON 데이터 읽기
+        const jsonData = await fs.default.readFile(jsonPath, 'utf8');
+        const members = JSON.parse(jsonData);
+        
+        if (members.length === 0) {
+            return res.json({
+                success: false,
+                message: '변환할 데이터가 없습니다.'
+            });
+        }
+        
+        // ExcelJS로 변환
+        const ExcelJS = await import('exceljs');
+        const workbook = new ExcelJS.default.Workbook();
+        const worksheet = workbook.addWorksheet('Members');
+        
+        // 컬럼 설정
+        worksheet.columns = [
+            { header: 'ID', key: 'id', width: 10 },
+            { header: 'Timestamp', key: 'timestamp', width: 20 },
+            { header: 'Name', key: 'name', width: 15 },
+            { header: 'Phone', key: 'phone', width: 15 },
+            { header: 'Grade/Class', key: 'gradeClass', width: 12 },
+            { header: 'Gender', key: 'gender', width: 10 }
+        ];
+        
+        // 데이터 추가
+        members.forEach(member => {
+            worksheet.addRow({
+                id: member.id,
+                timestamp: member.timestamp,
+                name: member.name,
+                phone: member.phone,
+                gradeClass: member.gradeClass,
+                gender: member.gender
+            });
+        });
+        
+        // Excel 파일 저장
+        await workbook.xlsx.writeFile(excelPath);
+        
+        res.json({
+            success: true,
+            message: `${members.length}개의 데이터를 Excel로 변환했습니다.`,
+            excelPath: excelPath,
+            totalRows: members.length
+        });
+        
+    } catch (error) {
+        console.error('Excel 변환 실패:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Excel 변환 중 오류가 발생했습니다.',
+            details: error.message
+        });
+    }
 });
 
 app.listen(PORT, () => {
