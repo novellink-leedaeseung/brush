@@ -70,21 +70,44 @@ export class MembersService {
             return {message: 'No members to export.'};
         }
 
-        // 4. Write to Excel
+        // 4. Format data to match new columns
+        const formattedMembers = allMembers.map(member => {
+            const d = new Date(member.createdAt);
+            const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            const time = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
+
+            // Assuming gradeClass cannot be reliably split into grade and class.
+            const grade = member.gradeClass;
+            const aClass = ''; // Leaving '반' empty.
+
+            const lunchStatus = (member.lunch === true || member.lunch === 'true' || member.lunch === 1 || member.lunch === '1') ? 'O' : 'X';
+
+            return {
+                date: date,
+                time: time,
+                grade: grade,
+                class: aClass,
+                name: member.name,
+                lunch: lunchStatus
+            };
+        });
+
+        // 5. Write to Excel
         const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet('All Members');
+        const worksheet = workbook.addWorksheet('양치기록');
 
         worksheet.columns = [
-            // 날짜, 시간, 학년, 반, 이름, 점심시간 여부
-            {header: '날짜', key: 'createdAt', width: 22},
+            {header: '날짜', key: 'date', width: 12},
+            {header: '시간', key: 'time', width: 12},
+            {header: '학년', key: 'grade', width: 15},
+            {header: '반', key: 'class', width: 10},
             {header: '이름', key: 'name', width: 16},
-            {header: 'Grade/Class', key: 'gradeClass', width: 12},
-            {header: 'Lunch', key: 'lunch', width: 8},
+            {header: '점심시간 여부', key: 'lunch', width: 15},
         ];
 
-        worksheet.addRows(allMembers);
+        worksheet.addRows(formattedMembers);
 
-        // 5. Save the file with today's date
+        // 6. Save the file with today's date
         const d = new Date();
         const y = d.getFullYear();
         const m = String(d.getMonth() + 1).padStart(2, '0');
@@ -96,7 +119,7 @@ export class MembersService {
         const exportFilePath = path.join(DATA_DIR, `양치기록_${todayString}.xlsx`);
         await workbook.xlsx.writeFile(exportFilePath);
 
-        console.log(`Exported ${allMembers.length} members to ${exportFilePath}`);
-        return {filePath: exportFilePath, count: allMembers.length};
+        console.log(`Exported ${formattedMembers.length} members to ${exportFilePath}`);
+        return {filePath: exportFilePath, count: formattedMembers.length};
     }
 }
