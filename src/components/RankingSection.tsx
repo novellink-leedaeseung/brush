@@ -240,7 +240,7 @@ const RankingSection: React.FC = () => {
                                     justifyContent: "center",
 
                                 }}>
-                                    {user.className} {user.name}
+                                    {user.className == '' ? '미확인' : user.className} {user.name}
                                 </div>
 
 
