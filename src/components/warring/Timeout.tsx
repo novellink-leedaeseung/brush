@@ -60,6 +60,7 @@ export const Timeout = ({
                         position: 'relative',
                         borderRadius: '41px',
                         boxShadow: '2px 2px 2px 0px rgba(42, 73, 148, 0.09)',
+                        backgroundColor: "white",
                         ...style
                     }}
                     onClick={(e) => e.stopPropagation()} // 모달 내부 클릭시 전파 중단
@@ -92,10 +93,11 @@ export const Timeout = ({
                             marginLeft: '126px',  // absolute position을 margin으로 변경
                             marginTop: showIcon ? '80px' : '270px', // 아이콘 있을 때는 간격 조정, 없을 때는 270px
                             width: '680px', // 피그마 width: 680
+                            height: '190px',
                             display: 'flex',
                             flexDirection: 'column',
                             justifyContent: 'center',
-                            alignItems: 'center',
+                            alignItems: 'flex-start',
                             gap: '10px'     // 피그마 gap: 10px
                         }}
                         data-name="frame-363"
@@ -104,18 +106,17 @@ export const Timeout = ({
                         {/* 주요 메시지 - "시간이 초과되었습니다." */}
                         <div
                             style={{
-                                width: '100%',
-                                height: '90px',  // 피그마 height: 90
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontFamily: 'Pretendard, -apple-system, BlinkMacSystemFont, sans-serif',
-                                fontWeight: '700',      // 피그마 Bold
-                                fontSize: '72px',       // 피그마 72px
-                                lineHeight: '1.4',      // 피그마 lineHeight: 1.4em
-                                letterSpacing: '-2.5%', // 피그마 letterSpacing: -2.5%
+                                // 시간이 초과되었습니다.
+                                color: '#004F99',
+                                fontSize: "72px",
+                                fontFamily: 'Pretendard',
+                                fontWeight: '700',
+                                lineHeight: "140%",
+                                letterSpacing: '-1.8px',
+                                wordWrap: 'break-word',
+                                height: '90px',
+                                width: '680px',
                                 textAlign: 'center',
-                                color: '#004F99'        // 피그마 fill: #004F99
                             }}
                             data-node-id="134:366"
                         >
@@ -125,18 +126,18 @@ export const Timeout = ({
                         {/* 부가 메시지 - "대기화면으로 이동합니다." */}
                         <div
                             style={{
-                                width: '100%',
-                                height: '90px',  // 피그마 height: 90
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontFamily: 'Pretendard, -apple-system, BlinkMacSystemFont, sans-serif',
-                                fontWeight: '500',      // 피그마 Medium
-                                fontSize: '68px',       // 피그마 68px
-                                lineHeight: '1.4',      // 피그마 lineHeight: 1.4em
-                                letterSpacing: '-2.5%', // 피그마 letterSpacing: -2.5%
+                                // 대기화면으로 이동합니다.
+                                width: '680px',
+                                height: '90px',
+                                color: '#4B4948',
+                                fontSize: "68px",
+                                fontFamily: 'Pretendard',
+                                fontWeight: '500',
+                                lineHeight: "140%",
+                                letterSpacing: '-1.7px',
+                                wordWrap: 'break-word',
                                 textAlign: 'center',
-                                color: '#4B4948'        // 피그마 fill: #4B4948
+
                             }}
                             data-node-id="134:367"
                         >
