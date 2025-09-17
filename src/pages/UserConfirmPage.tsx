@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import {useNavigate} from 'react-router-dom'
 import Header from "../components/Header.tsx";
+import HomeComponent from "../components/HomeComponent.tsx";
 
 const UserConfirmPage: React.FC = () => {
     const navigate = useNavigate()
@@ -34,6 +35,8 @@ const UserConfirmPage: React.FC = () => {
             {/* 상단 헤더 */}
             {/* 기존 헤더 코드를 Header 컴포넌트로 교체 */}
             <Header/>
+            <HomeComponent right={0} bottom={0} onClick={undefined}/>
+
 
             {/* 메인 컨텐츠 */}
             <div style={{

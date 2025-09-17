@@ -2,6 +2,7 @@ import React, {useState} from 'react'
 import {useNavigate} from 'react-router-dom'
 import Header from '../components/Header'
 import CameraCapture from '../components/CameraCapture'
+import HomeComponent from "../components/HomeComponent.tsx";
 
 const CameraPage: React.FC = () => {
     const navigate = useNavigate()
@@ -22,6 +23,8 @@ const CameraPage: React.FC = () => {
         }}>
             {/* 헤더 */}
             <Header/>
+            <HomeComponent right={0} bottom={0} onClick={undefined}/>
+
 
             {/* 카메라 컴포넌트 */}
             <CameraCapture onCapture={handleCapture}/>
