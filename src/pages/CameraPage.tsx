@@ -21,6 +21,17 @@ const CameraPage: React.FC = () => {
             height: '1920px',
             background: 'linear-gradient(180deg, #FFFFFF 0%, #D4E1F3 100%)'
         }}>
+            {/* 카운트다운 애니메이션 CSS */}
+            <style>
+                {`
+                @keyframes pulse {
+                    0% { transform: scale(1); }
+                    50% { transform: scale(1.1); }
+                    100% { transform: scale(1); }
+                }
+                `}
+            </style>
+            
             {/* 헤더 */}
             <Header/>
             <HomeComponent right={0} bottom={0} onClick={undefined}/>
@@ -48,7 +59,7 @@ const CameraPage: React.FC = () => {
                 }}>
                     <div
                         onClick={() => {
-                            // CameraCapture 컴포넌트의 captureImage 함수를 호출하기 위한 이벤트 발생
+                            // CameraCapture 컴포넌트의 startCountdown 함수를 호출하기 위한 이벤트 발생
                             const event = new CustomEvent('capture-photo');
                             window.dispatchEvent(event);
                         }}>

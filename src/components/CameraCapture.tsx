@@ -22,10 +22,15 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const overlayRef = useRef<HTMLImageElement>(null)
     const streamRef = useRef<MediaStream | null>(null)
+    const timerRef = useRef<NodeJS.Timeout | null>(null)
 
     const [currentOverlayIndex, setCurrentOverlayIndex] = useState(0)
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
+    
+    // 3초 타이머 상태 추가
+    const [isCountdownActive, setIsCountdownActive] = useState(false)
+    const [countdown, setCountdown] = useState(3)
 
     const startCamera = async () => {
         const video = videoRef.current
@@ -155,6 +160,30 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
         onCapture?.(imageData)
     }
 
+    // 3초 카운트다운 시작 함수
+    const startCountdown = () => {
+        if (isCountdownActive) return // 이미 카운트다운 중이면 무시
+        
+        setIsCountdownActive(true)
+        setCountdown(3)
+        
+        let currentCount = 3
+        
+        const countdownInterval = setInterval(() => {
+            currentCount -= 1
+            setCountdown(currentCount)
+            
+            if (currentCount === 0) {
+                clearInterval(countdownInterval)
+                setIsCountdownActive(false)
+                // 카운트다운 완료 후 사진 촬영
+                setTimeout(() => {
+                    captureImage()
+                }, 100) // 약간의 딜레이 후 촬영
+            }
+        }, 1000) // 1초마다
+    }
+
     const previousOverlay = () => {
         setCurrentOverlayIndex((prev) => (prev - 1 + overlayImages.length) % overlayImages.length)
     }
@@ -215,7 +244,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
 
         // 외부 카메라 버튼 클릭 이벤트 리스너 추가
         const handleCaptureEvent = () => {
-            captureImage();
+            startCountdown(); // 바로 촬영하지 않고 카운트다운 시작
         };
         
         window.addEventListener('capture-photo', handleCaptureEvent);
@@ -224,6 +253,11 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
         return () => {
             stopCamera()
             window.removeEventListener('capture-photo', handleCaptureEvent);
+            
+            // 타이머 클린업
+            if (timerRef.current) {
+                clearTimeout(timerRef.current);
+            }
         }
     }, [])
 
@@ -237,6 +271,39 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
             marginTop: '0px',
             position: 'relative'
         }}>
+            {/* 3초 카운트다운 오버레이 */}
+            {isCountdownActive && (
+                <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    background: 'rgba(0, 0, 0, 0.7)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 20
+                }}>
+                    <div style={{
+                        width: '200px',
+                        height: '200px',
+                        borderRadius: '50%',
+                        background: 'rgba(255, 255, 255, 0.9)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '120px',
+                        fontWeight: 'bold',
+                        color: '#004F99',
+                        animation: 'pulse 1s ease-in-out',
+                        border: '4px solid #004F99'
+                    }}>
+                        {countdown}
+                    </div>
+                </div>
+            )}
+
             {/* 로딩 및 에러 메시지 */}
             {isLoading && (
                 <div style={{
