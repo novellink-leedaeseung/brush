@@ -188,13 +188,6 @@ const RankingSection: React.FC = () => {
                     />
                 ))
             )}</div>
-
-            <style>{`
-        @keyframes pulse {
-          0%, 100% { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.7); }
-          50% { box-shadow: 0 0 0 12px rgba(34, 197, 94, 0.3); }
-        }
-      `}</style>
         </>
     )
 }
