@@ -35,19 +35,18 @@ interface RankingUser {
     // UserListItem은 boolean을 기대하므로 boolean으로 유지
     mealType: boolean
 }
+
 /** API → 화면 모델 매핑 */
-const mapApiToRankingUser = (item: MembersApiItem): RankingUser => {
-    const rank = item.id
+const mapApiToRankingUser = (item: MembersApiItem, rank: number): RankingUser => {
     const borderColor =
-        rank === 1 ? '#F56358'
-            : rank === 2 ? '#F46059'
-                : rank === 3 ? '#F89049'
-                    : ''
+        rank === 1 ? '#F56358' :
+            rank === 2 ? '#F46059' :
+                rank === 3 ? '#F89049' : '';
 
     const profileImage =
         item.gender === '남자'
             ? '/public/assets/images/man.png'
-            : '/public/assets/images/woman.png'
+            : '/public/assets/images/woman.png';
 
     return {
         rank,
@@ -56,9 +55,10 @@ const mapApiToRankingUser = (item: MembersApiItem): RankingUser => {
         time: splitKoKRDateTime(item.createdAt).timeRaw,
         profileImage,
         borderColor,
-        mealType: item.lunch, // boolean 유지
-    }
-}
+        mealType: item.lunch,
+    };
+};
+
 
 /** ===== 등수별 위치/스타일(디자인 그대로) ===== */
 const getRankStyle = (rank: number) => {
@@ -104,6 +104,14 @@ const getMealTagPosition = (rank: number) =>
         : rank === 2 ? {left: '218px', top: '313px'}
             : {left: '990px', top: '313px'}
 
+// 가장 이른 시간 순(오름차순), 동률이면 id 오름차순
+const byCreatedAtAsc = (a: MembersApiItem, b: MembersApiItem) => {
+    const ta = Date.parse(a.createdAt);
+    const tb = Date.parse(b.createdAt);
+    if (ta !== tb) return ta - tb;
+    return a.id - b.id;
+};
+
 /** ===== 메인 컴포넌트 ===== */
 const RankingSection: React.FC = () => {
     const [page, setPage] = useState(1)
@@ -119,9 +127,23 @@ const RankingSection: React.FC = () => {
                 setError(null)
                 const res = await fetch(`http://localhost:3001/api/members?page=${page}&lunchOnly=true`)
                 if (!res.ok) throw new Error(`HTTP ${res.status}`)
-                const json: MembersApiResponse = await res.json()
 
-                const users = (json.data?.items ?? []).map(mapApiToRankingUser)
+                const json: MembersApiResponse = await res.json();
+
+                // 전역 랭크 계산을 위한 페이지/사이즈
+                const cur = json.data?.page ?? page;
+                const size = json.data?.pageSize ?? 5;
+                const baseRank = (cur - 1) * size;
+
+                // 혹시 서버가 정렬 안 해줄 수도 있으니 방어적으로 재정렬
+                const users = (json.data?.items ?? [])
+                    .slice()
+                    .sort(byCreatedAtAsc)                 // ← 시간 가장 이른 순으로 확정
+                    .map((it, idx) => mapApiToRankingUser(it, baseRank + idx + 1)); // 1부터 시작 + 페이지 오프셋
+
+                setMembers(users);
+                setTotalPages(json.data?.totalPages ?? 1);
+
                 setMembers(users)
                 setTotalPages(json.data?.totalPages ?? 1)
             } catch (e: any) {
