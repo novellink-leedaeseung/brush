@@ -322,8 +322,8 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
                 <button
                     onClick={previousOverlay}
                     style={{
-                        width: '60px',
-                        height: '60px',
+                        width: '76px',
+                        height: '76px',
                         borderRadius: '50%',
                         border: '2px solid white',
                         background: 'rgba(0, 0, 0, 0.5)',
@@ -335,13 +335,13 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
                         justifyContent: 'center'
                     }}
                 >
-                    ←
+                    <img src="/assets/icon/left.svg" alt=""/>
                 </button>
                 <button
                     onClick={nextOverlay}
                     style={{
-                        width: '60px',
-                        height: '60px',
+                        width: '76px',
+                        height: '76px',
                         borderRadius: '50%',
                         border: '2px solid white',
                         background: 'rgba(0, 0, 0, 0.5)',
@@ -353,7 +353,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
                         justifyContent: 'center'
                     }}
                 >
-                    →
+                    <img src="/assets/icon/right.svg" alt=""/>
                 </button>
             </div>
 
