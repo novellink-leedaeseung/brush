@@ -476,7 +476,16 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                             display: 'flex',
                             justifyContent: 'center',
                             alignItems: 'center',
-                            cursor: 'pointer'
+                            cursor: 'pointer',
+                            outline: 'none',
+                            WebkitTapHighlightColor: 'transparent' as any,
+                            userSelect: 'none',
+                            WebkitUserSelect: 'none' as any,
+                            MozUserSelect: 'none',
+                            msUserSelect: 'none',
+                            appearance: 'none' as any,
+                            WebkitAppearance: 'none' as any,
+                            touchAction: 'manipulation',
                         }}
                     >
                         <div style={{
