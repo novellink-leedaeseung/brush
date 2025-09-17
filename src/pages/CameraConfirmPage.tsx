@@ -288,7 +288,7 @@ const CameraConfirmPage: React.FC = () => {
 
     // 홈으로 버튼 클릭
     const handleHome = () => {
-        navigate('/')
+        window.location.replace('/')
     }
 
     // 등록 버튼 클릭
@@ -365,13 +365,7 @@ const CameraConfirmPage: React.FC = () => {
     // 점심시간 모달 - 등록 클릭
     const handleLunchModalRegister = async () => {
         const userName = localStorage.getItem("name") || "익명 사용자"
-        const studentData = {
-            name: userName,
-            className: '1-1반',
-            profileImage: '/assets/images/man.png'
-        }
-
-        // 점심시간 모달 닫기
+// 점심시간 모달 닫기
         setShowLunchModal(false)
         document.body.style.overflow = 'auto'
 
@@ -388,7 +382,7 @@ const CameraConfirmPage: React.FC = () => {
                 // 세션 스토리지 정리
                 const possibleKeys = ['capturedImage', 'camara.capturedPhoto', 'captured-photo'];
                 possibleKeys.forEach(key => sessionStorage.removeItem(key));
-                navigate('/')
+                window.location.replace('/')
             }, 2000)
         }
     }
