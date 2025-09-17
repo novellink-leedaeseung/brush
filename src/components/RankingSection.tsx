@@ -178,22 +178,47 @@ const RankingSection: React.FC = () => {
                 background: 'white',
                 overflow: 'hidden'
             }}>
-                <button
-                    onClick={() => setPage(p => Math.max(1, p - 1))}
-                    disabled={page <= 1}
-                    style={{
-                        marginLeft: '32px', marginTop: '24px', borderRadius: 8,
-                        background: 'transparent', border: 'none', padding: 0,
-                        cursor: page <= 1 ? 'not-allowed' : 'pointer'
-                    }}
-                >
-                    <img src="/public/assets/icon/left.svg" alt="prev"/>
-                </button>
-
                 <div style={{
-                    left: '425px', top: '24px', position: 'absolute',
                     justifyContent: 'flex-start', alignItems: 'center', gap: '18px', display: 'inline-flex'
                 }}>
+                    <button
+                        type="button"
+                        aria-label="이전 페이지"
+                        tabIndex={-1}                          // 포커스 링 방지
+                        onMouseDown={(e) => e.preventDefault()} // 클릭 시 포커스 주지 않기
+                        onPointerDown={() => {
+                        }}                // 필요 시 active 관리용(빈 핸들러 OK)
+                        onPointerUp={() => {
+                        }}
+                        onPointerCancel={() => {
+                        }}
+                        onPointerLeave={() => {
+                        }}
+                        onContextMenu={(e) => e.preventDefault()} // 길게 눌러 컨텍스트 메뉴 방지
+                        onClick={() => setPage(p => Math.max(1, p - 1))}
+                        disabled={page <= 1}
+                        style={{
+                            display: "flex", alignItems: "flex-end", justifyContent: "start",
+                            width: '340px',
+                            marginLeft: '32px', marginTop: '24px', borderRadius: 8,
+                            background: 'transparent', border: 'none', padding: 0,
+                            cursor: page <= 1 ? 'not-allowed' : 'pointer',
+
+                            // 잔상/하이라이트/선택 방지
+                            outline: 'none',
+                            WebkitTapHighlightColor: 'transparent' as any,
+                            userSelect: 'none',
+                            WebkitUserSelect: 'none' as any,
+                            MozUserSelect: 'none',
+                            msUserSelect: 'none',
+                            appearance: 'none' as any,
+                            WebkitAppearance: 'none' as any,
+                            touchAction: 'manipulation',
+                        }}
+                    >
+                        <img src="/public/assets/icon/left.svg" alt="prev" draggable={false}/>
+                    </button>
+
                     <div style={{
                         justifyContent: 'center', display: 'flex', flexDirection: 'column',
                         color: '#111111', fontSize: '40px', fontFamily: 'Pretendard',
@@ -209,9 +234,22 @@ const RankingSection: React.FC = () => {
                         onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                         disabled={page >= totalPages}
                         style={{
-                            marginLeft: '260px', borderRadius: 8,
-                            cursor: page >= totalPages ? 'not-allowed' : 'pointer',
-                            background: 'transparent', border: 'none', padding: 0
+                            display: "flex", alignItems: "flex-end", justifyContent: "flex-end",
+                            width: '340px',
+                            marginLeft: '32px', marginTop: '24px', borderRadius: 8,
+                            background: 'transparent', border: 'none', padding: 0,
+                            cursor: page <= 1 ? 'not-allowed' : 'pointer',
+
+                            // 잔상/하이라이트/선택 방지
+                            outline: 'none',
+                            WebkitTapHighlightColor: 'transparent' as any,
+                            userSelect: 'none',
+                            WebkitUserSelect: 'none' as any,
+                            MozUserSelect: 'none',
+                            msUserSelect: 'none',
+                            appearance: 'none' as any,
+                            WebkitAppearance: 'none' as any,
+                            touchAction: 'manipulation',
                         }}
                     >
                         <img src="/public/assets/icon/right.svg" alt="next"/>
