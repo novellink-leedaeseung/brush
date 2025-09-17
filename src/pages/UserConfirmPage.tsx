@@ -8,12 +8,33 @@ const UserConfirmPage: React.FC = () => {
     const [userName, setUserName] = useState<string>('')
 
     useEffect(() => {
+
+        const maskMiddleWithO = (raw: string) => {
+            const chars = Array.from(raw.trim());
+            const n = chars.length;
+            if (n === 0) return '';
+            if (n === 1) return 'O';
+            if (n === 2) return chars[0] + 'O';
+
+            if (n % 2 === 1) {
+                const mid = (n - 1) / 2;
+                chars[mid] = 'O';
+            } else {
+                const midL = n / 2 - 1;
+                const midR = n / 2;
+                chars[midL] = 'O';
+                chars[midR] = 'O';
+            }
+            return chars.join('');
+        };
         // localStorage에서 사용자 이름 가져오기
-        const storedName = localStorage.getItem("name")
-        if (storedName) {
-            setUserName(storedName + ' 님')
+
+        const storedName = localStorage.getItem("name");
+        if (storedName && storedName.trim()) {
+            setUserName(`${maskMiddleWithO(storedName)} 님`);
         } else {
-            setUserName('노블링크 님')
+            // todo 버그
+            setUserName('노블링크 님');
         }
 
     }, [])
