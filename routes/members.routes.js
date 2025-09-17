@@ -14,7 +14,7 @@ export const membersRoutes = (svc) => {
 
     r.get('/:id', asyncHandler(async (req, res) => {
         const data = svc.getUserNo(req.params.id);
-        if (!data) return res.status(404).json({success: false, error: '회원을 찾을 수 없습니다.'});
+        if (data) return res.status(404).json({success: false, error: '이 사용자는 이미 등록되었습니다.'});
         res.json({success: true, data});
     }));
 
