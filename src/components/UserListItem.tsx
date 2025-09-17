@@ -160,7 +160,7 @@ const UserListItem: React.FC<UserListItemProps> = ({
                 fontSize: 32,
                 fontFamily: 'Pretendard',
                 fontWeight: '400',
-                lineHeight: 56,
+                lineHeight: "56px",
                 marginLeft: '384px',
             }}>{time}
             </div>
