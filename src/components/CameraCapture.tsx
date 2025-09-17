@@ -11,7 +11,9 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
                                                          onCapture,
                                                          overlayImages = [
                                                              "/assets/images/image01.png",
-                                                             "/assets/images/instagram.png"
+                                                             "/assets/images/image02.png",
+                                                             "/assets/images/image03.png",
+
                                                          ],
                                                          outputWidth = 798,
                                                          outputHeight = 1418
