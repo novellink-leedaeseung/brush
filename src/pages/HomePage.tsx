@@ -50,13 +50,7 @@ const HomePage: React.FC = () => {
             </div>
 
             {/* 상단 이미지 (고정) */}
-            <HeroSlider
-                images={[
-                    "/assets/images/home-image.png",
-                    "/assets/images/home-image2.png",
-                    "/assets/images/home-image3.png"
-                ]}
-            />
+            <HeroSlider/>
             {/* 랭킹(여기만 스크롤) */}
             <div style={{height: '688'}}>
                 <RankingSection/>
