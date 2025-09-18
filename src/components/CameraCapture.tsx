@@ -280,7 +280,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
                     left: 0,
                     width: '100%',
                     height: '100%',
-                    background: 'rgba(0, 0, 0, 0.7)',
+                    // background: 'rgba(0, 0, 0, 0.7)', // 투명 배경화면
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
