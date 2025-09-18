@@ -181,23 +181,28 @@ const RankingSection: React.FC = () => {
     }, [page]);
 
     // 1페이지: 상단 1·2·3 + 리스트(4,5는 빈자리 채움)
+    // 1페이지: 상단 1·2·3 + 리스트(4,5는 '1등이 있을 때만' 빈자리 채움)
     const {topThree, listUsers} = useMemo(() => {
         if (page !== 1) {
             // 2페이지 이상은 그대로 5명 리스트
             return {topThree: [] as RankingUser[], listUsers: members};
         }
 
-        // 상단 1~3: 없는 순위는 빈자리로 대체
+        // 1등 존재 여부
+        const hasFirst = members.some((u) => u.rank === 1);
+
+        // 상단 1~3: 기존 로직 유지 (없으면 빈자리로)
         const topMap = new Map<number, RankingUser>();
         members.forEach((u) => {
             if (u.rank >= 1 && u.rank <= 3) topMap.set(u.rank, u);
         });
         const top = [1, 2, 3].map((r) => topMap.get(r) ?? makeVacantUser(r));
 
-        // 리스트 4~5: 없는 순위는 빈자리로 대체
-        const list = [4, 5].map(
-            (r) => members.find((u) => u.rank === r) ?? makeVacantUser(r)
-        );
+        // 리스트 4~5: ✅ 1등이 있을 때만 빈자리/데이터 채움
+        //            ✅ 1등이 없으면 아예 표시하지 않음([])
+        const list = hasFirst
+            ? [4, 5].map((r) => members.find((u) => u.rank === r) ?? makeVacantUser(r))
+            : [];
 
         return {topThree: top, listUsers: list};
     }, [members, page]);
