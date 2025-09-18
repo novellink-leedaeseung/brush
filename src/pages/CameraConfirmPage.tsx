@@ -298,12 +298,12 @@ const CameraConfirmPage: React.FC = () => {
         let lunch = isLunchTime();
         if (isUploading) return;
 
-        /*// ⬇️ 점심시간이 '아닐' 때 모달 오픈
+        // ⬇️ 점심시간이 '아닐' 때 모달 오픈
         if (!isLunchTime()) {
             setShowLunchModal(true);
             document.body.style.overflow = 'hidden';
             return;
-        }*/
+        }
 
 
          // 로컬스토리지 값 불러오기
