@@ -7,6 +7,8 @@ import {useNavigate} from 'react-router-dom'
 import {useRanking} from '../contexts/RankingContext'
 import TransparentOverlayButton from "../components/home/TransparentOverlayButton.tsx";
 import HeroSlider from "../components/home/HeroSlider.tsx";
+import '/index.css';
+
 
 const HEADER_H = 150;   // Header 실제 높이(px) 맞춰 조정
 const HERO_H = 608;    // 상단 이미지 영역 높이 (현재 코드 기준)

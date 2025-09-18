@@ -11,7 +11,7 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({
-                                           title = "스마트 건강관리",
+                                           // title = "스마트 건강관리",
                                            logoSrc = "/assets/icon/logo.png",
                                            backgroundColor = "#214882",
                                            showDateTime = true,
@@ -68,7 +68,7 @@ const Header: React.FC<HeaderProps> = ({
                 width: '220px',
                 height: '130px',
                 marginTop: '10px',
-                marginLeft:'10px',
+                marginLeft: '10px',
             }
             }>
                 <img
@@ -76,13 +76,16 @@ const Header: React.FC<HeaderProps> = ({
                     width="177"
                     height="130"
                     alt="로고"
-                    style={{flexShrink: 0,marginLeft: '22px'}}
+                    style={{flexShrink: 0, marginLeft: '22px'}}
                 /></div>
 
             {/* 중앙 타이틀 */}
             <div style={{
                 width: '600px',
                 height: '130px',
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
                 marginTop: '10px',
             }}>
                 <div
@@ -91,8 +94,8 @@ const Header: React.FC<HeaderProps> = ({
                         fontSize: '60px',
                         fontFamily: 'Jalnan2, system-ui',
                         fontWeight: '400',
-                        marginTop: '30px',
-                        marginLeft: '100px',
+                        textAlign: 'center',
+
                     }}
                 >
                     <div style={{
