@@ -8,6 +8,7 @@ import { JsonMemberRepo } from './repos/members.repo.json.js';
 import { MembersService } from './services/members.service.js';
 import { membersRoutes } from './routes/members.routes.js';
 import { photosRoutes } from './routes/photos.routes.js';
+import {notificationRoutes} from "./routes/notification.routes.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -30,6 +31,7 @@ const svc = new MembersService(repo);
 // 라우터 장착
 app.use('/api/members', membersRoutes(svc));
 app.use('/api', photosRoutes(studentDir));
+app.use('/api/notifications', notificationRoutes());
 
 // 헬스/에러
 app.get('/api/health', (req, res) => res.json({ status: 'OK' }));
