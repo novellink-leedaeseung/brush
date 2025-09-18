@@ -1,5 +1,4 @@
 import React, {useState, useEffect} from 'react';
-import {useConfig} from "../hooks/useConfig";
 
 interface HeaderProps {
     title?: string;
@@ -20,7 +19,6 @@ const Header: React.FC<HeaderProps> = ({
                                        }) => {
     const [currentTime, setCurrentTime] = useState<string>('');
     const [currentDate, setCurrentDate] = useState<string>('');
-    let config = useConfig();
 
 
     // 현재 날짜/시간 업데이트
@@ -101,7 +99,7 @@ const Header: React.FC<HeaderProps> = ({
                     <div style={{
                         width: '600px',
                         height: "70px",
-                    }}>{config?.titleText}</div>
+                    }}>{import.meta.env.VITE_TITLETEXT}</div>
                 </div>
             </div>
 

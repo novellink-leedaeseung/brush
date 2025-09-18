@@ -5,6 +5,7 @@ import type {AuthUserResponse} from "@/api/Response.ts";
 // 1. 키오스크 토큰 가져오기
 // 2. inputField에 전화번호로 조회하기
 export async function findUser(inputField: string): Promise<AuthUserResponse | null> {
+
   // localStorage.clear(); // 전부 지우기보다 필요한 키만 지우는 게 안전
   localStorage.removeItem("name");
   localStorage.removeItem("gender");
@@ -16,7 +17,7 @@ export async function findUser(inputField: string): Promise<AuthUserResponse | n
 
   try {
     // 1) 키오스크 인증 → 토큰 획득
-    const kioskAuth = await getKioskAuth("MTA001");
+    const kioskAuth = await getKioskAuth(import.meta.env.VITE_KIOSK_ID ?? "");
     const kioskToken = kioskAuth.resultData?.token;
     if (!kioskToken) throw new Error("키오스크 토큰 없음");
 
