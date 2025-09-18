@@ -3,6 +3,7 @@ import {useNavigate} from 'react-router-dom'
 import Header from "../components/Header.tsx"
 import LunchFalseModal from "../components/LunchFalseModal.tsx";
 import {parseGradeClass} from "../utils/gradeClass.ts";
+import "../index.css"
 
 // 양치 인증 완료 모달 컴포넌트
 const CompleteModal = ({isVisible, onClose}: { isVisible: boolean; onClose: () => void }) => {
@@ -809,7 +810,7 @@ const CameraConfirmPage: React.FC = () => {
                 <div
                     style={{
                         width: '1080px',
-                        height: '352px',
+                        height: '340px',
                         backgroundColor: 'white',
                         display: 'flex',
 
@@ -825,7 +826,7 @@ const CameraConfirmPage: React.FC = () => {
                             justifyContent: "center",
                             alignContent: 'center',
                             marginTop: '26px',
-                            marginLeft: '31px',
+                            marginLeft: '36px',
                             marginRight: '24px',
                             width: '320px',
                             height: '300px',
