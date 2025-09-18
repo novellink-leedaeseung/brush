@@ -810,7 +810,7 @@ const CameraConfirmPage: React.FC = () => {
                 <div
                     style={{
                         width: '1080px',
-                        height: '340px',
+                        height: '350px',
                         backgroundColor: 'white',
                         display: 'flex',
 
