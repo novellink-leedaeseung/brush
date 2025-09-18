@@ -16,14 +16,6 @@ const FOOTER_H = 354;  // TouchButton 영역 예상 높이 (실제 컴포넌트 
 
 const HomePage: React.FC = () => {
     const navigate = useNavigate()
-    const {rankedUsers, currentUserRank, clearAllRecords, isLoading} = useRanking()
-
-    console.log('🏠 HomePage 렌더링:', {
-        isLoading,
-        rankedUsersCount: rankedUsers.length,
-        currentUserRank,
-        rankedUsers
-    })
 
     return (
         // 전체 화면 고정: 바깥 페이지가 늘어나지 않도록 함

@@ -19,7 +19,7 @@ const HeroSlider: React.FC = () => {
     if (images.length === 0) return;
     const timer = setInterval(() => {
       setCurrent(prev => (prev + 1) % images.length);
-    }, 3000);
+    }, import.meta.env.VITE_SLIDE_TIME*1000);
     return () => clearInterval(timer);
   }, [images]);
 
