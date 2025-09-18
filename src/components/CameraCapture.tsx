@@ -269,7 +269,8 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
             overflow: 'hidden',
             marginLeft: '141px',
             marginTop: '0px',
-            position: 'relative'
+            position: 'relative',
+            borderBottom: '2px solid white',
         }}>
             {/* 3초 카운트다운 오버레이 */}
             {isCountdownActive && (
@@ -352,6 +353,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
                 }}
             />
 
+            {/* 오버레이 이미지 (비디오 위에 표시) */}
             <img
                 ref={overlayRef}
                 src={overlayImages[currentOverlayIndex]}
@@ -366,25 +368,6 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
                     zIndex: 5
                 }}
             />
-            {/* 오버레이 이미지 (비디오 위에 표시) */}
-            {/*<img
-                ref={overlayRef}
-                src={overlayImages[currentOverlayIndex]}
-                style={{
-                    position: 'fixed',
-                    top: 150,
-                    left: 141,
-                    width: '799px',
-                    height: '1418px',
-                    objectFit: 'cover',
-                    // opacity: 0.7,
-                    pointerEvents: 'none',
-                    zIndex: 5
-                }}
-                alt="overlay"
-                onLoad={() => console.log('Overlay loaded:', overlayImages[currentOverlayIndex])}
-                onError={() => console.warn('Overlay failed to load:', overlayImages[currentOverlayIndex])}
-            />*/}
 
             {/* 오버레이 전환 버튼들 */}
             <div style={{
