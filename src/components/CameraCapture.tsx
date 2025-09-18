@@ -27,7 +27,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
     const [currentOverlayIndex, setCurrentOverlayIndex] = useState(0)
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
-    
+
     // 3초 타이머 상태 추가
     const [isCountdownActive, setIsCountdownActive] = useState(false)
     const [countdown, setCountdown] = useState(3)
@@ -163,16 +163,16 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
     // 3초 카운트다운 시작 함수
     const startCountdown = () => {
         if (isCountdownActive) return // 이미 카운트다운 중이면 무시
-        
+
         setIsCountdownActive(true)
         setCountdown(3)
-        
+
         let currentCount = 3
-        
+
         const countdownInterval = setInterval(() => {
             currentCount -= 1
             setCountdown(currentCount)
-            
+
             if (currentCount === 0) {
                 clearInterval(countdownInterval)
                 setIsCountdownActive(false)
@@ -246,14 +246,14 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
         const handleCaptureEvent = () => {
             startCountdown(); // 바로 촬영하지 않고 카운트다운 시작
         };
-        
+
         window.addEventListener('capture-photo', handleCaptureEvent);
 
         // 클린업
         return () => {
             stopCamera()
             window.removeEventListener('capture-photo', handleCaptureEvent);
-            
+
             // 타이머 클린업
             if (timerRef.current) {
                 clearTimeout(timerRef.current);
@@ -347,24 +347,35 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
                     width: '100%',
                     height: '100%',
                     objectFit: 'cover',
-                    backgroundColor: '#000'
+                    backgroundColor: '#000',
+                    zIndex: 1
                 }}
-                playsinline
-                autoPlay
-                muted
-                playsInline
             />
 
-            {/* 오버레이 이미지 (비디오 위에 표시) */}
             <img
                 ref={overlayRef}
                 src={overlayImages[currentOverlayIndex]}
                 style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
+                    position: 'fixed',
+                    top: 150,
+                    left: 140,
+                    width: '800px',
+                    height: '1418px',
+                    objectFit: 'cover',
+                    pointerEvents: 'none',
+                    zIndex: 5
+                }}
+            />
+            {/* 오버레이 이미지 (비디오 위에 표시) */}
+            {/*<img
+                ref={overlayRef}
+                src={overlayImages[currentOverlayIndex]}
+                style={{
+                    position: 'fixed',
+                    top: 150,
+                    left: 141,
+                    width: '799px',
+                    height: '1418px',
                     objectFit: 'cover',
                     // opacity: 0.7,
                     pointerEvents: 'none',
@@ -373,7 +384,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
                 alt="overlay"
                 onLoad={() => console.log('Overlay loaded:', overlayImages[currentOverlayIndex])}
                 onError={() => console.warn('Overlay failed to load:', overlayImages[currentOverlayIndex])}
-            />
+            />*/}
 
             {/* 오버레이 전환 버튼들 */}
             <div style={{
@@ -428,7 +439,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
             {/* 캔버스 (숨겨진 상태) */}
             <canvas
                 ref={canvasRef}
-                style={{ display: 'none' }}
+                style={{display: 'none'}}
             />
         </div>
     )
