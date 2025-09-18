@@ -294,26 +294,28 @@ const CameraConfirmPage: React.FC = () => {
 
     // 등록 버튼 클릭
     const handleRegister = async () => {
+        let lunch = isLunchTime();
         if (isUploading) return;
 
-        // ⬇️ 점심시간이 '아닐' 때 모달 오픈
+        /*// ⬇️ 점심시간이 '아닐' 때 모달 오픈
         if (!isLunchTime()) {
             setShowLunchModal(true);
             document.body.style.overflow = 'hidden';
             return;
-        }
+        }*/
 
 
-        // 로컬스토리지 값 불러오기
+         // 로컬스토리지 값 불러오기
         const name = localStorage.getItem("name") || "익명";
         const phone = localStorage.getItem("phone") || "";
-        let gender = localStorage.getItem("gender") || "";
         let gradeClass = localStorage.getItem("gradeClass") || "";
+        let gender = localStorage.getItem("gender") || "";
         let inputNumber = localStorage.getItem("inputNumber") || "";
+        let userNo = inputNumber;
         gender = gender === "M" ? "남자" : "여자";
 
         // 회원번호가 6글자인경우
-        if (inputNumber.length == 6) {
+        if (inputNumber.length == 6 || inputNumber.length == 5) {
             let gradeClassParts = parseGradeClass(inputNumber);
             gradeClass = gradeClassParts.grade.toString() + "-" + gradeClassParts.classNo.toString();
             return;
@@ -336,6 +338,8 @@ const CameraConfirmPage: React.FC = () => {
                     phone,
                     gradeClass,
                     gender,
+                    userNo,
+                    lunch
                 }),
             });
 
@@ -372,7 +376,7 @@ const CameraConfirmPage: React.FC = () => {
 
     // 점심시간 모달 - 등록 클릭
     const handleLunchModalRegister = async () => {
-        // 로컬스토리지 값 불러오기
+        let lunch = isLunchTime();
         // 로컬스토리지 값 불러오기
         const name = localStorage.getItem("name") || "익명";
         const phone = localStorage.getItem("phone") || "";
@@ -411,7 +415,8 @@ const CameraConfirmPage: React.FC = () => {
                     phone,
                     gradeClass,
                     gender,
-                    userNo
+                    userNo,
+                    lunch
                 }),
             });
 
