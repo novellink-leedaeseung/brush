@@ -111,7 +111,6 @@ const Header: React.FC<HeaderProps> = ({
                 flexDirection: 'column',
                 height: '130px',
                 alignItems: 'center',
-                justifyContent: 'center',
                 width: '230px',
             }}>
                 <div style={{
