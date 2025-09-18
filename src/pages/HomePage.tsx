@@ -6,6 +6,7 @@ import TouchButton from '../components/TouchButton'
 import {useNavigate} from 'react-router-dom'
 import {useRanking} from '../contexts/RankingContext'
 import TransparentOverlayButton from "../components/home/TransparentOverlayButton.tsx";
+import HeroSlider from "../components/home/HeroSlider.tsx";
 
 const HEADER_H = 150;   // Header 실제 높이(px) 맞춰 조정
 const HERO_H = 608;    // 상단 이미지 영역 높이 (현재 코드 기준)
@@ -49,11 +50,13 @@ const HomePage: React.FC = () => {
             </div>
 
             {/* 상단 이미지 (고정) */}
-            <div style={{width: '1080px', height: HERO_H}}>
-                <img src="/public/assets/images/home-image.png" alt=""
-                     style={{width: '100%', height: '100%', objectFit: 'cover'}}/>
-            </div>
-
+            <HeroSlider
+                images={[
+                    "/assets/images/home-image.png",
+                    "/assets/images/home-image2.png",
+                    "/assets/images/home-image3.png"
+                ]}
+            />
             {/* 랭킹(여기만 스크롤) */}
             <div style={{height: '688'}}>
                 <RankingSection/>
