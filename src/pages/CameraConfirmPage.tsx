@@ -99,11 +99,16 @@ const CameraConfirmPage: React.FC = () => {
 
             // 사용자 정보에서 파일명에 포함할 데이터 추출
             const phoneNumber = localStorage.getItem("phone") || "unknown";
+            const userNo = localStorage.getItem("inputNumber") || "unknown";
             const userName = localStorage.getItem("name") || "user";
+            let fileName = `${year}${month}${day}-${hours}-${minutes}-${seconds}-${phoneNumber}-${userName}`;
+
 
             // 파일명 형식: YYYY-MM-DD-HH-MM-SS-전화번호-이름
             // 필요에 따라 이 부분을 수정하세요
-            const fileName = `${year}${month}${day}-${hours}-${minutes}-${seconds}-${phoneNumber}-${userName}`;
+            if(userNo.length == 6 || userNo.length == 5) {
+                fileName = `${year}${month}${day}-${hours}-${minutes}-${seconds}-${userNo}-${userName}`;
+            }
 
             // 또는 다른 형식 예시들:
             // const fileName = `photo_${year}${month}${day}_${phoneNumber}`;
