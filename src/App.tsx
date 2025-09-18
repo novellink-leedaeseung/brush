@@ -8,6 +8,7 @@ import UserConfirmPage from './pages/UserConfirmPage'
 import RegistrationCompletePage from './pages/RegistrationCompletePage'
 import TestRegistrationPage from './pages/TestRegistrationPage'
 import IdleRedirect from "./utils/IdleRedirect.tsx";
+import './index.css'
 
 function App() {
     return (
