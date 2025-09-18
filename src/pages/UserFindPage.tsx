@@ -231,19 +231,20 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
 
     // 확인 버튼 클릭 처리
     const handleConfirm = async () => {
+        let name : string = "";
         const n = inputNumber.trim();
         if (!n) return;
 
         /** 1) 키오스크 회원 조회 */
         try {
             const kioskUser = await findUser(n);
-
             // 키오스크에 '회원 없음'
             if (!kioskUser) {
                 setNotificationMessage("일치하는 회원 정보가 없습니다.");
                 setShowNotificationModal(true);
                 return;
             }
+            name = kioskUser.resultData.username;
         } catch (e) {
             // 키오스크 서버/통신 에러
             setNotificationMessage("네트워크 연결이 불안정 합니다.");
@@ -266,7 +267,7 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
 
                 if (status === 404) {
                     // 구강인증에 '회원 없음'
-                    setNotificationMessage(err.response.data.error);
+                    setNotificationMessage(`${name}님은 구강인증에 등록되었습니다`);
                 } else {
                     // 구강인증 서버/통신 에러
                     setNotificationMessage("구강인증 서버 통신 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
