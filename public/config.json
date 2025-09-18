@@ -3,5 +3,5 @@
   "pageSize": 5,
   "titleText": "오늘의 양치왕",
   "themeColor": "#227EFF",
-  "kioskID" : "MTA001"
+  "kioskId" : "MTA001"
 }

@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import '../Fonts/font.css';
+import {useConfig} from "../hooks/useConfig";
 
 interface HeaderProps {
     title?: string;
@@ -20,6 +20,8 @@ const Header: React.FC<HeaderProps> = ({
                                        }) => {
     const [currentTime, setCurrentTime] = useState<string>('');
     const [currentDate, setCurrentDate] = useState<string>('');
+    let config = useConfig();
+
 
     // 현재 날짜/시간 업데이트
     useEffect(() => {
@@ -96,7 +98,7 @@ const Header: React.FC<HeaderProps> = ({
                     <div style={{
                         width: '600px',
                         height: "70px",
-                    }}>{title}</div>
+                    }}>{config?.titleText}</div>
                 </div>
             </div>
 
