@@ -1,70 +1,136 @@
-import React, {useState} from 'react'
-import Header from '../components/Header'
-import RankingSection from '../components/RankingSection'
-import TouchButton from '../components/TouchButton'
-// import DebugPanel from '../components/DebugPanel' // 필요 시 사용
-import {useNavigate} from 'react-router-dom'
-import TransparentOverlayButton from "../components/home/TransparentOverlayButton.tsx";
-import HeroSlider from "../components/home/HeroSlider.tsx";
+import React, { useState, useEffect, useRef } from 'react';
+import Header from '../components/Header';
+import RankingSection from '../components/RankingSection';
+import TouchButton from '../components/TouchButton';
+import { useNavigate } from 'react-router-dom';
+import TransparentOverlayButton from '../components/home/TransparentOverlayButton.tsx';
+import HeroSlider from '../components/home/HeroSlider.tsx';
 import '/index.css';
-import ExitConfirmationModal from "../components/home/modal/ExitConfirmationModal.tsx";
-import {TransparentHotspotButton} from "../components/home/TransparentHotspotButton.tsx";
+import ExitConfirmationModal from '../components/home/modal/ExitConfirmationModal.tsx';
+// import { TransparentHotspotButton } from '../components/home/TransparentHotspotButton.tsx'; // ❌ 이번 동작엔 불필요
 
-
-const HEADER_H = 150;   // Header 실제 높이(px) 맞춰 조정
-const HERO_H = 608;    // 상단 이미지 영역 높이 (현재 코드 기준)
-const FOOTER_H = 354;  // TouchButton 영역 예상 높이 (실제 컴포넌트 높이로 맞춰 조정)
+const HEADER_H = 150;  // Header 실제 높이(px) 맞춰 조정
+const HERO_H = 608;    // 상단 이미지 영역 높이
+const FOOTER_H = 354;  // TouchButton 영역 높이
 
 const HomePage: React.FC = () => {
-    const [showModal, setShowModal] = useState(false);
+  const navigate = useNavigate();
 
-    const navigate = useNavigate()
+  // ✅ 모달 상태 (컴포넌트 내부)
+  const [showModal, setShowModal] = useState(false);
 
-    return (
-        // 전체 화면 고정: 바깥 페이지가 늘어나지 않도록 함
-        <div
-            style={{
-                width: '1080px',
-                height: '1920px',
-                backgroundColor: 'white',
-                display: 'grid',
-                gridTemplateRows: `${HEADER_H}px ${HERO_H}px 1fr ${FOOTER_H}px`,
-                overflow: 'hidden', // ★ 핵심: 내부에서만 스크롤
-                position: 'relative'
-            }}
-        >
-            {/* 영역 전체를 클릭 가능하게 */}
-            <TransparentOverlayButton
-                onClick={() => navigate('/kiosk/user-find')}
-                // width/height 생략 시 기본 1080x500을 덮음
-                // 위치 옮기려면 top/left만 지정
-                top={880}
-                left={0}
-            />
-            {/* 헤더 (고정) */}
-            <div style={{height: HEADER_H}}>
-                <Header/>
-            </div>
-            <TransparentHotspotButton onClick={() => setShowModal(true)}/>
+  // ✅ 4-탭 로직 상태/타이머 (컴포넌트 내부)
+  const [overlayTapCount, setOverlayTapCount] = useState(0);
+  const overlayDebounceRef = useRef<number | null>(null); // 1~3회 탭 후 이동 디바운스(300ms)
+  const overlayWindowRef = useRef<number | null>(null);   // 4회 누르기 위한 윈도우(기본 3초)
 
-            {/* 상단 이미지 (고정) */}
-            <HeroSlider/>
-            {/* 랭킹(여기만 스크롤) */}
-            <div style={{height: '688'}}>
-                <RankingSection/>
-            </div>
+  // 언마운트 시 타이머 정리
+  useEffect(() => {
+    return () => {
+      if (overlayDebounceRef.current) clearTimeout(overlayDebounceRef.current);
+      if (overlayWindowRef.current) clearTimeout(overlayWindowRef.current);
+    };
+  }, []);
 
-            {/* 하단 터치 버튼 (고정) */}
-            <div style={{height: FOOTER_H}}>
-                <TouchButton to="/kiosk/user-find"/>
-            </div>
-            <ExitConfirmationModal
-                isOpen={showModal}
-                onClose={() => setShowModal(false)}
-                autoShow={false}
-            />
-        </div>
-    )
-}
+  // ✅ 기본 이동 함수 (라우터 사용)
+  const goToUserFind = () => {
+    setShowModal(true);
+  };
 
-export default HomePage
+  // ✅ 모달 오픈
+  const openExitModal = () => {
+    setShowModal(true);
+  };
+
+  // ✅ 투명 오버레이 버튼 4-탭 핸들러
+  const handleOverlayPress = () => {
+    // 3초 윈도우(4번 모으기) 시작/연장
+    if (overlayWindowRef.current) clearTimeout(overlayWindowRef.current);
+    overlayWindowRef.current = window.setTimeout(() => {
+      setOverlayTapCount(0);
+      overlayWindowRef.current = null;
+    }, 3000); // ← 4회 템포 윈도우 (원하면 4000~5000으로 늘릴 수 있음)
+
+    // 1~3회 상태에서 곧바로 이동하지 않도록 300ms 지연
+    if (overlayDebounceRef.current) clearTimeout(overlayDebounceRef.current);
+
+    setOverlayTapCount((prev) => {
+      const next = prev + 1;
+
+      // 임계치(4회) 도달 → 이동 취소 + 모달 오픈
+      if (next >= 4) {
+        if (overlayWindowRef.current) {
+          clearTimeout(overlayWindowRef.current);
+          overlayWindowRef.current = null;
+        }
+        if (overlayDebounceRef.current) {
+          clearTimeout(overlayDebounceRef.current);
+          overlayDebounceRef.current = null;
+        }
+        setTimeout(() => openExitModal(), 0);
+        return 0; // 리셋
+      }
+
+      // 아직 4회 전 → 마지막 탭 후 300ms 동안 추가 탭 없으면 기본 이동
+      overlayDebounceRef.current = window.setTimeout(() => {
+        if (overlayWindowRef.current) {
+          clearTimeout(overlayWindowRef.current);
+          overlayWindowRef.current = null;
+        }
+        setOverlayTapCount(0);
+        goToUserFind();
+      }, 300) as unknown as number; // ← 느린 템포면 400~500으로 조정
+
+      return next;
+    });
+  };
+
+  return (
+    // 전체 화면 고정: 바깥 페이지가 늘어나지 않도록 함
+    <div
+      style={{
+        width: '1080px',
+        height: '1920px',
+        backgroundColor: 'white',
+        display: 'grid',
+        gridTemplateRows: `${HEADER_H}px ${HERO_H}px 1fr ${FOOTER_H}px`,
+        overflow: 'hidden',
+        position: 'relative',
+      }}
+    >
+      {/* ✅ 오버레이 버튼: 이제 4-탭 로직으로 동작 */}
+      <TransparentOverlayButton
+        onClick={handleOverlayPress}
+      />
+
+      {/* 헤더 (고정) */}
+      <div style={{ height: HEADER_H }}>
+        <Header />
+      </div>
+
+      {/* (불필요) <TransparentHotspotButton onClick={handleOverlayPress} /> */}
+
+      {/* 상단 이미지 (고정) */}
+      <HeroSlider />
+
+      {/* 랭킹(여기만 스크롤) */}
+      <div style={{ height: 688, overflowY: 'auto' }}>
+        <RankingSection />
+      </div>
+
+      {/* 하단 터치 버튼 (고정) */}
+      <div style={{ height: FOOTER_H }}>
+        <TouchButton to="/kiosk/user-find" />
+      </div>
+
+      {/* 종료 확인 모달 */}
+      <ExitConfirmationModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        autoShow={false}
+      />
+    </div>
+  );
+};
+
+export default HomePage;
