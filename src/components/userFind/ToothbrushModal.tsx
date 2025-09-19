@@ -15,7 +15,7 @@ const ToothbrushModal = ({isOpen, onClose, autoShow = true, name = '테스트'})
     }, [isOpen, autoShow]);
 
     useEffect(() => {
-        const handleKeyDown = (event) => {
+        const handleKeyDown = (event : KeyboardEvent) => {
             if (event.key === 'Escape' && showModal) {
                 handleClose();
             }
@@ -45,7 +45,7 @@ const ToothbrushModal = ({isOpen, onClose, autoShow = true, name = '테스트'})
         }
     };
 
-    const handleOverlayClick = (e) => {
+    const handleOverlayClick = (e : React.MouseEvent<HTMLDivElement>) => {
         if (e.target === e.currentTarget) {
             handleClose();
         }
@@ -53,7 +53,7 @@ const ToothbrushModal = ({isOpen, onClose, autoShow = true, name = '테스트'})
 
     if (!showModal) return null;
 
-    const modalContainerStyle = {
+    const modalContainerStyle: React.CSSProperties = {
         position: 'fixed',
         top: 0,
         left: 0,
@@ -65,7 +65,7 @@ const ToothbrushModal = ({isOpen, onClose, autoShow = true, name = '테스트'})
         alignItems: 'center'
     };
 
-    const backgroundOverlayStyle = {
+    const backgroundOverlayStyle: React.CSSProperties = {
         position: 'absolute',
         top: 0,
         left: 0,
@@ -76,7 +76,7 @@ const ToothbrushModal = ({isOpen, onClose, autoShow = true, name = '테스트'})
     };
 
     // 피그마 원본 크기: 932px width, 675px height
-    const modalStyle = {
+    const modalStyle: React.CSSProperties = {
         position: 'relative',
         width: '932px',
         height: '675px',
@@ -91,17 +91,8 @@ const ToothbrushModal = ({isOpen, onClose, autoShow = true, name = '테스트'})
         padding: 0
     };
 
-    // 아이콘 위치: 피그마 기준 y=60
-    const smileIconStyle = {
-        width: '130px',
-        height: '130px',
-        color: '#F9B657',
-        marginTop: '60px',
-        marginBottom: '0px'
-    };
-
-    // 텍스트 컨테이너: 피그마 기준 x=126, y=270, width=680
-    const modalContentStyle = {
+// 텍스트 컨테이너: 피그마 기준 x=126, y=270, width=680
+    const modalContentStyle: React.CSSProperties = {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -113,7 +104,7 @@ const ToothbrushModal = ({isOpen, onClose, autoShow = true, name = '테스트'})
     };
 
     // 피그마 기준: font-size 72px, height 90px
-    const modalTitleStyle = {
+    const modalTitleStyle: React.CSSProperties = {
         fontFamily: 'Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
         fontWeight: 700,
         fontSize: '72px',
@@ -129,7 +120,7 @@ const ToothbrushModal = ({isOpen, onClose, autoShow = true, name = '테스트'})
     };
 
     // 피그마 기준: font-size 68px, height 90px
-    const modalSubtitleStyle = {
+    const modalSubtitleStyle: React.CSSProperties = {
         fontFamily: 'Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
         fontWeight: 700,
         fontSize: '68px',

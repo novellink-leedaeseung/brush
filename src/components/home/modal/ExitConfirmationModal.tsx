@@ -1,7 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, CSSProperties } from 'react';
 
-const ExitConfirmationModal = ({ isOpen, onClose, autoShow = false }) => {
-  const [showModal, setShowModal] = useState(false);
+interface ExitConfirmationModalProps {
+  isOpen: boolean;
+  onClose?: () => void;
+  autoShow?: boolean;
+}
+
+const ExitConfirmationModal: React.FC<ExitConfirmationModalProps> = ({
+  isOpen,
+  onClose,
+  autoShow = false
+}) => {
+  const [showModal, setShowModal] = useState<boolean>(false);
 
   useEffect(() => {
     if (autoShow) {
@@ -15,7 +25,7 @@ const ExitConfirmationModal = ({ isOpen, onClose, autoShow = false }) => {
   }, [isOpen, autoShow]);
 
   useEffect(() => {
-    const handleKeyDown = (event) => {
+    const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && showModal) {
         handleClose();
       }
@@ -25,18 +35,18 @@ const ExitConfirmationModal = ({ isOpen, onClose, autoShow = false }) => {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [showModal]);
 
-  const handleClose = () => {
+  const handleClose = (): void => {
     setShowModal(false);
     if (onClose) {
       onClose();
     }
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = (): void => {
     setShowModal(false);
   };
 
-  const handleOverlayClick = (e) => {
+  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>): void => {
     if (e.target === e.currentTarget) {
       handleClose();
     }
@@ -44,7 +54,7 @@ const ExitConfirmationModal = ({ isOpen, onClose, autoShow = false }) => {
 
   if (!showModal) return null;
 
-  const modalContainerStyle = {
+  const modalContainerStyle: CSSProperties = {
     position: 'fixed',
     top: 0,
     left: 0,
@@ -56,7 +66,7 @@ const ExitConfirmationModal = ({ isOpen, onClose, autoShow = false }) => {
     alignItems: 'center'
   };
 
-  const backgroundOverlayStyle = {
+  const backgroundOverlayStyle: CSSProperties = {
     position: 'absolute',
     top: 0,
     left: 0,
@@ -67,7 +77,7 @@ const ExitConfirmationModal = ({ isOpen, onClose, autoShow = false }) => {
   };
 
   // 피그마 원본 크기: 932px width, 500px height
-  const modalStyle = {
+  const modalStyle: CSSProperties = {
     position: 'relative',
     width: '932px',
     height: '500px',
@@ -83,7 +93,7 @@ const ExitConfirmationModal = ({ isOpen, onClose, autoShow = false }) => {
   };
 
   // 제목 텍스트: 피그마 기준 x=109, y=82, width=714, height=131.93
-  const modalTitleStyle = {
+  const modalTitleStyle: CSSProperties = {
     position: 'absolute',
     top: '82px',
     left: '109px',
@@ -103,7 +113,7 @@ const ExitConfirmationModal = ({ isOpen, onClose, autoShow = false }) => {
   };
 
   // 버튼 컨테이너: 피그마 기준 x=52, y=298, width=828, height=120
-  const buttonContainerStyle = {
+  const buttonContainerStyle: CSSProperties = {
     position: 'absolute',
     top: '298px',
     left: '52px',
@@ -115,7 +125,7 @@ const ExitConfirmationModal = ({ isOpen, onClose, autoShow = false }) => {
   };
 
   // 아니요 버튼: 피그마 기준 width=400, height=120
-  const cancelButtonStyle = {
+  const cancelButtonStyle: CSSProperties = {
     width: '400px',
     height: '120px',
     background: '#E7EAF3',
@@ -136,7 +146,7 @@ const ExitConfirmationModal = ({ isOpen, onClose, autoShow = false }) => {
   };
 
   // 예 버튼: 피그마 기준 width=400, height=120
-  const confirmButtonStyle = {
+  const confirmButtonStyle: CSSProperties = {
     width: '400px',
     height: '120px',
     background: '#004F99',
@@ -191,8 +201,12 @@ const ExitConfirmationModal = ({ isOpen, onClose, autoShow = false }) => {
             <button
               style={cancelButtonStyle}
               onClick={handleClose}
-              onMouseOver={(e) => e.target.style.background = '#d1d6e4'}
-              onMouseOut={(e) => e.target.style.background = '#E7EAF3'}
+              onMouseOver={(e: React.MouseEvent<HTMLButtonElement>) =>
+                (e.target as HTMLButtonElement).style.background = '#d1d6e4'
+              }
+              onMouseOut={(e: React.MouseEvent<HTMLButtonElement>) =>
+                (e.target as HTMLButtonElement).style.background = '#E7EAF3'
+              }
             >
               아니요
             </button>
@@ -201,8 +215,12 @@ const ExitConfirmationModal = ({ isOpen, onClose, autoShow = false }) => {
             <button
               style={confirmButtonStyle}
               onClick={handleConfirm}
-              onMouseOver={(e) => e.target.style.background = '#003d7a'}
-              onMouseOut={(e) => e.target.style.background = '#004F99'}
+              onMouseOver={(e: React.MouseEvent<HTMLButtonElement>) =>
+                (e.target as HTMLButtonElement).style.background = '#003d7a'
+              }
+              onMouseOut={(e: React.MouseEvent<HTMLButtonElement>) =>
+                (e.target as HTMLButtonElement).style.background = '#004F99'
+              }
             >
               예
             </button>

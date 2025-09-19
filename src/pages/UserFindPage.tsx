@@ -30,9 +30,8 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
 
 
     // 구강인증 실패
-    const NotificationModal = ({isVisible, onClose, message}: {
+    const NotificationModal = ({isVisible, message}: {
         isVisible: boolean;
-        onClose: () => void,
         message: string
     }) => {
         if (!isVisible) return null;
@@ -658,7 +657,6 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
             }
             <NotificationModal
                 isVisible={showNotificationModal}
-                onClose={closeNotificationModal}
                 message={notificationMessage}
             />
         </div>

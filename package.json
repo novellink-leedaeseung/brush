@@ -31,6 +31,7 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "@types/node": "^22.0.0",
     "@types/react": "^18.3.17",
     "@types/react-dom": "^18.3.5",
     "@types/react-router-dom": "^5.3.3",
@@ -63,12 +64,19 @@
     "appId": "com.novellink.brush",
     "productName": "오늘의 양치왕",
     "directories": {
-      "output": "electron-dist"
+      "output": "electron-dist",
+      "buildResources": "public/assets"
     },
     "files": [
       "dist/**/*",
       "electron.js",
-      "node_modules/**/*"
+      "public/assets/**/*",
+      "node_modules/**/*",
+      {
+        "from": "dist",
+        "to": "dist",
+        "filter": ["**/*"]
+      }
     ],
     "win": {
       "target": [
@@ -76,8 +84,7 @@
           "target": "nsis",
           "arch": ["x64"]
         }
-      ],
-      "icon": "public/assets/icon.ico"
+      ]
     },
     "mac": {
       "target": [
@@ -85,8 +92,7 @@
           "target": "dmg",
           "arch": ["x64", "arm64"]
         }
-      ],
-      "icon": "public/assets/icon.icns"
+      ]
     },
     "linux": {
       "target": [
@@ -94,8 +100,7 @@
           "target": "AppImage",
           "arch": ["x64"]
         }
-      ],
-      "icon": "public/assets/icon.png"
+      ]
     },
     "nsis": {
       "oneClick": false,

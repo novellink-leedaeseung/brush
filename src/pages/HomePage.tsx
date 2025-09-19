@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import Header from '../components/Header';
 import RankingSection from '../components/RankingSection';
 import TouchButton from '../components/TouchButton';
-import { useNavigate } from 'react-router-dom';
 import TransparentOverlayButton from '../components/home/TransparentOverlayButton.tsx';
 import HeroSlider from '../components/home/HeroSlider.tsx';
 import '/index.css';
@@ -14,7 +13,6 @@ const HERO_H = 608;    // 상단 이미지 영역 높이
 const FOOTER_H = 354;  // TouchButton 영역 높이
 
 const HomePage: React.FC = () => {
-  const navigate = useNavigate();
 
   // ✅ 모달 상태 (컴포넌트 내부)
   const [showModal, setShowModal] = useState(false);
@@ -32,94 +30,94 @@ const HomePage: React.FC = () => {
     };
   }, []);
 
-  // ✅ 기본 이동 함수 (라우터 사용)
-  const goToUserFind = () => {
-    setShowModal(true);
-  };
+// ✅ 모달 오픈
+    const openExitModal = () => {
+        setShowModal(true);
+    };
 
-  // ✅ 모달 오픈
-  const openExitModal = () => {
-    setShowModal(true);
-  };
-
-  // ✅ 투명 오버레이 버튼 4-탭 핸들러
-  const handleOverlayPress = () => {
-    // 3초 윈도우(4번 모으기) 시작/연장
-    if (overlayWindowRef.current) clearTimeout(overlayWindowRef.current);
-    overlayWindowRef.current = window.setTimeout(() => {
-      setOverlayTapCount(0);
-      overlayWindowRef.current = null;
-    }, 3000); // ← 4회 템포 윈도우 (원하면 4000~5000으로 늘릴 수 있음)
-
-    // 1~3회 상태에서 곧바로 이동하지 않도록 300ms 지연
-    if (overlayDebounceRef.current) clearTimeout(overlayDebounceRef.current);
-
-    setOverlayTapCount((prev) => {
-      const next = prev + 1;
-
-      // 임계치(4회) 도달 → 이동 취소 + 모달 오픈
-      if (next >= 4) {
+    // ✅ 투명 오버레이 버튼 4-탭 핸들러
+    // ✅ 투명 오버레이 버튼 4-탭 핸들러
+    const handleOverlayPress = () => {
+        // 3초 윈도우(4번 모으기) 시작/연장
         if (overlayWindowRef.current) {
-          clearTimeout(overlayWindowRef.current);
-          overlayWindowRef.current = null;
+            clearTimeout(overlayWindowRef.current);
+            overlayWindowRef.current = null;
         }
-        if (overlayDebounceRef.current) {
-          clearTimeout(overlayDebounceRef.current);
-          overlayDebounceRef.current = null;
-        }
-        setTimeout(() => openExitModal(), 1000);
-        return 0; // 리셋
-      }
-      return next;
-    });
-  };
+        overlayWindowRef.current = window.setTimeout(() => {
+            setOverlayTapCount(0);        // 시간 지나면 카운트 초기화
+            overlayWindowRef.current = null;
+        }, 1000);
 
-  return (
-    // 전체 화면 고정: 바깥 페이지가 늘어나지 않도록 함
-    <div
-      style={{
-        width: '1080px',
-        height: '1920px',
-        backgroundColor: 'white',
-        display: 'grid',
-        gridTemplateRows: `${HEADER_H}px ${HERO_H}px 1fr ${FOOTER_H}px`,
-        overflow: 'hidden',
-        position: 'relative',
-      }}
-    >
-      {/* ✅ 오버레이 버튼: 이제 4-탭 로직으로 동작 */}
-      <TransparentOverlayButton
-        onClick={handleOverlayPress}
-      />
 
-      {/* 헤더 (고정) */}
-      <div style={{ height: HEADER_H }}>
-        <Header />
-      </div>
+        setOverlayTapCount((prev) => {
+            const next = prev + 1;
 
-      {/* (불필요) <TransparentHotspotButton onClick={handleOverlayPress} /> */}
+            // ✅ 임계치(4회) 도달 → 타이머 정리 + 모달 오픈
+            if (next >= 4) {
+                if (overlayWindowRef.current) {
+                    clearTimeout(overlayWindowRef.current);
+                    overlayWindowRef.current = null;
+                }
+                if (overlayDebounceRef.current) {
+                    clearTimeout(overlayDebounceRef.current);
+                    overlayDebounceRef.current = null;
+                }
+                // 1초 뒤 팝업 (원래 코드 유지)
+                setTimeout(() => openExitModal(), 1000);
+                return 0;  // 리셋
+            }
 
-      {/* 상단 이미지 (고정) */}
-      <HeroSlider />
+            return next; // 1~3회 상태 유지
+        });
+    };
 
-      {/* 랭킹(여기만 스크롤) */}
-      <div style={{ height: 688}}>
-        <RankingSection />
-      </div>
+    return (
+        // 전체 화면 고정: 바깥 페이지가 늘어나지 않도록 함
+        <div
+            style={{
+                width: '1080px',
+                height: '1920px',
+                backgroundColor: 'white',
+                display: 'grid',
+                gridTemplateRows: `${HEADER_H}px ${HERO_H}px 1fr ${FOOTER_H}px`,
+                overflow: 'hidden',
+                position: 'relative',
+            }}
+        >
+            {/* ✅ 오버레이 버튼: 이제 4-탭 로직으로 동작 */}
+            <TransparentOverlayButton
+                onClick={handleOverlayPress}
+            />
 
-      {/* 하단 터치 버튼 (고정) */}
-      <div style={{ height: FOOTER_H }}>
-        <TouchButton to="/kiosk/user-find" />
-      </div>
+            {/* 헤더 (고정) */}
+            <div style={{height: HEADER_H}}>
+                <Header/>
+            </div>
 
-      {/* 종료 확인 모달 */}
-      <ExitConfirmationModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        autoShow={false}
-      />
-    </div>
-  );
+            {/* (불필요) <TransparentHotspotButton onClick={handleOverlayPress} /> */}
+
+            {/* 상단 이미지 (고정) */}
+            <HeroSlider/>
+
+            {/* 랭킹(여기만 스크롤) */}
+            <div style={{height: 688}}>
+                <RankingSection/>
+            </div>
+
+            {/* 하단 터치 버튼 (고정) */}
+            <div style={{height: FOOTER_H}}>
+                <TouchButton to="/kiosk/user-find"/>
+            </div>
+
+            {/* 종료 확인 모달 */}
+            <ExitConfirmationModal
+                isOpen={showModal}
+                onClose={() => {
+                }}
+                autoShow={false}
+            />
+        </div>
+    );
 };
 
 export default HomePage;
