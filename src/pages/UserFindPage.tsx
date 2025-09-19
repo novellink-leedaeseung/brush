@@ -6,6 +6,7 @@ import {useNavigate} from 'react-router-dom';
 import Header from "../components/Header.tsx";
 import {HomeComponent} from "../components/HomeComponent.tsx";
 import axios from "axios";
+import ToothbrushModal from "../components/userFind/ToothbrushModal.tsx";
 
 interface UserFindPageProps {
 }
@@ -14,6 +15,7 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
     const navigate = useNavigate();
     const [inputNumber, setInputNumber] = useState<string>('');
     const [showNotificationModal, setShowNotificationModal] = useState<boolean>(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [notificationMessage, setNotificationMessage] = useState<string>("일치하는 회원 정보가 없습니다.");
 
     // ⬇️ 추가: 현재 눌리고 있는 숫자 키 상태 (눌린 동안만 숫자 흰색)
@@ -25,7 +27,8 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
         setShowNotificationModal(false);
     };
 
-    // 알림창 컴포넌트
+
+    // 구강인증 실패
     const NotificationModal = ({isVisible, onClose, message}: {
         isVisible: boolean;
         onClose: () => void,
@@ -287,7 +290,7 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
 
                 if (status === 404) {
                     // 구강인증에 '회원 없음'
-                    setNotificationMessage(`${name}님은 구강인증에 등록되었습니다`);
+                    setShowSuccessModal(true);
                 } else {
                     // 구강인증 서버/통신 에러
                     setNotificationMessage("구강인증 서버 통신 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
@@ -295,7 +298,7 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
             } else {
                 setNotificationMessage("구강인증 조회 중 알 수 없는 오류가 발생했습니다.");
             }
-            setShowNotificationModal(true);
+            // setShowNotificationModal(true);
         }
     };
 
@@ -645,7 +648,11 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                     바코드 / QR 코드 대는 곳
                 </div>
             </div>
-
+            <ToothbrushModal
+                isOpen={showSuccessModal}
+                onClose={() => setShowSuccessModal(false)}
+                autoShow={false}
+            />
             {/* 알림창 */
             }
             <NotificationModal
