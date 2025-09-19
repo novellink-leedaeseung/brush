@@ -15,10 +15,10 @@ const TransparentOverlayButton: React.FC<Props> = ({
   onClick,
   ariaLabel,
   disabled,
-  width = 1080,
-  height = 688,
-  top = 0,
-  left = 0,
+  width = 230,
+  height = 130,
+  top = 10,
+  left = 840,
 }) => (
   <button
     type="button"
