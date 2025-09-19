@@ -16,7 +16,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
 
                                                          ],
                                                          outputWidth = 798,
-                                                         outputHeight = 1418
+                                                         outputHeight = 1419
                                                      }) => {
     const videoRef = useRef<HTMLVideoElement>(null)
     const canvasRef = useRef<HTMLCanvasElement>(null)
