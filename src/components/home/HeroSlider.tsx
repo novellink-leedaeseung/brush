@@ -1,15 +1,20 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
 const HERO_W = 1080;
-const HERO_H = 608; // px 숫자로 관리
-const FALLBACK_SEC = 5; // 슬라이드 시간 기본값(환경변수 없을 때)
-const SLIDE_SEC =
-  Number(import.meta.env.VITE_SLIDE_TIME ?? FALLBACK_SEC); // 이미지 표시 시간(초)
+const HERO_H = 608;
+const FALLBACK_SEC = 5;
 
-// 확장자로 동영상 여부 판별
-const isVideoUrl = (url: string) => /\.(mp4|webm|ogg)$/i.test(url);
+// .env에서 API 베이스/슬라이드 시간 읽기 (없으면 기본값)
+const API_BASE = import.meta.env.VITE_API_BASE ?? ""; // 예: "http://localhost:3001"
+const SLIDE_SEC = Number(import.meta.env.VITE_SLIDE_TIME ?? FALLBACK_SEC);
 
-// API 응답: 문자열 배열(이미지/비디오 URL 혼합) 가정
+// ====== 타입 ======
+type MediaItem = {
+  name: string;
+  type: "image" | "video";
+  url: string; // 서버가 주는 재생/표시용 URL (예: /assets/notification/xxx.mp4)
+};
+
 type Slide = { src: string; type: "image" | "video" };
 
 const HeroSlider: React.FC = () => {
@@ -17,52 +22,67 @@ const HeroSlider: React.FC = () => {
   const [current, setCurrent] = useState(0);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  // 서버에서 목록 가져오기
+  // 공지 미디어 목록 불러오기 (이미지/동영상 혼합)
   useEffect(() => {
-    fetch("http://localhost:3001/api/notifications")
-      .then((res) => res.json())
-      .then((arr: string[]) =>
-        setSlides(
-          (arr ?? []).map((src) => ({
-            src,
-            type: isVideoUrl(src) ? "video" : "image",
-          }))
-        )
-      )
-      .catch((err) => console.error("❌ 미디어 목록 불러오기 실패:", err));
+    const controller = new AbortController();
+
+    (async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/notification/media`, {
+          signal: controller.signal,
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const items: MediaItem[] = await res.json();
+
+        // 서버가 준 URL이 절대경로가 아니라면 API_BASE를 앞에 붙여 절대 URL로
+        const toAbs = (u: string) =>
+          /^https?:\/\//i.test(u) ? u : `${API_BASE}${u}`;
+
+        const mapped: Slide[] = (items ?? []).map((m) => ({
+          src: toAbs(m.url),
+          type: m.type,
+        }));
+        setSlides(mapped);
+      } catch (err) {
+        if ((err as any)?.name !== "AbortError") {
+          console.error("❌ 미디어 목록 불러오기 실패:", err);
+          setSlides([]); // 실패 시 비움
+        }
+      }
+    })();
+
+    return () => controller.abort();
   }, []);
 
-  // 다음 슬라이드로
+  // 다음 슬라이드
   const next = useMemo(
     () => () => setCurrent((p) => (slides.length ? (p + 1) % slides.length : 0)),
     [slides.length]
   );
 
-  // 자동 진행 로직: 이미지면 타이머, 동영상이면 ended 이벤트
+  // 자동 진행 (이미지: 타이머 / 동영상: ended 이벤트)
   useEffect(() => {
     if (slides.length === 0) return;
 
     const cur = slides[current];
-    let timer: number | undefined;
+    let timer: ReturnType<typeof setTimeout> | null = null;
 
     if (cur.type === "image") {
-      timer = window.setTimeout(next, SLIDE_SEC * 1000);
+      timer = setTimeout(next, SLIDE_SEC * 1000);
     } else {
       const v = videoRef.current;
       if (v) {
-        // 재생 준비되면 자동재생(Chrome 정책 때문에 muted 필요)
         const onEnded = () => next();
         const onError = () => {
-          console.error("🎞️ 동영상 재생 실패, 다음 슬라이드로 이동:", cur.src);
+          console.error("🎞️ 동영상 재생 실패, 다음으로 이동:", cur.src);
           next();
         };
         v.addEventListener("ended", onEnded);
         v.addEventListener("error", onError);
 
-        // 혹시 자동재생이 막히면 강제 play 시도
         v.play().catch(() => {
-          // 재생이 막히면 이미지처럼 시간 경과로 넘김
-          timer = window.setTimeout(next, SLIDE_SEC * 1000);
+          // 자동재생이 막히면 이미지처럼 시간 경과로 넘김
+          timer = setTimeout(next, SLIDE_SEC * 1000);
         });
 
         return () => {
@@ -71,12 +91,12 @@ const HeroSlider: React.FC = () => {
         };
       } else {
         // ref가 아직 없으면 안전망 타이머
-        timer = window.setTimeout(next, SLIDE_SEC * 1000);
+        timer = setTimeout(next, SLIDE_SEC * 1000);
       }
     }
 
     return () => {
-      if (timer) window.clearTimeout(timer);
+      if (timer) clearTimeout(timer);
     };
   }, [current, slides, next]);
 
@@ -127,15 +147,12 @@ const HeroSlider: React.FC = () => {
         ) : (
           <video
             key={index}
-            ref={visible ? videoRef : null} // 현재 슬라이드에만 ref 연결
+            ref={visible ? videoRef : null}
             src={item.src}
             style={baseStyle}
             muted
             playsInline
-            // loop는 끄고, 끝나면 다음으로
-            // controls 원하면 넣어도 됨
             preload="auto"
-            // iOS 자동재생 호환
             autoPlay={visible}
           />
         );
