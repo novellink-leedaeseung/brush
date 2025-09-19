@@ -255,11 +255,12 @@ const CameraConfirmPage: React.FC = () => {
 
     // 등록 버튼 클릭
     const handleRegister = async () => {
-        let lunch = isLunchTime();
+        //let lunch = isLunchTime(); // todo 원상복귀 필요
+        let lunch = true; // todo 점심시간 테스트
         if (isUploading) return;
 
         // ⬇️ 점심시간이 '아닐' 때 모달 오픈
-        if (!isLunchTime()) {
+        if (!lunch) {
             setShowLunchModal(true);
             document.body.style.overflow = 'hidden';
             return;
