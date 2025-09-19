@@ -110,6 +110,7 @@ const Header: React.FC<HeaderProps> = ({
                 height: '130px',
                 alignItems: 'center',
                 width: '230px',
+                marginTop: "10px",
             }}>
                 <div style={{
                     display: 'flex',
