@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 
-const ToothbrushModal = ({isOpen, onClose, autoShow = true}) => {
+const ToothbrushModal = ({isOpen, onClose, autoShow = true, name = '테스트'}) => {
     const [showModal, setShowModal] = useState(false);
 
     useEffect(() => {
@@ -171,7 +171,7 @@ const ToothbrushModal = ({isOpen, onClose, autoShow = true}) => {
                     </svg>
 
                     <div style={modalContentStyle}>
-                        <div style={modalTitleStyle}>이미 양치 인증 완료!</div>
+                        <div style={modalTitleStyle}>{name}님 양치 인증 완료!</div>
                         <div style={modalSubtitleStyle}>잘하셨어요!</div>
                     </div>
                 </div>

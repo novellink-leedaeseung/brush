@@ -17,6 +17,7 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
     const [showNotificationModal, setShowNotificationModal] = useState<boolean>(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [notificationMessage, setNotificationMessage] = useState<string>("일치하는 회원 정보가 없습니다.");
+    const [showSuccessModalName, setShowSuccessModalName] = useState<string>('테스트');
 
     // ⬇️ 추가: 현재 눌리고 있는 숫자 키 상태 (눌린 동안만 숫자 흰색)
     const [activeKey, setActiveKey] = useState<number | 'clear' | 'backspace' | null>(null);
@@ -254,7 +255,6 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
 
     // 확인 버튼 클릭 처리
     const handleConfirm = async () => {
-        let name: string = "";
         const n = inputNumber.trim();
         if (!n) return;
 
@@ -267,7 +267,7 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                 setShowNotificationModal(true);
                 return;
             }
-            name = kioskUser.resultData.username;
+            setShowSuccessModalName(kioskUser.resultData.username);
         } catch (e) {
             // 키오스크 서버/통신 에러
             setNotificationMessage("네트워크 연결이 불안정 합니다.");
@@ -652,6 +652,7 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                 isOpen={showSuccessModal}
                 onClose={() => setShowSuccessModal(false)}
                 autoShow={false}
+                name={showSuccessModalName}
             />
             {/* 알림창 */
             }
