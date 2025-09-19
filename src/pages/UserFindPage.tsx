@@ -7,7 +7,8 @@ import Header from "../components/Header.tsx";
 import {HomeComponent} from "../components/HomeComponent.tsx";
 import axios from "axios";
 
-interface UserFindPageProps {}
+interface UserFindPageProps {
+}
 
 const UserFindPage: React.FC<UserFindPageProps> = () => {
     const navigate = useNavigate();
@@ -207,15 +208,33 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                 const part1 = number.slice(0, 3);
                 const part2 = number.slice(3, 7);
                 const part3 = number.slice(7);
-                const maskedPart = '*'.repeat(part3.length);
+
+                // 마지막 숫자는 보이게, 앞부분만 * 처리
+                if (part3.length <= 1) {
+                    return `${part1}-${part2}-${part3}`;
+                }
+                const maskedPart =
+                    '*'.repeat(part3.length - 1) + part3.slice(-1);
+
                 return `${part1}-${part2}-${maskedPart}`;
             }
         }
+
+        // 그 외 번호 포맷
         if (number.length <= 7) return number;
+
         const visiblePart = number.slice(0, 7);
-        const maskedPart = '*'.repeat(number.length - 7);
+        const rest = number.slice(7);
+
+        if (rest.length <= 1) {
+            return visiblePart + rest;
+        }
+        const maskedPart =
+            '*'.repeat(rest.length - 1) + rest.slice(-1);
+
         return visiblePart + maskedPart;
     };
+
 
     // 키패드 입력 처리
     const handlePress = (value: number | string) => {
@@ -232,7 +251,7 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
 
     // 확인 버튼 클릭 처리
     const handleConfirm = async () => {
-        let name : string = "";
+        let name: string = "";
         const n = inputNumber.trim();
         if (!n) return;
 
