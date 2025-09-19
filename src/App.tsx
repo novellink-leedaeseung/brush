@@ -8,8 +8,10 @@ import UserConfirmPage from './pages/UserConfirmPage'
 import RegistrationCompletePage from './pages/RegistrationCompletePage'
 import IdleRedirect from "./utils/IdleRedirect.tsx";
 import './index.css'
+import {useNoZoomNoContext} from "./utils/useNoZoomNoContext.tsx";
 
 function App() {
+    useNoZoomNoContext();
     return (
         <RankingProvider>
             <Router>
@@ -24,7 +26,6 @@ function App() {
                             <Route path="/kiosk/user-confirm" element={<UserConfirmPage/>}/>
                             <Route path="/registration-complete" element={<RegistrationCompletePage/>}/>
                         </Routes>
-
                     </div>
                 </IdleRedirect>
             </Router>
