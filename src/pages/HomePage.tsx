@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState} from 'react'
 import Header from '../components/Header'
 import RankingSection from '../components/RankingSection'
 import TouchButton from '../components/TouchButton'
@@ -7,6 +7,8 @@ import {useNavigate} from 'react-router-dom'
 import TransparentOverlayButton from "../components/home/TransparentOverlayButton.tsx";
 import HeroSlider from "../components/home/HeroSlider.tsx";
 import '/index.css';
+import ExitConfirmationModal from "../components/home/modal/ExitConfirmationModal.tsx";
+import {TransparentHotspotButton} from "../components/home/TransparentHotspotButton.tsx";
 
 
 const HEADER_H = 150;   // Header 실제 높이(px) 맞춰 조정
@@ -14,6 +16,8 @@ const HERO_H = 608;    // 상단 이미지 영역 높이 (현재 코드 기준)
 const FOOTER_H = 354;  // TouchButton 영역 예상 높이 (실제 컴포넌트 높이로 맞춰 조정)
 
 const HomePage: React.FC = () => {
+    const [showModal, setShowModal] = useState(false);
+
     const navigate = useNavigate()
 
     return (
@@ -41,6 +45,7 @@ const HomePage: React.FC = () => {
             <div style={{height: HEADER_H}}>
                 <Header/>
             </div>
+            <TransparentHotspotButton onClick={() => setShowModal(true)}/>
 
             {/* 상단 이미지 (고정) */}
             <HeroSlider/>
@@ -53,6 +58,11 @@ const HomePage: React.FC = () => {
             <div style={{height: FOOTER_H}}>
                 <TouchButton to="/kiosk/user-find"/>
             </div>
+            <ExitConfirmationModal
+                isOpen={showModal}
+                onClose={() => setShowModal(false)}
+                autoShow={false}
+            />
         </div>
     )
 }
