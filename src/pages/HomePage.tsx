@@ -4,7 +4,6 @@ import RankingSection from '../components/RankingSection'
 import TouchButton from '../components/TouchButton'
 // import DebugPanel from '../components/DebugPanel' // 필요 시 사용
 import {useNavigate} from 'react-router-dom'
-import {useRanking} from '../contexts/RankingContext'
 import TransparentOverlayButton from "../components/home/TransparentOverlayButton.tsx";
 import HeroSlider from "../components/home/HeroSlider.tsx";
 import '/index.css';

@@ -9,7 +9,8 @@ const CameraPage: React.FC = () => {
     const [capturedImage, setCapturedImage] = useState<string | null>(null)
 
     const handleCapture = (imageData: string) => {
-        setCapturedImage(imageData)
+        if(capturedImage == undefined)
+            setCapturedImage(imageData)
         // 캡처된 이미지를 세션 스토리지에 저장하고 확인 페이지로 이동
         sessionStorage.setItem('capturedImage', imageData)
         navigate('/kiosk/camera-confirm')
@@ -34,7 +35,7 @@ const CameraPage: React.FC = () => {
             
             {/* 헤더 */}
             <Header/>
-            <HomeComponent right={0} bottom={0} onClick={undefined}/>
+            <HomeComponent onClick={undefined}/>
 
 
             {/* 카메라 컴포넌트 */}

@@ -6,7 +6,6 @@ import CameraPage from './pages/CameraPage'
 import CameraConfirmPage from './pages/CameraConfirmPage'
 import UserConfirmPage from './pages/UserConfirmPage'
 import RegistrationCompletePage from './pages/RegistrationCompletePage'
-import TestRegistrationPage from './pages/TestRegistrationPage'
 import IdleRedirect from "./utils/IdleRedirect.tsx";
 import './index.css'
 
@@ -24,7 +23,6 @@ function App() {
                             <Route path="/kiosk/camera-confirm" element={<CameraConfirmPage/>}/>
                             <Route path="/kiosk/user-confirm" element={<UserConfirmPage/>}/>
                             <Route path="/registration-complete" element={<RegistrationCompletePage/>}/>
-                            <Route path="/test-registration" element={<TestRegistrationPage/>}/>
                         </Routes>
 
                     </div>

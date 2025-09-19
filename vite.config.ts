@@ -8,7 +8,7 @@ export default defineConfig({
   server: {
     port: 5173,
     host: true,
-    https: true,
+    https: {}, // 빈 객체로 변경하여 기본 HTTPS 설정 사용
     proxy: {
             "/api/save-photo": {
                 target: "http://localhost:3001",

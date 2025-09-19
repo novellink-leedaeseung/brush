@@ -7,12 +7,13 @@ import Header from "../components/Header.tsx";
 import {HomeComponent} from "../components/HomeComponent.tsx";
 import axios from "axios";
 
+interface UserFindPageProps {}
 
 const UserFindPage: React.FC<UserFindPageProps> = () => {
     const navigate = useNavigate();
     const [inputNumber, setInputNumber] = useState<string>('');
     const [showNotificationModal, setShowNotificationModal] = useState<boolean>(false);
-    const [notificationMessage, setNotificationMessage] = useState("");
+    const [notificationMessage, setNotificationMessage] = useState<string>("일치하는 회원 정보가 없습니다.");
 
     // ⬇️ 추가: 현재 눌리고 있는 숫자 키 상태 (눌린 동안만 숫자 흰색)
     const [activeKey, setActiveKey] = useState<number | 'clear' | 'backspace' | null>(null);
@@ -27,7 +28,7 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
     const NotificationModal = ({isVisible, onClose, message}: {
         isVisible: boolean;
         onClose: () => void,
-        message: '일치하는 회원 정보가 없습니다.'
+        message: string
     }) => {
         if (!isVisible) return null;
 
@@ -336,7 +337,7 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
         >
             {/* 기존 헤더 코드를 Header 컴포넌트로 교체 */}
             <Header/>
-            <HomeComponent right={0} bottom={0} onClick={undefined}/>
+            <HomeComponent onClick={undefined}/>
 
             {/* 안내문 */}
             <div

@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef} from 'react'
+import React, {useEffect, useState} from 'react'
 import {useNavigate} from 'react-router-dom'
 import Header from "../components/Header.tsx"
 import LunchFalseModal from "../components/LunchFalseModal.tsx";
@@ -6,7 +6,7 @@ import {parseGradeClass} from "../utils/gradeClass.ts";
 import "../index.css"
 
 // 양치 인증 완료 모달 컴포넌트
-const CompleteModal = ({isVisible, onClose}: { isVisible: boolean; onClose: () => void }) => {
+const CompleteModal = ({isVisible}: { isVisible: boolean; }) => {
     if (!isVisible) return null;
 
     return (
@@ -86,7 +86,7 @@ const CameraConfirmPage: React.FC = () => {
      * @param {Object} userInfo - 사용자 정보 객체 (선택사항)
      * @returns {Promise<Object>} - 서버 응답 결과
      */
-    const saveImageToServer = async (imageDataUrl: string, userInfo = {}) => {
+    const saveImageToServer = async (imageDataUrl: string) => {
         try {
             // ============ 파일명 생성 부분 (수정 가능) ============
             const today = new Date();
@@ -106,7 +106,7 @@ const CameraConfirmPage: React.FC = () => {
 
             // 파일명 형식: YYYY-MM-DD-HH-MM-SS-전화번호-이름
             // 필요에 따라 이 부분을 수정하세요
-            if(userNo.length == 6 || userNo.length == 5) {
+            if (userNo.length == 6 || userNo.length == 5) {
                 fileName = `${year}${month}${day}-${hours}-${minutes}-${seconds}-${userNo}-${userName}`;
             }
 
@@ -184,8 +184,10 @@ const CameraConfirmPage: React.FC = () => {
             return true;
 
         } catch (error) {
-            console.error('❌ 이미지 저장 실패:', error);
-            alert(`이미지 저장 실패: ${error.message}`);
+            if (error instanceof Error) {
+                console.error('❌ 이미지 저장 실패:', error);
+                alert(`이미지 저장 실패: ${error.message}`);
+            }
             return false;
         } finally {
             setIsUploading(false);
@@ -234,54 +236,7 @@ const CameraConfirmPage: React.FC = () => {
         }
     }, [])
 
-    // 이미지 다운로드 함수
-    const downloadImage = () => {
-        const possibleKeys = ['capturedImage', 'camara.capturedPhoto', 'captured-photo']
-        let imageData = null
-
-        // 세션 스토리지에서 이미지 데이터 찾기
-        for (const key of possibleKeys) {
-            imageData = sessionStorage.getItem(key)
-            if (imageData) {
-                console.log(`다운로드할 이미지 키: ${key}`)
-                break
-            }
-        }
-
-        if (!imageData) {
-            console.error('다운로드할 이미지가 없습니다.')
-            alert('저장된 이미지가 없습니다.')
-            return
-        }
-
-        try {
-            // 현재 날짜/시간으로 파일명 생성
-            const now = new Date()
-            const dateStr = now.toISOString().slice(0, 19).replace(/[:-]/g, '').replace('T', '_')
-            let name = localStorage.getItem("name");
-            let phone = localStorage.getItem("phone");
-            const fileName = `${dateStr}-${phone}-${name}.jpg`
-
-            // 가상의 다운로드 링크 생성
-            const link = document.createElement('a')
-            link.href = imageData
-            link.download = fileName
-            link.style.display = 'none'
-
-            // DOM에 추가하고 클릭한 후 제거
-            document.body.appendChild(link)
-            link.click()
-            document.body.removeChild(link)
-
-            console.log(`이미지 다운로드 완료: ${fileName}`)
-
-        } catch (error) {
-            console.error('이미지 다운로드 실패:', error)
-            alert('이미지 다운로드에 실패했습니다.')
-        }
-    }
-
-    // 점심시간 체크 (예시: 12:00 ~ 13:00)
+// 점심시간 체크 (예시: 12:00 ~ 13:00)
     const isLunchTime = () => {
         const now = new Date()
         const hour = now.getHours()
@@ -311,7 +266,7 @@ const CameraConfirmPage: React.FC = () => {
         }
 
 
-         // 로컬스토리지 값 불러오기
+        // 로컬스토리지 값 불러오기
         const name = localStorage.getItem("name") || "익명";
         const phone = localStorage.getItem("phone") || "";
         let gradeClass = localStorage.getItem("gradeClass") || "";
@@ -366,8 +321,10 @@ const CameraConfirmPage: React.FC = () => {
                 window.location.replace("/");
             }, 2000);
         } catch (err) {
-            console.error("❌ 등록 실패:", err);
-            alert("등록 실패: " + err.message);
+            if (err instanceof Error) {
+                console.error("❌ 등록 실패:", err);
+                alert("등록 실패: " + err.message);
+            }
         } finally {
             setIsUploading(false);
         }
@@ -443,30 +400,16 @@ const CameraConfirmPage: React.FC = () => {
                 window.location.replace("/");
             }, 2000);
         } catch (err) {
-            console.error("❌ 등록 실패:", err);
-            alert("등록 실패: " + err.message);
+            if (err instanceof Error) {
+                console.error("❌ 등록 실패:", err);
+                alert("등록 실패: " + err.message);
+            }
         } finally {
             setIsUploading(false);
         }
     }
 
-    // 점심시간 모달 닫기
-    const closeLunchModal = (event: React.MouseEvent) => {
-        if (event.target === event.currentTarget) {
-            setShowLunchModal(false)
-            document.body.style.overflow = 'auto'
-        }
-    }
-
-    // 완료 모달 닫기
-    const handleCompleteModalClose = () => {
-        setShowCompleteModal(false)
-        // 세션 스토리지 정리
-        const possibleKeys = ['capturedImage', 'camara.capturedPhoto', 'captured-photo'];
-        possibleKeys.forEach(key => sessionStorage.removeItem(key));
-        navigate('/')
-    }
-
+// 완료 모달 닫기
     return (
         <div style={{backgroundColor: '#f5f5f5', minHeight: '100vh'}}>
             {/* 스타일 정의 */}
@@ -1009,19 +952,20 @@ const CameraConfirmPage: React.FC = () => {
             </div>
             <LunchFalseModal
                 isOpen={showLunchModal}
-                onClose={closeLunchModal}
                 onNo={handleLunchModalNo}
                 onRegister={handleLunchModalRegister}
+                onClose={() => setShowLunchModal(false)}
             />
 
 
             {/* 양치 인증 완료 모달 */}
             <CompleteModal
                 isVisible={showCompleteModal}
-                onClose={handleCompleteModalClose}
             />
         </div>
     )
 }
 
 export default CameraConfirmPage
+
+

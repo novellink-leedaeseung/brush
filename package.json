@@ -2,19 +2,26 @@
   "name": "novellink-brush",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
+  "main": "electron.js",
+  "homepage": "./",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "server": "node server.js",
-    "dev:full": "concurrently \"npm run server\" \"npm run dev\""
+    "dev:full": "concurrently \"npm run server\" \"npm run dev\"",
+    "electron": "wait-on http://localhost:5173 && electron .",
+    "electron-dev": "concurrently \"npm run dev\" \"npm run electron\"",
+    "electron-pack": "npm run build && electron-builder",
+    "preelectron-pack": "npm run build",
+    "build-electron": "npm run build && electron-builder --publish=never",
+    "dist": "npm run build && electron-builder --publish=never"
   },
   "dependencies": {
     "async-mutex": "^0.5.0",
     "axios": "^1.11.0",
     "cors": "^2.8.5",
+    "electron-is-dev": "^3.0.1",
     "exceljs": "^4.4.0",
     "express": "^5.1.0",
     "fs-extra": "^11.3.2",
@@ -30,14 +37,17 @@
     "@vitejs/plugin-basic-ssl": "^2.1.0",
     "@vitejs/plugin-react": "^4.3.4",
     "concurrently": "^9.2.1",
+    "cross-env": "^10.0.0",
+    "electron": "^38.1.2",
+    "electron-builder": "^26.0.12",
     "typescript": "~5.8.3",
-    "vite": "^7.1.2"
+    "vite": "^7.1.2",
+    "wait-on": "^9.0.0"
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "^4.50.1"
   },
   "description": "",
-  "main": "server.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/novellink-leedaeseung/brush.git"
@@ -48,5 +58,50 @@
   "bugs": {
     "url": "https://github.com/novellink-leedaeseung/brush/issues"
   },
-  "homepage": "https://github.com/novellink-leedaeseung/brush#readme"
+  "homepage": "https://github.com/novellink-leedaeseung/brush#readme",
+  "build": {
+    "appId": "com.novellink.brush",
+    "productName": "오늘의 양치왕",
+    "directories": {
+      "output": "electron-dist"
+    },
+    "files": [
+      "dist/**/*",
+      "electron.js",
+      "node_modules/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "public/assets/icon.ico"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["x64", "arm64"]
+        }
+      ],
+      "icon": "public/assets/icon.icns"
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "public/assets/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  }
 }

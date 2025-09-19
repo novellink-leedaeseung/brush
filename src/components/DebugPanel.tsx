@@ -20,8 +20,9 @@ const DebugPanel: React.FC = () => {
             keys: Object.keys(localStorage)
           }
         })
-      } catch (error) {
-        setStorageData({ error: error.message })
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        setStorageData({ error: errorMessage })
       }
     }
 
@@ -190,7 +191,7 @@ const DebugPanel: React.FC = () => {
       {rankedUsers.length > 0 && (
         <div>
           <h4 style={{ color: '#F59E0B', marginBottom: '8px' }}>Top 3 Records</h4>
-          {rankedUsers.slice(0, 3).map((user, index) => (
+          {rankedUsers.slice(0, 3).map((user) => (
             <div key={user.id} style={{ 
               fontSize: '12px', 
               marginBottom: '4px',

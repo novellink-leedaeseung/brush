@@ -8,8 +8,8 @@ function main() {
 
     if (!img || !dataUrl) {
         // 저장된 이미지가 없으면 촬영 페이지로 되돌림
-        // location.replace('/kiosk/camara.html');
-        // return;
+        location.replace('/kiosk/camara.html');
+        return;
     }
 
     img.src = dataUrl;
@@ -26,11 +26,11 @@ function main() {
         const modal = document.getElementById('confirmationModal');
 
         // 모달 표시
-        modal.classList.add('show');
+        modal?.classList.add('show');
 
         // 3초 후 자동으로 모달 닫기
         setTimeout(() => {
-            modal.classList.remove('show');
+            modal?.classList.remove('show');
         }, 3000);
 
         let phoneNumber = localStorage.getItem("phone");

@@ -198,12 +198,19 @@ async function fetchMembersPage(
     }
 
     // 서버 -> 프론트 모델 매핑
+    // (선택) 안전한 매핑 함수
+    const toMealType = (val: boolean | 'lunch' | 'outside' | undefined): 'lunch' | 'outside' => {
+        if (val === 'lunch' || val === true) return 'lunch';
+        // undefined, false, 'outside' 전부 outside로 처리
+        return 'outside';
+    };
+
     const items: BrushingRecord[] = rawList.map((m) => {
         const resolvedClassName =
             (m.className && String(m.className).trim()) ||
             ((m.grade ?? '') !== '' && (m.classroom ?? '') !== ''
                 ? `${m.grade}-${m.classroom}반`
-                : (m.gradeClass && String(m.gradeClass).trim()) || '미정')
+                : (m.gradeClass && String(m.gradeClass).trim()) || '미정');
 
         const rawTime = m.createdAt ?? m.brushingTime;
 
@@ -211,13 +218,15 @@ async function fetchMembersPage(
             id: String(m.id),
             name: m.name,
             className: resolvedClassName,
-            gender: m.gender,
-            profileImage: m.gender == "남자" ? '/public/assets/images/man.png' : '/public/assets/images/woman.png',
+            gender: m.gender ?? '미상',
+            // (참고) Vite에선 public 폴더 자산은 '/public/...'가 아니라 루트로 서빙됨: '/assets/images/...'
+            profileImage: m.gender === '남자' ? '/assets/images/man.png' : '/assets/images/woman.png',
             brushingTime: toDate(rawTime),
-            mealType: m.lunch,
+            mealType: toMealType(m.lunch), // ✅ boolean/undefined → 'lunch' | 'outside'
             duration: typeof m.duration === 'number' ? m.duration : 0,
-        }
-    })
+        };
+    });
+
 
     return {items, page: currentPage, totalPages}
 }

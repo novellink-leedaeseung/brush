@@ -1,11 +1,23 @@
-import React, {useState} from 'react';
+import React from "react";
+
+interface TimeoutProps {
+    primaryMessage?: string;
+    secondaryMessage?: string;
+    showIcon?: boolean;
+    iconSrc?: string;
+    onClose?: () => void;
+    className?: string;
+    style?: object;
+    isVisible?: boolean;
+    autoCloseDelay?: number;
+}
 
 // Timeout - 시간 초과 경고 모달 컴포넌트
-export const Timeout = ({
+export const Timeout: React.FC<TimeoutProps> = ({
                             primaryMessage = "시간이 초과되었습니다.",
                             secondaryMessage = "대기화면으로 이동합니다.",
                             showIcon = true,
-                            iconSrc = "/public/assets/icon/warning.svg",
+                            iconSrc: _iconSrc = "/public/assets/icon/warning.svg", // iconSrc를 _iconSrc로 변경하여 사용하지 않음을 표시
                             onClose,
                             className = '',
                             style = {},
