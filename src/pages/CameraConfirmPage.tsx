@@ -280,7 +280,6 @@ const CameraConfirmPage: React.FC = () => {
         if (inputNumber.length == 6 || inputNumber.length == 5) {
             let gradeClassParts = parseGradeClass(inputNumber);
             gradeClass = gradeClassParts.grade.toString() + "-" + gradeClassParts.classNo.toString();
-            return;
         }
 
         try {
