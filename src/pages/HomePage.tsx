@@ -67,20 +67,9 @@ const HomePage: React.FC = () => {
           clearTimeout(overlayDebounceRef.current);
           overlayDebounceRef.current = null;
         }
-        setTimeout(() => openExitModal(), 0);
+        setTimeout(() => openExitModal(), 1000);
         return 0; // 리셋
       }
-
-      // 아직 4회 전 → 마지막 탭 후 300ms 동안 추가 탭 없으면 기본 이동
-      overlayDebounceRef.current = window.setTimeout(() => {
-        if (overlayWindowRef.current) {
-          clearTimeout(overlayWindowRef.current);
-          overlayWindowRef.current = null;
-        }
-        setOverlayTapCount(0);
-        goToUserFind();
-      }, 300) as unknown as number; // ← 느린 템포면 400~500으로 조정
-
       return next;
     });
   };
