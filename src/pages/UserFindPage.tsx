@@ -168,7 +168,7 @@ const UserFindPage: React.FC<UserFindPageProps> = () => {
                     </div>
 
                     <div
-                        onClick={onClose}
+                        onClick={() => window.location.href = "/"}
                         style={{
                             width: '630px',
                             height: '120px',
