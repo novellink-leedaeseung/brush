@@ -114,7 +114,7 @@ const HomePage: React.FC = () => {
       <HeroSlider />
 
       {/* 랭킹(여기만 스크롤) */}
-      <div style={{ height: 688, overflowY: 'auto' }}>
+      <div style={{ height: 688}}>
         <RankingSection />
       </div>
 
