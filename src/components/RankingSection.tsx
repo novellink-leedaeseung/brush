@@ -384,7 +384,7 @@ const RankingSection: React.FC = () => {
                                 >
                                     {user.isVacant
                                         ? "현재 빈자리에요!"
-                                        : `${user.className === "" ? "미확인" : user.className} ${user.name}`}
+                                        : `${user.className === "" ? "미확인" : user.className + "반"} ${user.name}`}
                                 </div>
 
                                 {/* 시간/식사태그 — 빈자리는 숨김 */}
