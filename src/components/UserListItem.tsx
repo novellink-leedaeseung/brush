@@ -100,55 +100,6 @@ const UserListItem: React.FC<UserListItemProps> = ({
                 </div>
             </div>
 
-            {/* 식사 태그 */}
-            {mealType ? (
-                <div style={{
-                    width: '80px',
-                    height: '50px',
-                    background: '#B2D7FF',
-                    borderRadius: 16,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    gap: 10,
-                    display: 'inline-flex',
-                    marginLeft: '32px',
-                }}>
-                    <div style={{
-                        // 점심
-                        color: '#227EFF',
-                        fontSize: 20,
-                        fontFamily: 'Pretendard',
-                        fontWeight: '600',
-                        lineHeight: 6,
-                        wordWrap: 'break-word'
-                    }}>
-                        점심
-                    </div>
-                </div>
-            ) : (
-                <div style={{
-                    width: '80px',
-                    height: '50px',
-                    background: '#FEEAE2',
-                    borderRadius: 16,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    gap: 10,
-                    display: 'inline-flex',
-                    marginLeft: '32px',
-                }}>
-                    <div style={{
-                        color: '#E5621C',
-                        fontSize: '16px',
-                        fontFamily: 'Pretendard',
-                        fontWeight: 600,
-                        textAlign: 'center'
-                    }}>
-                        외
-                    </div>
-                </div>
-            )}
-
 
             {/* 시간 */}
             <div style={{
@@ -163,7 +114,7 @@ const UserListItem: React.FC<UserListItemProps> = ({
                 fontFamily: 'Pretendard',
                 fontWeight: '400',
                 lineHeight: "56px",
-                marginLeft: '384px',
+                marginLeft: '496px',
             }}>{time}
             </div>
 
