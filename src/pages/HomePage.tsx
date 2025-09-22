@@ -36,7 +36,6 @@ const HomePage: React.FC = () => {
     };
 
     // ✅ 투명 오버레이 버튼 4-탭 핸들러
-    // ✅ 투명 오버레이 버튼 4-탭 핸들러
     const handleOverlayPress = () => {
         // 3초 윈도우(4번 모으기) 시작/연장
         if (overlayWindowRef.current) {
@@ -46,14 +45,14 @@ const HomePage: React.FC = () => {
         overlayWindowRef.current = window.setTimeout(() => {
             setOverlayTapCount(0);        // 시간 지나면 카운트 초기화
             overlayWindowRef.current = null;
-        }, 1000);
+        }, 3000);
 
 
         setOverlayTapCount((prev) => {
             const next = prev + 1;
 
             // ✅ 임계치(4회) 도달 → 타이머 정리 + 모달 오픈
-            if (next >= 4) {
+            if (next >= 2) {
                 if (overlayWindowRef.current) {
                     clearTimeout(overlayWindowRef.current);
                     overlayWindowRef.current = null;
