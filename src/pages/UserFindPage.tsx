@@ -1,667 +1,146 @@
-// UserFindPage.tsx
-import React, {useState} from 'react';
-import {findUser} from "../api/UserFind.ts";
-import {useNavigate} from 'react-router-dom';
+// pages/UserFindPage.tsx
+import React, { useState } from 'react';
+import { findUser } from "../api/UserFind.ts";
+import { useNavigate } from 'react-router-dom';
+import axios from "axios";
 
 import Header from "../components/Header.tsx";
-import {HomeComponent} from "../components/HomeComponent.tsx";
-import axios from "axios";
+import { HomeComponent } from "../components/HomeComponent.tsx";
 import ToothbrushModal from "../components/userFind/ToothbrushModal.tsx";
 
-interface UserFindPageProps {
-}
+import NotificationModal from "../components/userFind/NotificationModal.tsx";
+import NumberKeypad from "../components/userFind/NumberKeypad.tsx";
+import MaskedPhoneDisplay, { maskPhoneNumber } from "../components/userFind/MaskedPhoneDisplay.tsx";
 
-const UserFindPage: React.FC<UserFindPageProps> = () => {
-    const navigate = useNavigate();
-    const [inputNumber, setInputNumber] = useState<string>('');
-    const [showNotificationModal, setShowNotificationModal] = useState<boolean>(false);
-    const [showSuccessModal, setShowSuccessModal] = useState(false);
-    const [notificationMessage, setNotificationMessage] = useState<string>("일치하는 회원 정보가 없습니다.");
-    const [showSuccessModalName, setShowSuccessModalName] = useState<string>('테스트');
+const UserFindPage: React.FC = () => {
+  const navigate = useNavigate();
+  const [inputNumber, setInputNumber] = useState<string>('');
+  const [showNotificationModal, setShowNotificationModal] = useState<boolean>(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState<string>("일치하는 회원 정보가 없습니다.");
+  const [showSuccessModalName, setShowSuccessModalName] = useState<string>('테스트');
 
-    // ⬇️ 추가: 현재 눌리고 있는 숫자 키 상태 (눌린 동안만 숫자 흰색)
-    const [activeKey, setActiveKey] = useState<number | 'clear' | 'backspace' | null>(null);
+  // 입력 처리 (기존 로직 그대로)
+  const handlePress = (value: number | 'clear' | 'backspace') => {
+    if (typeof value === 'number') {
+      if (inputNumber.length < 11) setInputNumber(prev => prev + value);
+    } else if (value === 'clear') {
+      setInputNumber('');
+    } else if (value === 'backspace') {
+      setInputNumber(prev => prev.slice(0, -1));
+    }
+  };
 
+  // 확인 버튼 클릭 (기존 로직 그대로)
+  const handleConfirm = async () => {
+    const n = inputNumber.trim();
+    if (!n) return;
 
-    // 알림창 닫기 함수
-    const closeNotificationModal = () => {
-        setShowNotificationModal(false);
-    };
+    try {
+      const kioskUser = await findUser(n);
+      if (!kioskUser) {
+        setNotificationMessage("일치하는 회원 정보가 없습니다.");
+        setShowNotificationModal(true);
+        return;
+      }
+      setShowSuccessModalName(kioskUser.resultData.username);
+    } catch {
+      setNotificationMessage("네트워크 연결이 불안정 합니다.");
+      setShowNotificationModal(true);
+      return;
+    }
 
-
-    // 구강인증 실패
-    const NotificationModal = ({isVisible, message}: {
-        isVisible: boolean;
-        message: string
-    }) => {
-        if (!isVisible) return null;
-
-        return (
-            <div style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                width: '100vw',
-                height: '100vh',
-                backgroundColor: 'rgba(49, 49, 49, 0.6)',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                zIndex: 1000
-            }}>
-                <div style={{
-                    width: '932px',
-                    height: '675px',
-                    background: '#FFFFFF',
-                    borderRadius: '50px',
-                    boxShadow: '2px 2px 2px 0px rgba(0, 79, 153, 0.09)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                    boxSizing: 'border-box'
-                }}>
-                    <div style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        flex: '1',
-                        justifyContent: 'center'
-                    }}>
-                        <div style={{
-                            width: '130px',
-                            height: '130px',
-                            borderRadius: '50%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            marginBottom: '20px'
-                        }}>
-                            <img src="/public/assets/icon/warning.svg" alt=""/>
-                        </div>
-
-                        <div style={{
-                            width: '714px',
-                            height: '70px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            marginBottom: '18px'
-                        }}>
-                            <span style={{
-                                fontFamily: 'Pretendard, Arial, sans-serif',
-                                fontWeight: '700',
-                                fontSize: '38px',
-                                lineHeight: '1.4em',
-                                letterSpacing: '-2.5%',
-                                textAlign: 'center',
-                                color: '#4B4948'
-                            }}>
-                                {message}
-                            </span>
-                        </div>
-
-                        <div style={{
-                            width: '560px',
-                            height: '80px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            marginBottom: '18px'
-                        }}>
-                            <span style={{
-                                color: "#004F99",
-                                textAlign: "center",
-                                fontFeatureSettings: "'liga' off, 'clig' off",
-                                fontFamily: "Jalnan2",
-                                fontSize: "74px",
-                                fontStyle: "normal",
-                                fontWeight: 400,
-                                lineHeight: "56px", // 75.676%
-                                letterSpacing: "-1.85px",
-                            }}>
-                                {maskPhoneNumber(inputNumber)}
-                            </span>
-                        </div>
-
-                        <div style={{
-                            width: '800px',
-                            height: '70px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center'
-                        }}>
-                                <span
-                                    style={{
-                                        color: '#111111',
-                                        fontSize: 44,
-                                        fontFamily: 'Pretendard',
-                                        fontWeight: '500',
-                                        lineHeight: 61.60,
-                                        wordWrap: 'break-word'
-                                    }}>보건실에서</span><span
-                            style={{
-                                color: '#111111',
-                                fontSize: 44,
-                                fontFamily: 'Pretendard',
-                                fontWeight: '700',
-                                lineHeight: 61.60,
-                                wordWrap: 'break-word'
-                            }}> </span><span
-                            style={{
-                                color: '#004F99',
-                                fontSize: 44,
-                                fontFamily: 'Pretendard',
-                                fontWeight: '700',
-                                lineHeight: 61.60,
-                                wordWrap: 'break-word'
-                            }}>&nbsp; 보건선생님의 도움</span><span
-                            style={{
-                                color: '#111111',
-                                fontSize: 44,
-                                fontFamily: 'Pretendard',
-                                fontWeight: '500',
-                                lineHeight: 61.60,
-                                wordWrap: 'break-word'
-                            }}>을 받아 주세요.</span>
-                        </div>
-                    </div>
-
-                    <div
-                        onClick={() => window.location.href = "/"}
-                        style={{
-                            width: '630px',
-                            height: '120px',
-                            background: '#004F99',
-                            borderRadius: '16px',
-                            boxShadow: '0px 4px 2px rgba(0, 0, 0, 0.09)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            cursor: 'pointer',
-                            flexShrink: 0,
-                            marginBottom: '50px',
-                            marginLeft: '151px',
-                        }}
-                    >
-                        <span style={{
-                            fontFamily: 'Pretendard, Arial, sans-serif',
-                            fontWeight: '600',
-                            fontSize: '44px',
-                            lineHeight: '1.27em',
-                            textAlign: 'center',
-                            color: '#FFFFFF'
-                        }}>
-                            확인
-                        </span>
-                    </div>
-                </div>
-            </div>
-        );
-    };
-
-    // 핸드폰번호 마스킹 함수 (010 입력 즉시 하이픈 추가, 오른쪽부터 마스킹)
-    const maskPhoneNumber = (number: string): string => {
-        if (number.startsWith('010')) {
-            if (number.length <= 3) return number;
-            else if (number.length <= 7) {
-                const part1 = number.slice(0, 3);
-                const part2 = number.slice(3);
-                return `${part1}-${part2}`;
-            } else if (number.length <= 11) {
-                const part1 = number.slice(0, 3);
-                const part2 = number.slice(3, 7);
-                const part3 = number.slice(7);
-
-                // 마지막 숫자는 보이게, 앞부분만 * 처리
-                if (part3.length <= 1) {
-                    return `${part1}-${part2}-${part3}`;
-                }
-                const maskedPart =
-                    '*'.repeat(part3.length - 1) + part3.slice(-1);
-
-                return `${part1}-${part2}-${maskedPart}`;
-            }
+    try {
+      await axios.get(`http://localhost:3001/api/members/${n}`);
+      localStorage.setItem("inputNumber", n);
+      setTimeout(() => navigate("/kiosk/user-confirm"), 1000);
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const status = err.response?.status;
+        if (status === 404) {
+          setShowSuccessModal(true);
+        } else {
+          setNotificationMessage("구강인증 서버 통신 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
         }
+      } else {
+        setNotificationMessage("구강인증 조회 중 알 수 없는 오류가 발생했습니다.");
+      }
+      // setShowNotificationModal(true); // 기존 주석 유지
+    }
+  };
 
-        // 그 외 번호 포맷
-        if (number.length <= 7) return number;
+  return (
+    <div style={{ width: '1080px', height: '1920px', background: 'linear-gradient(180deg, white 0%, #D4E1F3 100%)' }}>
+      <Header />
+      <HomeComponent onClick={undefined} />
 
-        const visiblePart = number.slice(0, 7);
-        const rest = number.slice(7);
-
-        if (rest.length <= 1) {
-            return visiblePart + rest;
-        }
-        const maskedPart =
-            '*'.repeat(rest.length - 1) + rest.slice(-1);
-
-        return visiblePart + maskedPart;
-    };
-
-
-    // 키패드 입력 처리
-    const handlePress = (value: number | string) => {
-        if (typeof value === 'number') {
-            if (inputNumber.length < 11) {
-                setInputNumber(prev => prev + value);
-            }
-        } else if (value === 'clear') {
-            setInputNumber('');
-        } else if (value === 'backspace') {
-            setInputNumber(prev => prev.slice(0, -1));
-        }
-    };
-
-    // 확인 버튼 클릭 처리
-    const handleConfirm = async () => {
-        const n = inputNumber.trim();
-        if (!n) return;
-
-        /** 1) 키오스크 회원 조회 */
-        try {
-            const kioskUser = await findUser(n);
-            // 키오스크에 '회원 없음'
-            if (!kioskUser) {
-                setNotificationMessage("일치하는 회원 정보가 없습니다.");
-                setShowNotificationModal(true);
-                return;
-            }
-            setShowSuccessModalName(kioskUser.resultData.username);
-        } catch (e) {
-            // 키오스크 서버/통신 에러
-            setNotificationMessage("네트워크 연결이 불안정 합니다.");
-            setShowNotificationModal(true);
-            return;
-        }
-
-        /** 2) 구강인증(서버) 회원 조회 */
-        try {
-            // userNo로 조회하는 라우트를 만든 경우 권장
-            await axios.get(`http://localhost:3001/api/members/${n}`);
-            // 만약 기존 라우트가 /api/members/:id 가 'id' 기반이면 위 경로를 프로젝트에 맞게 바꿔줘
-
-            localStorage.setItem("inputNumber", n);
-            setTimeout(() => navigate("/kiosk/user-confirm"), 1000);
-        } catch (err) {
-            if (axios.isAxiosError(err)) {
-                const status = err.response?.status;
-                console.log(err)
-
-                if (status === 404) {
-                    // 구강인증에 '회원 없음'
-                    setShowSuccessModal(true);
-                } else {
-                    // 구강인증 서버/통신 에러
-                    setNotificationMessage("구강인증 서버 통신 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
-                }
-            } else {
-                setNotificationMessage("구강인증 조회 중 알 수 없는 오류가 발생했습니다.");
-            }
-            // setShowNotificationModal(true);
-        }
-    };
-
-    // 키패드 버튼 스타일
-    const keypadButtonStyle: React.CSSProperties = {
-        width: '310px',
-        height: '140px',
-        background: 'transparent',
-        border: 'none',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        cursor: 'pointer',
-        fontFamily: 'Pretendard, Arial, sans-serif',
-        fontWeight: '700',
-        fontSize: '60px',
-        lineHeight: '0.93em',
-        textAlign: 'center',
-        color: '#111111',
-        // 하이라이트/포커스 제거용
-        outline: 'none',
-        WebkitTapHighlightColor: 'transparent' as any,
-        userSelect: 'none',
-        WebkitUserSelect: 'none',
-        MozUserSelect: 'none',
-        msUserSelect: 'none',
-        appearance: 'none' as any,
-        WebkitAppearance: 'none' as any,
-    };
-
-    // ⬇️ 추가: 숫자 버튼 렌더링 헬퍼 (눌리는 동안만 숫자 흰색)
-    const renderNumButton = (num: number) => (
-        <button
-            key={num}
-            type="button"
-            aria-label={String(num)}
-            style={keypadButtonStyle}
-            onMouseDown={() => setActiveKey(num)}
-            onMouseUp={() => setActiveKey(null)}
-            onMouseLeave={() => setActiveKey(null)}
-            onTouchStart={() => setActiveKey(num)}
-            onTouchEnd={() => setActiveKey(null)}
-            onClick={() => handlePress(num)}
-        >
-            <span style={{color: activeKey === num ? '#FFFFFF' : '#111111'}}>
-                {num}
-            </span>
-        </button>
-    );
-    const clearActive = () => setActiveKey(null)
-
-    return (
-
-        <div
-            style={{
-                width: '1080px', height: '1920px', background: 'linear-gradient(180deg, white 0%, #D4E1F3 100%)',
-            }}
-        >
-            {/* 기존 헤더 코드를 Header 컴포넌트로 교체 */}
-            <Header/>
-            <HomeComponent onClick={undefined}/>
-
-            {/* 안내문 */}
-            <div
-                style={{
-                    width: '900px',
-                    height: '120px',
-                    marginTop: '159px', marginLeft: '90px'
-                }}
-            >
-                <div style={{width: '822px', height: '120px', marginLeft: '39px'}}>
-                    <span
-                        style={{color: '#111111', fontSize: 46, fontFamily: 'Pretendard', fontWeight: '700'}}>&nbsp; 사용자 번호</span><span
-                    style={{color: '#111111', fontSize: 40, fontFamily: 'Pretendard', fontWeight: '600'}}> </span><span
-                    style={{color: '#595757', fontSize: 40, fontFamily: 'Pretendard', fontWeight: '400'}}>또는</span><span
-                    style={{color: '#111111', fontSize: 40, fontFamily: 'Pretendard', fontWeight: '400'}}> </span><span
-                    style={{
-                        color: '#111111',
-                        fontSize: 46,
-                        fontFamily: 'Pretendard',
-                        fontWeight: '700'
-                    }}>휴대폰 번호</span><span
-                    style={{color: '#595757', fontSize: 40, fontFamily: 'Pretendard', fontWeight: '400'}}>를 입력해주시거나<br/></span><span
-                    style={{color: '#111111', fontSize: 46, fontFamily: 'Pretendard', fontWeight: '700'}}>사용자 바코드</span><span
-                    style={{color: '#111111', fontSize: 40, fontFamily: 'Pretendard', fontWeight: '600'}}> </span><span
-                    style={{color: '#595757', fontSize: 40, fontFamily: 'Pretendard', fontWeight: '400'}}>또는</span><span
-                    style={{color: '#111111', fontSize: 40, fontFamily: 'Pretendard', fontWeight: '600'}}> </span><span
-                    style={{
-                        color: '#111111',
-                        fontSize: 46,
-                        fontFamily: 'Pretendard',
-                        fontWeight: '700'
-                    }}>QR코드</span><span
-                    style={{
-                        color: '#595757',
-                        fontSize: 40,
-                        fontFamily: 'Pretendard',
-                        fontWeight: '400'
-                    }}>를 리더기에 대주세요.</span>
-                </div>
-            </div>
-
-            {/* 입력 필드 */}
-            <div
-                style={{
-                    width: '860px',
-                    height: '170px',
-                    background: 'white',
-                    boxShadow: '0px 4px 2px rgba(0, 0, 0, 0.09)',
-                    borderRadius: '16px',
-                    marginLeft: '110px',
-                    marginTop: '140px'
-                }}
-            >
-                <div
-                    style={{
-                        height: '170px',
-                        textAlign: 'center',
-                        justifyContent: 'center',
-                        display: 'flex',
-                        flexDirection: 'column'
-                    }}
-                >
-                    {inputNumber === '' ? (
-                        <span style={{
-                            color: '#B5B5B6',
-                            fontSize: '44px',
-                            fontWeight: '600',
-                            lineHeight: '56px'
-                        }}>
-                            사용자 번호 또는 휴대폰 번호
-                        </span>
-                    ) : (
-                        <span style={{
-                            color: "#111111",
-                            fontSize: 68,
-                            fontFamily: "Jalnan2",
-                            fontWeight: 400,
-                            lineHeight: "56px",
-                            wordWrap: "break-word",
-                        }}>
-                            {maskPhoneNumber(inputNumber)}
-                        </span>
-                    )}
-                </div>
-            </div>
-
-            {/* 키패드 */}
-            <div
-                style={{
-                    width: '970px',
-                    height: '590px',
-                    marginLeft: '55px',
-                    marginTop: '95px',
-                    position: 'relative'
-                }}
-            >
-                {/* 첫 번째 줄: 1, 2, 3 */}
-                <div style={{
-                    position: 'absolute',
-                    top: '0px',
-                    left: '0px',
-                    display: 'flex',
-                    width: '100%',
-                    justifyContent: 'space-between'
-                }}>
-                    {renderNumButton(1)}
-                    {renderNumButton(2)}
-                    {renderNumButton(3)}
-                </div>
-
-                {/* 두 번째 줄: 4, 5, 6 */}
-                <div style={{
-                    position: 'absolute',
-                    top: '150px',
-                    left: '0px',
-                    display: 'flex',
-                    width: '100%',
-                    justifyContent: 'space-between'
-                }}>
-                    {renderNumButton(4)}
-                    {renderNumButton(5)}
-                    {renderNumButton(6)}
-                </div>
-
-                {/* 세 번째 줄: 7, 8, 9 */}
-                <div style={{
-                    position: 'absolute',
-                    top: '300px',
-                    left: '0px',
-                    display: 'flex',
-                    width: '100%',
-                    justifyContent: 'space-between'
-                }}>
-                    {renderNumButton(7)}
-                    {renderNumButton(8)}
-                    {renderNumButton(9)}
-                </div>
-
-                {/* 네 번째 줄: 전체삭제, 0, 삭제 */}
-                <div style={{
-                    position: 'absolute',
-                    top: '450px',
-                    left: '0px',
-                    display: 'flex',
-                    width: '100%',
-                    justifyContent: 'space-between'
-                }}>
-                    <button
-                        type="button"
-                        aria-label="전체삭제"
-                        style={{...keypadButtonStyle, fontSize: '38px', lineHeight: '1.47em'}}
-                        onPointerDown={() => setActiveKey('clear')}
-                        onPointerUp={clearActive}
-                        onPointerCancel={clearActive}
-                        onPointerLeave={clearActive}
-                        onFocus={(e) => e.currentTarget.blur()}
-                        onClick={() => handlePress('clear')}
-                    >
-  <span style={{color: activeKey === 'clear' ? '#FFFFFF' : '#111111'}}>
-    전체삭제
-  </span>
-                    </button>
-
-
-                    {renderNumButton(0)}
-
-                    <button
-                        type="button"
-                        aria-label="삭제"
-                        onMouseDown={(e) => e.preventDefault()}   // 포커스 잔상 제거
-                        onPointerDown={() => setActiveKey('backspace')}
-                        onPointerUp={() => setActiveKey(null)}
-                        onPointerCancel={() => setActiveKey(null)}
-                        onPointerLeave={() => setActiveKey(null)}
-                        onContextMenu={(e) => e.preventDefault()}
-                        onClick={() => handlePress('backspace')}
-                        style={{
-                            width: '310px',
-                            height: '140px',
-                            background: 'transparent',
-                            border: 'none',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            cursor: 'pointer',
-                            outline: 'none',
-                            WebkitTapHighlightColor: 'transparent' as any,
-                            userSelect: 'none',
-                            WebkitUserSelect: 'none' as any,
-                            MozUserSelect: 'none',
-                            msUserSelect: 'none',
-                            appearance: 'none' as any,
-                            WebkitAppearance: 'none' as any,
-                            touchAction: 'manipulation',
-                        }}
-                    >
-                        <div
-                            style={{
-                                width: '88.82px',
-                                height: '56px',
-                                borderRadius: '8px',
-                                display: 'flex',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                            }}
-                        >
-                            <img
-                                src={
-                                    activeKey === 'backspace'
-                                        ? '/public/assets/icon/backspace_active.svg' // 눌렀을 때 아이콘
-                                        : '/public/assets/icon/backspace.svg'        // 기본 아이콘
-                                }
-                                alt="삭제"
-                                draggable={false}
-                            />
-                        </div>
-                    </button>
-                </div>
-            </div>
-
-            {/* 확인 버튼 */}
-            <div
-                onClick={handleConfirm}
-                style={{
-                    width: '630px',
-                    height: '120px',
-                    background: '#004F99',
-                    borderRadius: '16px',
-                    boxShadow: '0px 4px 2px rgba(0,0,0,0.09)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginLeft: '225px',
-                    marginTop: '65px',
-                    cursor: 'pointer'
-                }}
-            >
-                <span
-                    style={{
-                        color: '#ffffff',
-                        fontSize: '44px',
-                        fontWeight: '600',
-                        lineHeight: 1.27,
-                        textAlign: 'center'
-                    }}
-                >
-                    확인
-                </span>
-            </div>
-
-            {/* 바코드/QR코드 영역 */
-            }
-            <div
-                style={{
-                    width: '900px',
-                    height: '120px',
-                    background: '#383839',
-                    boxShadow: '0px 4px 2px rgba(0, 0, 0, 0.09)',
-                    borderTopLeftRadius: '16px',
-                    borderTopRightRadius: '16px',
-                    marginTop: '189px',
-                    marginLeft: '90px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                }}
-            >
-                <div
-                    style={{
-                        textAlign: 'center',
-                        color: 'white',
-                        fontSize: '44px',
-                        fontWeight: '600',
-                        lineHeight: '56px',
-                        display: 'flex',
-                        alignItems: 'center'
-                    }}
-                >
-                    <img
-                        src="/assets/icon/barcode_location.svg"
-                        alt=""
-                        width="40"
-                        height="34"
-                        style={{marginRight: '30px'}}
-                    />
-                    바코드 / QR 코드 대는 곳
-                </div>
-            </div>
-            <ToothbrushModal
-                isOpen={showSuccessModal}
-                onClose={() => setShowSuccessModal(false)}
-                autoShow={false}
-                name={showSuccessModalName}
-            />
-            {/* 알림창 */
-            }
-            <NotificationModal
-                isVisible={showNotificationModal}
-                message={notificationMessage}
-            />
+      {/* 안내문 (그대로) */}
+      <div style={{ width: '900px', height: '120px', marginTop: '159px', marginLeft: '90px' }}>
+        <div style={{ width: '822px', height: '120px', marginLeft: '39px' }}>
+          <span style={{ color: '#111111', fontSize: 46, fontFamily: 'Pretendard', fontWeight: 700 }}>&nbsp; 사용자 번호</span>
+          <span style={{ color: '#111111', fontSize: 40, fontFamily: 'Pretendard', fontWeight: 600 }}> </span>
+          <span style={{ color: '#595757', fontSize: 40, fontFamily: 'Pretendard', fontWeight: 400 }}>또는</span>
+          <span style={{ color: '#111111', fontSize: 40, fontFamily: 'Pretendard', fontWeight: 400 }}> </span>
+          <span style={{ color: '#111111', fontSize: 46, fontFamily: 'Pretendard', fontWeight: 700 }}>휴대폰 번호</span>
+          <span style={{ color: '#595757', fontSize: 40, fontFamily: 'Pretendard', fontWeight: 400 }}>를 입력해주시거나<br/></span>
+          <span style={{ color: '#111111', fontSize: 46, fontFamily: 'Pretendard', fontWeight: 700 }}>사용자 바코드</span>
+          <span style={{ color: '#111111', fontSize: 40, fontFamily: 'Pretendard', fontWeight: 600 }}> </span>
+          <span style={{ color: '#595757', fontSize: 40, fontFamily: 'Pretendard', fontWeight: 400 }}>또는</span>
+          <span style={{ color: '#111111', fontSize: 40, fontFamily: 'Pretendard', fontWeight: 600 }}> </span>
+          <span style={{ color: '#111111', fontSize: 46, fontFamily: 'Pretendard', fontWeight: 700 }}>QR코드</span>
+          <span style={{ color: '#595757', fontSize: 40, fontFamily: 'Pretendard', fontWeight: 400 }}>를 리더기에 대주세요.</span>
         </div>
-    )
-        ;
+      </div>
+
+      {/* 입력 표시 컴포넌트 */}
+      <MaskedPhoneDisplay value={inputNumber} />
+
+      {/* 키패드 컴포넌트 */}
+      <NumberKeypad onPress={handlePress} />
+
+      {/* 확인 버튼 (그대로) */}
+      <div
+        onClick={handleConfirm}
+        style={{
+          width: '630px', height: '120px', background: '#004F99', borderRadius: '16px',
+          boxShadow: '0px 4px 2px rgba(0,0,0,0.09)', display: 'flex', alignItems: 'center',
+          justifyContent: 'center', marginLeft: '225px', marginTop: '65px', cursor: 'pointer'
+        }}
+      >
+        <span style={{ color: '#ffffff', fontSize: '44px', fontWeight: 600, lineHeight: 1.27, textAlign: 'center' }}>
+          확인
+        </span>
+      </div>
+
+      {/* 바코드/QR 영역 (그대로) */}
+      <div
+        style={{
+          width: '900px', height: '120px', background: '#383839', boxShadow: '0px 4px 2px rgba(0, 0, 0, 0.09)',
+          borderTopLeftRadius: '16px', borderTopRightRadius: '16px', marginTop: '189px', marginLeft: '90px',
+          display: 'flex', alignItems: 'center', justifyContent: 'center'
+        }}
+      >
+        <div style={{ textAlign: 'center', color: 'white', fontSize: '44px', fontWeight: 600, lineHeight: '56px', display: 'flex', alignItems: 'center' }}>
+          <img src="/assets/icon/barcode_location.svg" alt="" width="40" height="34" style={{ marginRight: '30px' }} />
+          바코드 / QR 코드 대는 곳
+        </div>
+      </div>
+
+      {/* 성공(양치) 모달 & 알림 모달 */}
+      <ToothbrushModal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        autoShow={false}
+        name={showSuccessModalName}
+      />
+      <NotificationModal
+        isVisible={showNotificationModal}
+        message={notificationMessage}
+        maskedPhoneText={maskPhoneNumber(inputNumber)}
+        // onConfirm={() => setShowNotificationModal(false)} // 필요하면 이렇게 닫기만
+      />
+    </div>
+  );
 };
 
 export default UserFindPage;
