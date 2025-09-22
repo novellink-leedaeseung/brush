@@ -1,5 +1,7 @@
+import {config} from "../../config.ts";
+
 // 간단한 fetch 래퍼 (Vite)
-const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3001";
+const BASE_URL = config.apiBaseUrl ?? "http://localhost:3001";
 
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers ?? {});

@@ -159,7 +159,7 @@ const saveCurrentUserRank = (rank: number | null) => {
     }
 }
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3001'
+const API_BASE = config.apiBaseUrl ?? 'http://localhost:3001'
 
 /* =========================
  * API fetch (data.items 스키마)

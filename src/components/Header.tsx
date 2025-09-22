@@ -1,4 +1,6 @@
 import React, {useState, useEffect} from 'react';
+import {config} from '../config.ts';
+
 
 interface HeaderProps {
     title?: string;
@@ -99,7 +101,7 @@ const Header: React.FC<HeaderProps> = ({
                     <div style={{
                         width: '600px',
                         height: "70px",
-                    }}>{import.meta.env.VITE_TITLETEXT}</div>
+                    }}>{config.titleText}</div>
                 </div>
             </div>
 

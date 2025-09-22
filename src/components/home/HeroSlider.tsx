@@ -1,12 +1,14 @@
 // HeroSlider.tsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import {config} from '../../config.ts';
+
 
 const HERO_W = 1080;
 const HERO_H = 608;
 const FALLBACK_SEC = 5;
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";   // ✅ .env 사용
-const SLIDE_SEC = Number(import.meta.env.VITE_SLIDE_TIME ?? FALLBACK_SEC);
+const API_BASE = config.apiBaseUrl ?? "";
+const SLIDE_SEC = Number(config.slideTime ?? FALLBACK_SEC);
 
 // ✅ 누락됐던 함수: 상대경로를 절대 URL로
 function toAbs(path: string) {

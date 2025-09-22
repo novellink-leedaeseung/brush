@@ -9,6 +9,8 @@ import RegistrationCompletePage from './pages/RegistrationCompletePage'
 import IdleRedirect from "./utils/IdleRedirect.tsx";
 import './index.css'
 import {useNoZoomNoContext} from "./utils/useNoZoomNoContext.tsx";
+import {config} from './config.ts';
+
 
 function App() {
     useNoZoomNoContext();
@@ -16,7 +18,7 @@ function App() {
         <RankingProvider>
             <Router>
                 {/*todo 나중에 보여줄 때는 타이머 조정할것!*/}
-                <IdleRedirect timeout={import.meta.env.VITE_TIMEOUT*1000} to="/">
+                <IdleRedirect timeout={config.timeout*1000} to="/">
                     <div style={{width: '1080px', height: '1920px', margin: '0 auto'}}>
                         <Routes>
                             <Route path="/" element={<HomePage/>}/>
