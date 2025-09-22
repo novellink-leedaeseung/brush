@@ -101,7 +101,7 @@ const HeroSlider: React.FC = () => {
       {slides.map((item, index) => {
         const visible = index === current;
         const baseStyle: React.CSSProperties = {
-          width: "100%", height: "100%", objectFit: "cover",
+          width: "100%", height: "100%",
           position: "absolute", top: 0, left: 0,
           opacity: visible ? 1 : 0, transition: "opacity 0.7s ease-in-out",
           pointerEvents: visible ? "auto" : "none",
