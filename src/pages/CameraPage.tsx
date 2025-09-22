@@ -43,11 +43,14 @@ const CameraPage: React.FC = () => {
 
             {/* 카메라 버튼 */}
             <div style={{
-                outline: '0.50px #4C4948 solid', outlineOffset: '-0.25px',
+                borderTop: '0.5px solid rgb(76, 73, 72)',
+                outlineOffset: '-0.25px',
                 width: '1080px',
                 height: '352px',
                 background: 'white',
                 overflow: 'hidden',
+                position: 'relative',
+                zIndex: 10,
             }}>
                 <div style={{
                     width: '250px',

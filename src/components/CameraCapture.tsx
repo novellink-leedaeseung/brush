@@ -271,6 +271,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
             marginTop: '0px',
             position: 'relative',
             borderBottom: '2px solid white',
+            zIndex: 10
         }}>
             {/* 3초 카운트다운 오버레이 */}
             {isCountdownActive && (
@@ -349,7 +350,6 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
                     height: '100%',
                     objectFit: 'cover',
                     backgroundColor: '#000',
-                    zIndex: 1
                 }}
             />
 
@@ -362,10 +362,9 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
                     top: 150,
                     left: 140,
                     width: '800px',
-                    height: '1418px',
+                    height: '1419px',
                     objectFit: 'cover',
                     pointerEvents: 'none',
-                    zIndex: 5
                 }}
             />
 
