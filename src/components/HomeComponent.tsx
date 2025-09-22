@@ -84,14 +84,14 @@ const HomeComponent: React.FC<HomeComponentProps> = ({
                     background: '#E7EAF3', borderRadius: 9999
                 }}><img
                     style={{
-                        marginLeft: '20px',
-                        marginTop: '20px',
+                        marginLeft: '17px',
+                        marginTop: '18px',
                     }}
                     alt="Home icon"
                     className="block max-w-none size-full"
                     src={homeIconSrc}
                     draggable={false}
-                    width="38" height="41"
+                    width="45" height="43"
                 /></div>
             </div>
         </div>
