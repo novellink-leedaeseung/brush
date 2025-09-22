@@ -1,5 +1,5 @@
 // pages/UserFindPage.tsx
-import React, { useState } from 'react';
+import React, {useCallback, useState} from 'react';
 import { findUser } from "../api/UserFind.ts";
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
@@ -11,6 +11,7 @@ import ToothbrushModal from "../components/userFind/ToothbrushModal.tsx";
 import NotificationModal from "../components/userFind/NotificationModal.tsx";
 import NumberKeypad from "../components/userFind/NumberKeypad.tsx";
 import MaskedPhoneDisplay, { maskPhoneNumber } from "../components/userFind/MaskedPhoneDisplay.tsx";
+import {flushSync} from "react-dom";
 
 const UserFindPage: React.FC = () => {
   const navigate = useNavigate();
@@ -21,15 +22,20 @@ const UserFindPage: React.FC = () => {
   const [showSuccessModalName, setShowSuccessModalName] = useState<string>('테스트');
 
   // 입력 처리 (기존 로직 그대로)
-  const handlePress = (value: number | 'clear' | 'backspace') => {
-    if (typeof value === 'number') {
-      if (inputNumber.length < 11) setInputNumber(prev => prev + value);
-    } else if (value === 'clear') {
-      setInputNumber('');
-    } else if (value === 'backspace') {
-      setInputNumber(prev => prev.slice(0, -1));
-    }
-  };
+  const handlePress = useCallback((value: number | 'clear' | 'backspace') => {
+  // 입력 상태 갱신을 즉시 플러시
+  flushSync(() => {
+    setInputNumber(prev => {
+      if (typeof value === 'number') {
+        return prev.length < 11 ? prev + value : prev;
+      }
+      if (value === 'clear') return '';
+      if (value === 'backspace') return prev.slice(0, -1);
+      return prev;
+    });
+  });
+}, []);
+
 
   // 확인 버튼 클릭 (기존 로직 그대로)
   const handleConfirm = async () => {
