@@ -399,7 +399,7 @@ const RankingSection: React.FC = () => {
                                             gap: 12,
                                         }}
                                     >
-                                        <div style={{fontSize: "32px", color: "#4C4948"}}>{user.time}</div>
+                                        <div style={{fontSize: "25px", color: "#4C4948", textAlign: "center", width: "250px"}}>{user.time}</div>
                                     </div>
                                 )}
                             </React.Fragment>
