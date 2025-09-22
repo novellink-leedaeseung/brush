@@ -125,7 +125,7 @@ const Header: React.FC<HeaderProps> = ({
                     fontSize: '36px',
                     color: 'white',
                     letterSpacing: '-0.9px',
-                    width: '190px',
+                    width: '200px',
                     textAlign: 'center'
                 }}>
                     <p style={{marginBottom: 0}}>{currentDate}</p>
