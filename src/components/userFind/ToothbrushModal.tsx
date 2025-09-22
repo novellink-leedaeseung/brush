@@ -32,7 +32,7 @@ const ToothbrushModal = ({isOpen, onClose, autoShow = true, name = '테스트'})
         const timer = setTimeout(() => {
             // 라우터 안 쓴다고 했으니 브라우저 이동
             window.location.replace('/'); // 필요하면 경로 바꿔줘요
-        }, 3000); // 3초
+        }, import.meta.env.VITE_TOUUTHBRUSHMODAL_TIMEOUT); // 3초
 
         return () => clearTimeout(timer); // 닫기/언마운트 시 정리
     }, [showModal]);
