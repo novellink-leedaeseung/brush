@@ -6,6 +6,7 @@ import TransparentOverlayButton from '../components/home/TransparentOverlayButto
 import HeroSlider from '../components/home/HeroSlider.tsx';
 import '/index.css';
 import ExitConfirmationModal from '../components/home/modal/ExitConfirmationModal.tsx';
+import TransparentHitArea from "../components/home/TransparentHitArea.tsx";
 // import { TransparentHotspotButton } from '../components/home/TransparentHotspotButton.tsx'; // ❌ 이번 동작엔 불필요
 
 const HEADER_H = 150;  // Header 실제 높이(px) 맞춰 조정
@@ -93,7 +94,6 @@ const HomePage: React.FC = () => {
                 <Header/>
             </div>
 
-            {/* (불필요) <TransparentHotspotButton onClick={handleOverlayPress} /> */}
 
             {/* 상단 이미지 (고정) */}
             <HeroSlider/>
@@ -102,6 +102,10 @@ const HomePage: React.FC = () => {
             <div style={{height: 688}}>
                 <RankingSection/>
             </div>
+
+            <TransparentHitArea top={890}/>
+
+            {/* 양치왕 까지 투명 버튼 영역*/}
 
             {/* 하단 터치 버튼 (고정) */}
             <div style={{height: FOOTER_H}}>
