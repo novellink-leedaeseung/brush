@@ -53,7 +53,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
           </div>
 
           <div style={{
-            width: '560px', height: '80px', display: 'flex',
+            width: '700px', height: '80px', display: 'flex',
             alignItems: 'center', justifyContent: 'center', marginBottom: '18px'
           }}>
             <span style={{
