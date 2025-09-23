@@ -1,27 +1,38 @@
-import axios from "axios";
-import type {AuthKioskResponse, AuthUserResponse} from "@/api/Response";
+// ApiAxios.ts
+import axios from 'axios'
+import { config } from '@/config'   // { novelBase: 'https://novel.rosq', ... }
 
-const api = axios.create({
-    baseURL: "/api",
-    timeout: 15000,
-});
+const isDev = import.meta.env.DEV
 
-// auth-kiosk 가져오기
-export async function getKioskAuth(kioskName :string): Promise<AuthKioskResponse> {
-    const res = await api.post<AuthKioskResponse>("/auth-kiosk", {
-        "kioskid": `${kioskName}`,
-    });
-
-    return res.data;
+function normalizeBase(b?: string) {
+  let base = (b ?? '').trim()
+  if (!/^https?:\/\//i.test(base)) base = 'http://' + base
+  return base.replace(/\/+$/g, '')
 }
 
-// auth-user 조회
-export async function getAuthUser(userId :string, type :string, token :string): Promise<AuthUserResponse> {
-    const res = await api.post<AuthUserResponse>("/auth-user", {
-        "userid": `${userId}`,
-        "type": `${type? type : "phone"}`,
-        "token": `${token}`,
-    });
-
-    return res.data;
+function ensureApiBase(b?: string) {
+  const base = normalizeBase(b)
+  return /\/api$/i.test(base) ? base : base + '/api'
 }
+
+// ✅ 핵심: /api는 novel.rosq로 보냄
+const NOVEL_API_BASE = isDev
+  ? '/api'                         // dev: Vite proxy → novel.rosq
+  : ensureApiBase("https://novel.rosq.co.kr:8488/") // prod: 절대 URL로 직접 호출
+
+export const api = axios.create({
+  baseURL: NOVEL_API_BASE, // 항상 /api 계열은 여기로
+  timeout: 15000,
+  withCredentials: true,
+})
+
+// 사용 예시는 그대로 리소스만 넘겨
+export const getKioskAuth = (kioskName: string) =>
+  api.post('/auth-kiosk', { kioskid: kioskName }).then(r => r.data)
+
+export const getAuthUser = (userId: string, type: string, token: string) =>
+  api.post('/auth-user', {
+    userid: userId,
+    type: type || 'phone',
+    token,
+  }).then(r => r.data)
