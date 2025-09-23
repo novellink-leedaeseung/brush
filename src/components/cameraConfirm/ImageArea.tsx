@@ -5,8 +5,13 @@ type Props = { capturedImage: string; onRetake: () => void; onError: () => void 
 const ImageArea: React.FC<Props> = ({capturedImage, onRetake, onError}) => {
     if (capturedImage) {
         return (
-            <img id="capturedImg" alt="촬영 이미지" width={798} height={1418} style={{marginLeft: 141}} src={capturedImage}
-                 onError={onError}/>
+            <div style={{width: 798, height: 1418, marginLeft: 141, position: "relative"}}>
+                <img
+                    id="capturedImg" alt="촬영 이미지"
+                    style={{zIndex: 10}}
+                    src={capturedImage}
+                    onError={onError}/>
+            </div>
         )
     }
     return (
