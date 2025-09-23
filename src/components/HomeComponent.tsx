@@ -34,9 +34,6 @@ const HomeComponent: React.FC<HomeComponentProps> = ({
                                                          showTooltip = false,
                                                          tooltipText = '홈으로 이동'
                                                      }) => {
-    // 홈 아이콘 이미지 경로
-    const homeIconSrc = "/assets/icon/home.svg";
-
     // 위치 스타일 계산
     const positionStyle: CSSProperties = position === 'fixed' || position === 'absolute' ? {
         position: position,
@@ -89,7 +86,7 @@ const HomeComponent: React.FC<HomeComponentProps> = ({
                     }}
                     alt="Home icon"
                     className="block max-w-none size-full"
-                    src={homeIconSrc}
+                    src={"/assets/icon/home.svg"}
                     draggable={false}
                     width="45" height="43"
                 /></div>
