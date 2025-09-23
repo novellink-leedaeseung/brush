@@ -73,7 +73,7 @@ const CameraPage: React.FC = () => {
                 >
                     <img
                         style={{ margin: '80px' }}
-                        src="/public/assets/icon/camera.svg"
+                        src="/assets/icon/camera.svg"
                         alt=""
                     />
                 </div>

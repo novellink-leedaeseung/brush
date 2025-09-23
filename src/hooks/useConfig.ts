@@ -12,7 +12,7 @@ export function useConfig() {
   const [config, setConfig] = useState<AppConfig | null>(null);
 
   useEffect(() => {
-    fetch("/public/config.json")
+    fetch("/config.json")
       .then((res) => res.json())
       .then(setConfig);
   }, []);

@@ -17,7 +17,7 @@ export const Timeout: React.FC<TimeoutProps> = ({
                             primaryMessage = "시간이 초과되었습니다.",
                             secondaryMessage = "대기화면으로 이동합니다.",
                             showIcon = true,
-                            iconSrc: _iconSrc = "/public/assets/icon/warning.svg", // iconSrc를 _iconSrc로 변경하여 사용하지 않음을 표시
+                            iconSrc: _iconSrc = "/assets/icon/warning.svg", // iconSrc를 _iconSrc로 변경하여 사용하지 않음을 표시
                             onClose,
                             className = '',
                             style = {},
@@ -94,7 +94,7 @@ export const Timeout: React.FC<TimeoutProps> = ({
                     />
 
                     {/* 아이콘 Frame - margin으로 위치 설정 */}
-                    <img src="/public/assets/icon/warning.svg" alt="" width="130" height="130" style={{
+                    <img src="/assets/icon/warning.svg" alt="" width="130" height="130" style={{
                         marginTop: '60px',
                         marginLeft: '401px',
                     }}/>

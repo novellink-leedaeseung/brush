@@ -37,7 +37,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
             width: '130px', height: '130px', borderRadius: '50%',
             display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px'
           }}>
-            <img src="/public/assets/icon/warning.svg" alt=""/>
+            <img src="/assets/icon/warning.svg" alt=""/>
           </div>
 
           <div style={{

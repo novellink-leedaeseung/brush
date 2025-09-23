@@ -184,8 +184,8 @@ const NumberKeypad: React.FC<NumberKeypadProps> = ({ onPress }) => {
             <img
               src={
                 activeKey === "backspace"
-                  ? "/public/assets/icon/backspace_active.svg"
-                  : "/public/assets/icon/backspace.svg"
+                  ? "/assets/icon/backspace_active.svg"
+                  : "/assets/icon/backspace.svg"
               }
               alt="삭제"
               draggable={false}

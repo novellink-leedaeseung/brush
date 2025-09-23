@@ -30,7 +30,7 @@ const CompleteModal = ({isVisible}: { isVisible: boolean }) => {
                 alignItems: 'center'
             }}>
                 <div style={{marginTop: 60, display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-                    <img src="/public/assets/icon/ticktick.svg" alt="완료"
+                    <img src="/assets/icon/ticktick.svg" alt="완료"
                          style={{width: 130, height: 130, objectFit: 'contain'}}/>
                 </div>
                 <div style={{width: 570, height: 90, marginTop: 75}}>

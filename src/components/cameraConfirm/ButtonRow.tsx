@@ -39,7 +39,7 @@ const ButtonRow: React.FC<ButtonRowProps> = ({onRetake, onHome, onRegister, isUp
                 alignItems: 'center',
                 gap: 36
             }}>
-                <div style={{width: 110, height: 110.84}}><img src="/public/assets/icon/retake.svg" alt="재촬영"/></div>
+                <div style={{width: 110, height: 110.84}}><img src="/assets/icon/retake.svg" alt="재촬영"/></div>
                 <div style={{
                     alignSelf: 'stretch',
                     height: 43,
@@ -58,7 +58,7 @@ const ButtonRow: React.FC<ButtonRowProps> = ({onRetake, onHome, onRegister, isUp
         </div>
 
 
-        <ActionCard icon={<img src="/public/assets/icon/home.svg" alt="홈"/>} label="처음화면" onClick={onHome}/>
+        <ActionCard icon={<img src="/assets/icon/home.svg" alt="홈"/>} label="처음화면" onClick={onHome}/>
 
 
         <ActionCard
@@ -69,7 +69,7 @@ const ButtonRow: React.FC<ButtonRowProps> = ({onRetake, onHome, onRegister, isUp
                 borderTop: '8px solid #004F99',
                 borderRadius: '50%',
                 animation: 'spin 1s linear infinite'
-            }}/> : <img src="/public/assets/icon/toothbrush.svg" alt="양치"/>}
+            }}/> : <img src="/assets/icon/toothbrush.svg" alt="양치"/>}
             label={isUploading ? '저장 중...' : '등록'} onClick={onRegister} disabled={isUploading} dimLabel={isUploading}
         />
     </div>

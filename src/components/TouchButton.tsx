@@ -28,7 +28,7 @@ const TouchButton: React.FC<TouchButtonProps> = ({ to, text = "화면을 터치�
         margin: 0,
     }}>
       <div style={{ }}>
-        <img src="/public/assets/icon/pinger.gif" style={{
+        <img src="/assets/icon/pinger.gif" style={{
           width: 'auto',
           height: 'auto',
           marginBottom: '10px'

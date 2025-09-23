@@ -37,7 +37,7 @@ interface RankingUser {
     isVacant?: boolean; // 빈자리 여부
 }
 
-const PLACEHOLDER_IMG = "/public/assets/icon/user.svg";
+const PLACEHOLDER_IMG = "/assets/icon/user.svg";
 
 const makeVacantUser = (rank: number): RankingUser => ({
     rank,
@@ -57,8 +57,8 @@ const mapApiToRankingUser = (item: MembersApiItem, rank: number): RankingUser =>
 
     const profileImage =
         item.gender === "남자"
-            ? "/public/assets/images/man.png"
-            : "/public/assets/images/woman.png";
+            ? "/assets/images/man.png"
+            : "/assets/images/woman.png";
 
     return {
         rank,
@@ -260,7 +260,7 @@ const RankingSection: React.FC = () => {
                             touchAction: "manipulation",
                         }}
                     >
-                        <img src="/public/assets/icon/left.svg" alt="prev" draggable={false}/>
+                        <img src="/assets/icon/left.svg" alt="prev" draggable={false}/>
                     </button>
 
                     <div
@@ -307,7 +307,7 @@ const RankingSection: React.FC = () => {
                             touchAction: "manipulation",
                         }}
                     >
-                        <img src="/public/assets/icon/right.svg" alt="next"/>
+                        <img src="/assets/icon/right.svg" alt="next"/>
                     </button>
                 </div>
             </div>

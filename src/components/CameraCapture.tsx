@@ -396,7 +396,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
                         justifyContent: 'center'
                     }}
                 >
-                    <img src="/public/assets/icon/left.svg" alt=""/>
+                    <img src="/assets/icon/left.svg" alt=""/>
                 </button>
                 <button
                     onClick={nextOverlay}
