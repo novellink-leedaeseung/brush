@@ -14,12 +14,11 @@ function createWindow() {
     }
   });
 
-  // 개발 환경에서는 Vite 서버, 프로덕션에서는 빌드된 파일 로드
+  const indexHtmlPath = path.join(__dirname, 'dist', 'index.html');
+  mainWindow.loadFile(indexHtmlPath);
+
   if (isDev) {
-    mainWindow.loadURL('http://localhost:5173');
     mainWindow.webContents.openDevTools();
-  } else {
-    mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
   }
 }
 
