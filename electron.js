@@ -1,8 +1,19 @@
 // electron.js
-const {app, BrowserWindow, protocol} = require('electron');
+const {app, BrowserWindow, protocol, ipcMain} = require('electron');
 const path = require('path');
 const url = require('url');
 const isDev = require('electron-is-dev');
+
+app.whenReady().then(() => {
+    registerAssetProtocols(); // ★ 윈도우 생성 전 등록
+    createWindow();
+
+    // ✅ 렌더러에서 "app:quit" 신호 오면 앱 종료
+    ipcMain.handle('app:quit', async () => {
+        app.quit();   // before-quit, will-quit 이벤트 정상 발생
+    });
+});
+
 
 function getAssetsBase() {
     // dev: 프로젝트/public/assets , prod: resources/assets
@@ -64,7 +75,6 @@ function createWindow() {
 
     if (isDev) mainWindow.webContents.openDevTools();
 }
-
 app.whenReady().then(() => {
     registerAssetProtocols(); // ★ 윈도우 생성 전 등록
     createWindow();
