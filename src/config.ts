@@ -38,6 +38,7 @@ export const config = {
 
     // ✅ 로고 파일명 (public/assets 등 정적 경로에 위치해야 함)
     //    화면 좌측 상단이나 타이틀 영역에 표시할 이미지
+    // 파일 업로드 후에는 실제 파일명에 맞게 수정해야 함
     logo: "novellink.png"
 }
 
