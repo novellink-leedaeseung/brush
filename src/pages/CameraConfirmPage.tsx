@@ -94,8 +94,7 @@ const CameraConfirmPage: React.FC = () => {
 
 
     const handleRegister = async () => {
-// let lunch = isLunchTime(); // todo 원상복귀 필요
-        let lunch = true // 테스트: 원본 그대로 유지
+        let lunch = isLunchTime(); // todo 원상복귀 필요
         if (isUploading) return
         if (!lunch) {
             setShowLunchModal(true);
