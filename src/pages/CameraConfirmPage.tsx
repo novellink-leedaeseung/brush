@@ -9,11 +9,12 @@ import ImageArea from "../components/cameraConfirm/ImageArea.tsx";
 import ButtonRow from "../components/cameraConfirm/ButtonRow.tsx";
 import LunchFalseModal from "../components/LunchFalseModal.tsx";
 import CompleteModal from "../components/cameraConfirm/CompleteModal.tsx";
+import {config} from "../config.ts";
 
 
 const isLunchTime = () => {
     const h = new Date().getHours();
-    return h >= 12 && h < 13
+    return h >= config.lunchStartTime && h < config.lunchEndTime
 }
 
 
