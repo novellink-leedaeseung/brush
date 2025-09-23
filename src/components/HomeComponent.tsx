@@ -35,7 +35,7 @@ const HomeComponent: React.FC<HomeComponentProps> = ({
                                                          tooltipText = '홈으로 이동'
                                                      }) => {
     // 홈 아이콘 이미지 경로
-    const homeIconSrc = "/public/assets/icon/home.svg";
+    const homeIconSrc = "/assets/icon/home.svg";
 
     // 위치 스타일 계산
     const positionStyle: CSSProperties = position === 'fixed' || position === 'absolute' ? {
