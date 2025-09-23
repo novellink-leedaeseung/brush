@@ -89,7 +89,7 @@ const CameraConfirmPage: React.FC = () => {
         setTimeout(() => {
             setShowCompleteModal(false);
             clearCapturedImage();
-            window.location.replace('/')
+            window.location.href = window.location.origin + window.location.pathname + "#/"
         }, 2000)
     }
 

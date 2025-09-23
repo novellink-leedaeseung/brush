@@ -47,7 +47,7 @@ export default function IdleRedirect({
 
       timerRef.current = setTimeout(() => {
         setShowTimeoutWarning(false);
-        window.location.href = to;
+        window.location.href = window.location.origin + window.location.pathname + "#/"
       }, warningTime);
     }, warningDelay);
   };
