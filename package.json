@@ -68,6 +68,7 @@
     },
     "files": [
       "dist/**/*",
+      "dist/**",
       "electron.js",
       "public/assets/**/*",
       "node_modules/**/*",
@@ -106,6 +107,13 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true
-    }
+    },
+     "extraResources": [
+      {
+        "from": "public/assets",
+        "to": "assets",
+        "filter": ["**/*"]
+      }
+    ]
   }
 }
