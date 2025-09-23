@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {config} from '../../config.ts';
+import {config} from '@/config.ts';
 
 const ToothbrushModal = ({isOpen, onClose, autoShow = true, name = '테스트'}) => {
     const [showModal, setShowModal] = useState(false);

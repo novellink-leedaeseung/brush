@@ -1,5 +1,5 @@
-import {getAuthUser, getKioskAuth} from "../api/ApiAxios.ts";
-import {useConfig} from "../hooks/useConfig.ts";
+import {getAuthUser, getKioskAuth} from "@/api/ApiAxios.ts";
+import {useConfig} from "@/hooks/useConfig.ts";
 
 const confirmButton = document.getElementById('confirm-button') as HTMLButtonElement;
 const inputField = document.getElementById('input-field') as HTMLInputElement;

@@ -20,9 +20,9 @@
     "resolveJsonModule": true,
 
     /* Path mapping */
-    "baseUrl": ".",
+    "baseUrl": "./src",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["*"]
     },
 
     /* Linting */

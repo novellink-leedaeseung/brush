@@ -1,7 +1,7 @@
 // IdleRedirect.tsx
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Timeout } from "../components/warring/Timeout.tsx";
+import { Timeout } from "@/components/warring/Timeout.tsx";
 
 type Props = {
   timeout?: number;          // ms

@@ -1,5 +1,5 @@
 import React, {createContext, useContext, useState, useCallback, useEffect} from 'react'
-import {config} from "../config.ts";
+import {config} from "@/config.ts";
 
 /* =========================
  * Types

@@ -1,4 +1,4 @@
-import {config} from "../../config.ts";
+import {config} from "@/config.ts";
 
 // 간단한 fetch 래퍼 (Vite)
 const BASE_URL = config.apiBaseUrl ?? "http://localhost:3001";

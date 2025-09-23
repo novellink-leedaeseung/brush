@@ -1,6 +1,6 @@
-import {getAuthUser, getKioskAuth} from "../api/ApiAxios.ts";
+import {getAuthUser, getKioskAuth} from "@/api/ApiAxios.ts";
 import type {AuthUserResponse} from "@/api/Response.ts";
-import {config} from '../config.ts';
+import {config} from '@/config.ts';
 
 // 서버 조회
 // 1. 키오스크 토큰 가져오기

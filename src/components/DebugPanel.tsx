@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useRanking } from '../contexts/RankingContext'
+import { useRanking } from '@/contexts/RankingContext'
 
 const DebugPanel: React.FC = () => {
   const { rankedUsers, currentUserRank, isLoading, clearAllRecords } = useRanking()

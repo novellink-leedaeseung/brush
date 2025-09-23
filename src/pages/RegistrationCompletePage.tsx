@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { useRanking } from '../contexts/RankingContext'
-import type { RankedUser } from '../contexts/RankingContext'
-import Header from '../components/Header'
+import { useRanking } from '@/contexts/RankingContext'
+import type { RankedUser } from '@/contexts/RankingContext'
+import Header from '@/components/Header'
 
 interface RegistrationData {
   name: string

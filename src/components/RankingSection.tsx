@@ -1,8 +1,8 @@
 // src/components/RankingSection.tsx
 import React, {useEffect, useMemo, useState} from "react";
-import UserListItem from "./UserListItem";
-import {splitKoKRDateTime} from "../utils/koreanDateTime.ts";
-import NoneLayer from "../components/ranking/NoneLayer.tsx";
+import UserListItem from "@/components/UserListItem";
+import {splitKoKRDateTime} from "@/utils/koreanDateTime.ts";
+import NoneLayer from "@/components/ranking/NoneLayer.tsx";
 
 /** ===== API 타입 ===== */
 interface MembersApiItem {

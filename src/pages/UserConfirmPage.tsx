@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import {useNavigate} from 'react-router-dom'
-import Header from "../components/Header.tsx";
-import HomeComponent from "../components/HomeComponent.tsx";
+import Header from "@/components/Header.tsx";
+import HomeComponent from "@/components/HomeComponent.tsx";
 
 const UserConfirmPage: React.FC = () => {
     const navigate = useNavigate()

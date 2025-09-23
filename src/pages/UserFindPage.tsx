@@ -1,16 +1,16 @@
 // pages/UserFindPage.tsx
 import React, {useCallback, useState} from 'react';
-import {findUser} from "../api/UserFind.ts";
+import {findUser} from "@/api/UserFind.ts";
 import {useNavigate} from 'react-router-dom';
 import axios from "axios";
 
-import Header from "../components/Header.tsx";
-import {HomeComponent} from "../components/HomeComponent.tsx";
-import ToothbrushModal from "../components/userFind/ToothbrushModal.tsx";
+import Header from "@/components/Header.tsx";
+import {HomeComponent} from "@/components/HomeComponent.tsx";
+import ToothbrushModal from "@/components/userFind/ToothbrushModal.tsx";
 
-import NotificationModal from "../components/userFind/NotificationModal.tsx";
-import NumberKeypad from "../components/userFind/NumberKeypad.tsx";
-import MaskedPhoneDisplay, {maskPhoneNumber} from "../components/userFind/MaskedPhoneDisplay.tsx";
+import NotificationModal from "@/components/userFind/NotificationModal.tsx";
+import NumberKeypad from "@/components/userFind/NumberKeypad.tsx";
+import MaskedPhoneDisplay, {maskPhoneNumber} from "@/components/userFind/MaskedPhoneDisplay.tsx";
 import {flushSync} from "react-dom";
 
 const UserFindPage: React.FC = () => {

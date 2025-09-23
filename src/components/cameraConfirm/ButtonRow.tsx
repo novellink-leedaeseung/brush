@@ -1,5 +1,5 @@
 import React from 'react'
-import ActionCard from './ActionCard'
+import ActionCard from '@/components/cameraConfirm/ActionCard'
 
 
 export type ButtonRowProps = { onRetake: () => void; onHome: () => void; onRegister: () => void; isUploading: boolean }

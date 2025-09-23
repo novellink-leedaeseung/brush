@@ -1,13 +1,12 @@
 import React, {useState, useEffect, useRef} from 'react';
-import Header from '../components/Header';
-import RankingSection from '../components/RankingSection';
-import TouchButton from '../components/TouchButton';
-import TransparentOverlayButton from '../components/home/TransparentOverlayButton.tsx';
-import HeroSlider from '../components/home/HeroSlider.tsx';
-import '/index.css';
-import ExitConfirmationModal from '../components/home/modal/ExitConfirmationModal.tsx';
-import TransparentHitArea from "../components/home/TransparentHitArea.tsx";
-// import { TransparentHotspotButton } from '../components/home/TransparentHotspotButton.tsx'; // ❌ 이번 동작엔 불필요
+import Header from '@/components/Header';
+import RankingSection from '@/components/RankingSection';
+import TouchButton from '@/components/TouchButton';
+import TransparentOverlayButton from '@/components/home/TransparentOverlayButton.tsx';
+import HeroSlider from '@/components/home/HeroSlider.tsx';
+import '@/index.css';
+import ExitConfirmationModal from '@/components/home/modal/ExitConfirmationModal.tsx';
+import TransparentHitArea from "@/components/home/TransparentHitArea.tsx";
 
 const HEADER_H = 150;  // Header 실제 높이(px) 맞춰 조정
 const HERO_H = 608;    // 상단 이미지 영역 높이

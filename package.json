@@ -59,7 +59,6 @@
   "bugs": {
     "url": "https://github.com/novellink-leedaeseung/brush/issues"
   },
-  "homepage": "https://github.com/novellink-leedaeseung/brush#readme",
   "build": {
     "appId": "com.novellink.brush",
     "productName": "오늘의 양치왕",

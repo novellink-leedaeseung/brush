@@ -1,6 +1,6 @@
 // HeroSlider.tsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import {config} from '../../config.ts';
+import {config} from '@/config.ts';
 
 
 const HERO_W = 1080;

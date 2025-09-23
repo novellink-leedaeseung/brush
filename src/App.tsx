@@ -1,15 +1,15 @@
 import {BrowserRouter as Router, Routes, Route, HashRouter} from 'react-router-dom'
-import {RankingProvider} from './contexts/RankingContext'
-import HomePage from './pages/HomePage.tsx'
-import UserFindPage from './pages/UserFindPage'
-import CameraPage from './pages/CameraPage'
-import CameraConfirmPage from './pages/CameraConfirmPage'
-import UserConfirmPage from './pages/UserConfirmPage'
-import RegistrationCompletePage from './pages/RegistrationCompletePage'
-import IdleRedirect from "./utils/IdleRedirect.tsx";
-import './index.css'
-import {useNoZoomNoContext} from "./utils/useNoZoomNoContext.tsx";
-import {config} from './config.ts';
+import {RankingProvider} from '@/contexts/RankingContext'
+import HomePage from '@/pages/HomePage.tsx'
+import UserFindPage from '@/pages/UserFindPage'
+import CameraPage from '@/pages/CameraPage'
+import CameraConfirmPage from '@/pages/CameraConfirmPage'
+import UserConfirmPage from '@/pages/UserConfirmPage'
+import RegistrationCompletePage from '@/pages/RegistrationCompletePage'
+import IdleRedirect from "@/utils/IdleRedirect.tsx";
+import '@/index.css'
+import {useNoZoomNoContext} from "@/utils/useNoZoomNoContext.tsx";
+import {config} from '@/config.ts';
 
 
 function App() {

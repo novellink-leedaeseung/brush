@@ -1,8 +1,8 @@
 import React, {useState} from 'react'
 import {useNavigate} from 'react-router-dom'
-import Header from '../components/Header'
-import CameraCapture from '../components/CameraCapture'
-import HomeComponent from "../components/HomeComponent.tsx";
+import Header from '@/components/Header'
+import CameraCapture from '@/components/CameraCapture'
+import HomeComponent from "@/components/HomeComponent.tsx";
 
 const CameraPage: React.FC = () => {
     const navigate = useNavigate()

@@ -1,20 +1,5 @@
-@font-face {
-  font-family: 'Pretendard';
-  src: url('/public/assets/font/Pretendard-Regular.otf') format('opentype');
-  font-weight: normal;
-}
+@import url("./Fonts/font.css");
 
-@font-face {
-  font-family: 'Pretendard';
-  src: url('/public/assets/font/Pretendard-Bold.otf') format('opentype');
-  font-weight: bold;
-}
-
-@font-face {
-  font-family: 'Jalnan2';
-  src: url('/public/assets/font/Jalnan2TTF.ttf') format('truetype');
-  font-weight: normal;
-}
 
 /* 페이지 스크롤/튕김/체인 금지 */
 html, body {

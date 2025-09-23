@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { getAuthUser, getKioskAuth } from '../api/ApiAxios'
+import { getAuthUser, getKioskAuth } from '@/api/ApiAxios'
 
 export type StatusType = "info" | "success" | "error"
 

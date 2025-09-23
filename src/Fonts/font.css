@@ -2,18 +2,21 @@
   font-family: 'Pretendard';
   src: url('./Pretendard/Pretendard-Regular.otf') format('opentype');
   font-weight: normal;
+  font-display: swap;
 }
 
 @font-face {
   font-family: 'Pretendard';
   src: url('./Pretendard/Pretendard-Bold.otf') format('opentype');
   font-weight: bold;
+  font-display: swap;
 }
 
 @font-face {
   font-family: 'Jalnan2';
   src: url('./Jalnan2/Jalnan2TTF.ttf') format('truetype');
   font-weight: normal;
+  font-display: swap;
 }
 
 .font-family-pretendard {

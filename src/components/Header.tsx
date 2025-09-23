@@ -1,5 +1,7 @@
 import React, {useState, useEffect} from 'react';
-import {config} from '../config.ts';
+import '@/index.css';
+
+import {config} from '@/config';
 
 
 interface HeaderProps {
@@ -70,7 +72,7 @@ const Header: React.FC<HeaderProps> = ({
             }
             }>
                 <img
-                    src={"/assets/logo/"+config.logo}
+                    src={"/assets/logo/" + config.logo}
                     width="177"
                     height="130"
                     alt="로고"

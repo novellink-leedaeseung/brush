@@ -1,5 +1,5 @@
 import axios from "axios";
-import type {AuthKioskResponse, AuthUserResponse} from "./Response";
+import type {AuthKioskResponse, AuthUserResponse} from "@/api/Response";
 
 const api = axios.create({
     baseURL: "/api",
@@ -25,4 +25,3 @@ export async function getAuthUser(userId :string, type :string, token :string): 
 
     return res.data;
 }
-

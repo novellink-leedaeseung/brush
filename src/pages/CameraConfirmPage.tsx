@@ -1,15 +1,15 @@
 import React, {useEffect, useState} from 'react'
-import {parseGradeClass} from '../utils/gradeClass'
-import '../index.css'
+import {parseGradeClass} from '@/utils/gradeClass'
+import '@/index.css'
 import {useNavigate} from "react-router-dom";
-import {clearCapturedImage, readCapturedImage, useCapturedImage} from "../hooks/cameraConfirm/useCapturedImage.ts";
-import {saveImageToServer} from "../service/photoService.ts";
-import Header from "../components/Header.tsx";
-import ImageArea from "../components/cameraConfirm/ImageArea.tsx";
-import ButtonRow from "../components/cameraConfirm/ButtonRow.tsx";
-import LunchFalseModal from "../components/LunchFalseModal.tsx";
-import CompleteModal from "../components/cameraConfirm/CompleteModal.tsx";
-import {config} from "../config.ts";
+import {clearCapturedImage, readCapturedImage, useCapturedImage} from "@/hooks/cameraConfirm/useCapturedImage.ts";
+import {saveImageToServer} from "@/service/photoService.ts";
+import Header from "@/components/Header.tsx";
+import ImageArea from "@/components/cameraConfirm/ImageArea.tsx";
+import ButtonRow from "@/components/cameraConfirm/ButtonRow.tsx";
+import LunchFalseModal from "@/components/LunchFalseModal.tsx";
+import CompleteModal from "@/components/cameraConfirm/CompleteModal.tsx";
+import {config} from "@/config.ts";
 
 
 const isLunchTime = () => {
