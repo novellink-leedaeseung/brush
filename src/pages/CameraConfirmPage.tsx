@@ -39,7 +39,7 @@ const CameraConfirmPage: React.FC = () => {
 
 
     const handleRetake = () => navigate('/kiosk/camera')
-    const handleHome = () => window.location.replace('/')
+    const handleHome = () => window.location.href = window.location.origin + window.location.pathname + "#/"
 
 
     const handleImageSave = async () => {
