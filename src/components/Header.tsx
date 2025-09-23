@@ -12,8 +12,6 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({
-                                           // title = "스마트 건강관리",
-                                           logoSrc = "/assets/icon/logo.png",
                                            backgroundColor = "#214882",
                                            showDateTime = true,
                                            className,
@@ -72,7 +70,7 @@ const Header: React.FC<HeaderProps> = ({
             }
             }>
                 <img
-                    src={logoSrc}
+                    src={"/assets/logo/"+config.logo}
                     width="177"
                     height="130"
                     alt="로고"
