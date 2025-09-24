@@ -13,10 +13,7 @@ const NetworkNotificationModal: React.FC<NetworkNotificationModalProps> = ({
                                                                            }) => {
     if (!isVisible) return null;
 
-    const handleClick = () => {
-        if (onConfirm) onConfirm();
-        else window.location.href = "/";
-    };
+    setTimeout(() => window.location.href = window.location.origin + window.location.pathname + "#/", 3000)
 
     return (
         <div style={{

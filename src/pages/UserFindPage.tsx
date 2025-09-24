@@ -12,11 +12,13 @@ import NotificationModal from "@/components/userFind/NotificationModal.tsx";
 import NumberKeypad from "@/components/userFind/NumberKeypad.tsx";
 import MaskedPhoneDisplay, {maskPhoneNumber} from "@/components/userFind/MaskedPhoneDisplay.tsx";
 import {flushSync} from "react-dom";
+import NetworkNotificationModal from "@/components/userFind/NetworkNotificationModal.tsx";
 
 const UserFindPage: React.FC = () => {
     const navigate = useNavigate();
     const [inputNumber, setInputNumber] = useState<string>('');
     const [showNotificationModal, setShowNotificationModal] = useState<boolean>(false);
+    const [showNetworkNotificationModal, setNetworkNotificationModal] = useState<boolean>(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [notificationMessage, setNotificationMessage] = useState<string>("일치하는 회원 정보가 없습니다.");
     const [showSuccessModalName, setShowSuccessModalName] = useState<string>('테스트');
@@ -44,15 +46,14 @@ const UserFindPage: React.FC = () => {
 
         try {
             const kioskUser = await findUser(n);
-            if (!kioskUser) {
+            if (!kioskUser.resultCode) {
                 setNotificationMessage("일치하는 회원 정보가 없습니다.");
                 setShowNotificationModal(true);
                 return;
             }
             setShowSuccessModalName(kioskUser.resultData.username);
-        } catch {
-            setNotificationMessage("네트워크 연결이 불안정 합니다.");
-            setShowNotificationModal(true);
+        } catch (err) {
+            setNetworkNotificationModal(true);
             return;
         }
 
@@ -81,7 +82,15 @@ const UserFindPage: React.FC = () => {
             <HomeComponent onClick={undefined}/>
 
             {/* 안내문 (그대로) */}
-            <div style={{width: '900px', height: '120px', marginTop: '179px', marginLeft: '90px', display: "flex", justifyContent: "center", alignItems: "center"}}>
+            <div style={{
+                width: '900px',
+                height: '120px',
+                marginTop: '179px',
+                marginLeft: '90px',
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center"
+            }}>
                 <div style={{width: '841px', height: '68px', marginLeft: '39px'}}>
                     <div
                         style={{
@@ -202,6 +211,7 @@ const UserFindPage: React.FC = () => {
                 maskedPhoneText={maskPhoneNumber(inputNumber)}
                 // onConfirm={() => setShowNotificationModal(false)} // 필요하면 이렇게 닫기만
             />
+            <NetworkNotificationModal isVisible={showNetworkNotificationModal} message={""}/>
         </div>
     )
         ;
