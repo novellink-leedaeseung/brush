@@ -45,43 +45,54 @@ const UserFindPage: React.FC = () => {
         if (!n) return;
 
         try {
+            // --- 1. 메인 DB에서 사용자 조회 ---
             const kioskUser = await findUser(n);
-            if (!kioskUser.resultCode) {
+
+            // Case 1: 메인 DB에 사용자가 없음 (findUser가 null을 반환하거나 resultCode가 없는 경우)
+            if (!kioskUser || !kioskUser.resultCode) {
                 setNotificationMessage("일치하는 회원 정보가 없습니다.");
                 setShowNotificationModal(true);
                 return;
             }
+
+            // 사용자가 있으면, 다음 단계를 위해 이름 저장
             setShowSuccessModalName(kioskUser.resultData.username);
-        } catch (err) {
-            setNetworkNotificationModal(true); // 네트워크 오류 처리
-            return;
-        }
 
-        try {
-            await axios.get(`http://localhost:3001/api/members/${n}`);
-            localStorage.setItem("inputNumber", n);
-            setTimeout(() => navigate("/kiosk/user-confirm"), 1000);
-        } catch (err) {
-            if (axios.isAxiosError(err)) {
-                const status = err.response?.status;
+            // --- 2. 구강인증 DB에 사용자 조회 ---
+            try {
+                await axios.get(`http://localhost:3001/api/members/${n}`);
+                // Case 2: 구강인증 DB에도 사용자가 있음 -> 확인 페이지로 이동
+                localStorage.setItem("inputNumber", n);
+                navigate("/kiosk/user-confirm");
 
-                if (!err.response) {
-                    // ✅ 네트워크 연결 안됨 (서버 미응답)
-                    setNetworkNotificationModal(true);
-                    return;
-                }
-
-                if (status === 404) {
+            } catch (oralAuthError) {
+                // Case 3: 구강인증 DB에 사용자가 없음 (404) -> 신규 등록으로 간주, 양치 모달 표시
+                if (axios.isAxiosError(oralAuthError) && oralAuthError.response?.status === 404) {
                     setShowSuccessModal(true);
                 } else {
-                    setNotificationMessage(
-                        "구강인증 서버 통신 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
-                    );
+                    // 그 외 구강인증 서버의 다른 오류 (500 등) -> 공통 에러로 처리
+                    throw oralAuthError;
+                }
+            }
+
+        } catch (err) {
+            // --- 통합 에러 처리 ---
+            console.error("An error occurred during the confirmation process:", err);
+
+            if (axios.isAxiosError(err)) {
+                if (!err.response) {
+                    // Case 4: 네트워크 연결 문제 (서버 미응답)
+                    setNetworkNotificationModal(true);
+                } else {
+                    // Case 5: 기타 서버 에러 (5xx 등)
+                    setNotificationMessage("서버 통신 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+                    setShowNotificationModal(true);
                 }
             } else {
-                setNotificationMessage("구강인증 조회 중 알 수 없는 오류가 발생했습니다.");
+                // Case 6: 코드 내의 다른 종류의 에러
+                setNotificationMessage("조회 중 알 수 없는 오류가 발생했습니다.");
+                setShowNotificationModal(true);
             }
-            // setShowNotificationModal(true); // 기존 주석 유지
         }
     };
 
