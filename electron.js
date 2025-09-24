@@ -160,8 +160,8 @@ function registerAssetProtocols() {
 ========================= */
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 1080,
-    height: 1920,
+    fullscreen: true,
+    autoHideMenuBar: true,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
@@ -176,8 +176,6 @@ function createWindow() {
     slashes: true,
   });
   mainWindow.loadURL(indexHtmlPath);
-
-  if (isDev) mainWindow.webContents.openDevTools();
 }
 
 /* =========================
