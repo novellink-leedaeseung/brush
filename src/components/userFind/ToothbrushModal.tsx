@@ -48,7 +48,7 @@ const ToothbrushModal: React.FC<Props> = ({
   useEffect(() => {
     if (!showModal) return;
     const timer = setTimeout(() => {
-      window.location.replace('/'); // 필요하면 라우트 경로 조정
+      window.location.href = window.location.origin + window.location.pathname + "#/"
     }, timeoutMs);
     return () => clearTimeout(timer);
   }, [showModal, timeoutMs]);
