@@ -1,6 +1,5 @@
 // ApiAxios.ts
 import axios from 'axios'
-import {config} from '@/config'   // { novelBase: 'https://novel.rosq', ... }
 
 const isDev = import.meta.env.DEV
 
