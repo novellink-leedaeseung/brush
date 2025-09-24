@@ -1,11 +1,11 @@
 {
   "kioskId": "MTA001",
-  "titleText": "test3",
+  "titleText": "스마일 양치 인증",
   "timeout": 60,
   "slideTime": 3,
   "apiBaseUrl": "http://127.0.0.1:3001",
   "toothbrushModalTimeout": 5000,
   "lunchStartTime": 12,
   "lunchEndTime": 13,
-  "logo": "novellink.png"
+  "logo": "수성중학교_로고.png"
 }

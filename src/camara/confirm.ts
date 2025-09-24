@@ -75,7 +75,7 @@ function main() {
         document.body.appendChild(a);
         a.click();
         a.remove();
-        location.href = '/';
+        window.location.href = window.location.origin + window.location.pathname + "#/"
     });
 }
 

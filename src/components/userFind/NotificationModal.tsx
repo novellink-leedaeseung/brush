@@ -18,7 +18,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
 
   const handleClick = () => {
     if (onConfirm) onConfirm();
-    else window.location.href = "/";
+    else window.location.href = window.location.origin + window.location.pathname + "#/"
   };
 
   return (
