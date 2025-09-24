@@ -1,45 +1,46 @@
 import {getAuthUser, getKioskAuth} from "@/api/ApiAxios.ts";
 import type {AuthUserResponse} from "@/api/Response.ts";
 import { getConfig } from "@/hooks/useConfig";
+import axios from "axios";
 
 // 서버 조회
 // 1. 키오스크 토큰 가져오기
 // 2. inputField에 전화번호로 조회하기
-export async function findUser(inputField: string): Promise<AuthUserResponse | null> {
+export async function findUser(inputField: string): Promise<AuthUserResponse> {
 
-    // localStorage.clear(); // 전부 지우기보다 필요한 키만 지우는 게 안전
     localStorage.removeItem("name");
     localStorage.removeItem("gender");
     localStorage.removeItem("phone");
 
-    // 핸드폰/아이디 구분 (010으로 시작 + 총 11자리)
     const isPhone = /^010\d{8}$/.test(inputField);
     const type: "PHONE" | "ID" = isPhone ? "PHONE" : "ID";
-    const { kioskId } = await getConfig();       // ✅ 훅 대신 함수
+    const { kioskId } = await getConfig();
 
-    try {
-        // 1) 키오스크 인증 → 토큰 획득
-        const kioskAuth = await getKioskAuth(kioskId ?? "");
-        const kioskToken = kioskAuth.resultData?.token;
-        if (!kioskToken) throw new Error("키오스크 토큰 없음");
-
-        // 2) 사용자 인증
-        const res = await getAuthUser(inputField, type, kioskToken);
-        console.log("사용자 인증 결과:", res);
-
-        // 3) 인증 성공 후 처리 (필드 존재 여부 방어코드)
-        const user = res?.resultData;
-        if (user?.username) {
-            localStorage.setItem("name", user.username);
-            if (user.gender) localStorage.setItem("gender", user.gender);
-            if (user.phonenumber) localStorage.setItem("phone", user.phonenumber);
-        } else {
-            throw new Error("사용자 정보가 없습니다.");
-        }
-
-        return res; // ✅ 이제 비동기 완료 후 값을 반환
-    } catch (error) {
-        console.error("에러 발생:", error);
-        return null; // 실패 시 null 반환 (호출부에서 체크)
+    // 1) 키오스크 인증 → 토큰 획득
+    const kioskAuth = await getKioskAuth(kioskId ?? "");
+    const kioskToken = kioskAuth.resultData?.token;
+    if (!kioskToken) {
+        // 이 경우는 보통 네트워크 문제나 서버의 심각한 오류
+        throw new Error("키오스크 인증 토큰을 받을 수 없습니다.");
     }
+
+    // 2) 사용자 인증
+    // getAuthUser에서 404가 발생하면 AxiosError가 throw됨
+    const res = await getAuthUser(inputField, type, kioskToken);
+    console.log("사용자 인증 결과:", res);
+
+    // 3) 인증 성공 후 데이터 확인
+    const user = res?.resultData;
+    if (user?.username) {
+        localStorage.setItem("name", user.username);
+        if (user.gender) localStorage.setItem("gender", user.gender);
+        if (user.phonenumber) localStorage.setItem("phone", user.phonenumber);
+    } else {
+        // API 호출은 성공했으나, 데이터가 없는 경우 (논리적으로는 404와 유사)
+        const notFoundError = new Error("User not found in response data");
+        notFoundError.name = "UserNotFoundError"; // UI에서 구분하기 위한 이름
+        throw notFoundError;
+    }
+
+    return res;
 }

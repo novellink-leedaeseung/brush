@@ -27,7 +27,7 @@ export const api = axios.create({
 
 // 사용 예시는 그대로 리소스만 넘겨
 export const getKioskAuth = (kioskName: string) =>
-    api.post('/auth-kiosk', {kioskid: kioskName}).then(r => r.data).catch((error) => {throw new Error("네트워크가 불안정합니다.")})
+    api.post('/auth-kiosk', {kioskid: kioskName}).then(r => r.data)
 
 export const getAuthUser = (userId: string, type: string, token: string) =>
     api.post('/auth-user', {
