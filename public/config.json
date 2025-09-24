@@ -1,6 +1,6 @@
 {
   "kioskId": "MTA001",
-  "titleText": "양치!",
+  "titleText": "test1",
   "timeout": 60,
   "slideTime": 3,
   "apiBaseUrl": "http://127.0.0.1:3001",

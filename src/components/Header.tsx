@@ -16,8 +16,8 @@ const Header: React.FC<HeaderProps> = ({
   showDateTime = true,
   className,
   style,
-  title,          // ✅ prop로 들어오면 우선 사용
-  logoSrc,        // ✅ prop로 들어오면 우선 사용
+  title,          // ✅ 넘어오면 config보다 우선 적용됨
+  logoSrc,
 }) => {
   const [currentTime, setCurrentTime] = useState<string>('');
   const [currentDate, setCurrentDate] = useState<string>('');
@@ -32,6 +32,11 @@ const Header: React.FC<HeaderProps> = ({
     () => (typeof title === 'string' ? title : (config?.titleText ?? "")),
     [title, config?.titleText]
   );
+
+  // ✅ 문서(윈도우) 타이틀도 함께 갱신 — 눈으로 확인 용이
+  useEffect(() => {
+    if (safeTitle) document.title = safeTitle;
+  }, [safeTitle]);
 
   // 현재 날짜/시간 업데이트
   useEffect(() => {
@@ -74,7 +79,7 @@ const Header: React.FC<HeaderProps> = ({
       {/* 로고 */}
       <div style={{ width: '220px', height: '130px', marginTop: '10px', marginLeft: '10px' }}>
         <img
-          src={safeLogo}              // ✅ 안전한 로고 경로
+          src={safeLogo}
           width="177"
           height="130"
           alt="로고"
@@ -101,7 +106,7 @@ const Header: React.FC<HeaderProps> = ({
           }}
         >
           <div style={{ width: '600px', height: "70px" }}>
-            {safeTitle /* ✅ config 로딩 전에도 안전 */}
+            {safeTitle}
           </div>
         </div>
       </div>

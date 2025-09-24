@@ -1,6 +1,16 @@
 // src/hooks/useConfig.ts
 import { useEffect, useState, useCallback } from "react";
 
+// electron 환경일 때만 ipcRenderer를 가져옴
+let ipcRenderer: any = null;
+if (window.require) {
+  try {
+    ipcRenderer = window.require('electron').ipcRenderer;
+  } catch (e) {
+    console.warn("ipcRenderer is not available", e);
+  }
+}
+
 export interface AppConfig {
   kioskId: string;
   titleText: string;
@@ -25,16 +35,6 @@ const DEFAULT_CONFIG_FALLBACK: AppConfig = {
   logo: "novellink.png",
 };
 
-declare global {
-  interface Window {
-    appConfig?: {
-      get: () => Promise<AppConfig>;
-      reload: () => Promise<AppConfig>;
-      // onUpdated?: (cb: (cfg: AppConfig) => void) => void;
-    };
-  }
-}
-
 let _cachedConfig: AppConfig | null = null;
 let _pending: Promise<AppConfig> | null = null;
 
@@ -44,14 +44,13 @@ async function fetchDevConfig(): Promise<AppConfig> {
   const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) throw new Error(`fetch ${url} failed: ${res.status}`);
   const json = (await res.json()) as Partial<AppConfig>;
-  // 기본값과 머지해서 타입 보장
   return { ...DEFAULT_CONFIG_FALLBACK, ...json };
 }
 
 async function _fetchConfig(): Promise<AppConfig> {
   // 1) Electron 런타임이면 IPC 우선
-  if (window.appConfig?.get) {
-    return await window.appConfig.get();
+  if (ipcRenderer) {
+    return ipcRenderer.invoke('config:get');
   }
   // 2) Vite dev 서버(웹)면 /public/config.json을 fetch
   if (import.meta.env?.DEV) {
@@ -62,7 +61,7 @@ async function _fetchConfig(): Promise<AppConfig> {
       return DEFAULT_CONFIG_FALLBACK;
     }
   }
-  // 3) 그 외(테스트/SSR/프로덕션 웹 빌드 등): 안전하게 기본값
+  // 3) 그 외: 안전하게 기본값
   return DEFAULT_CONFIG_FALLBACK;
 }
 
@@ -78,31 +77,24 @@ export async function getConfig(): Promise<AppConfig> {
 }
 
 export async function reloadConfig(): Promise<AppConfig> {
-  if (window.appConfig?.reload) {
-    const cfg = await window.appConfig.reload();
-    _cachedConfig = cfg;
-    _pending = null;
-    return cfg;
+  let cfg: AppConfig;
+  if (ipcRenderer) {
+    cfg = await ipcRenderer.invoke('config:reload');
+  } else if (import.meta.env?.DEV) {
+    cfg = await fetchDevConfig();
+  } else {
+    cfg = DEFAULT_CONFIG_FALLBACK;
   }
-  // 웹(dev)일 때 수동 리로드
-  if (import.meta.env?.DEV) {
-    const cfg = await fetchDevConfig();
-    _cachedConfig = cfg;
-    _pending = null;
-    return cfg;
-  }
-  _cachedConfig = DEFAULT_CONFIG_FALLBACK;
-  _pending = null;
-  return _cachedConfig;
-}
-
-export function setConfigCache(cfg: AppConfig) {
   _cachedConfig = cfg;
   _pending = null;
+  // 다른 훅 인스턴스에게 리로드되었음을 알림
+  window.dispatchEvent(new CustomEvent('config-reloaded', { detail: cfg }));
+  return cfg;
 }
 
 export function useConfig() {
   const [config, setConfig] = useState<AppConfig | null>(_cachedConfig);
+
   useEffect(() => {
     let alive = true;
     if (!config) {
@@ -110,15 +102,40 @@ export function useConfig() {
         if (alive) setConfig(c);
       });
     }
+
+    // 실시간 업데이트 리스너
+    const handleConfigUpdate = (event: any, newConfig: AppConfig) => {
+      console.log('[useConfig] Received config:updated event', newConfig);
+      _cachedConfig = newConfig;
+      if (alive) {
+        setConfig(newConfig);
+      }
+    };
+
+    if (ipcRenderer) {
+      ipcRenderer.on('config:updated', handleConfigUpdate);
+    }
+
+    // 수동 리로드 리스너
+    const handleReloadEvent = (event: Event) => {
+        const customEvent = event as CustomEvent<AppConfig>;
+        if (alive) {
+            setConfig(customEvent.detail);
+        }
+    }
+    window.addEventListener('config-reloaded', handleReloadEvent);
+
     return () => {
       alive = false;
+      if (ipcRenderer) {
+        ipcRenderer.removeListener('config:updated', handleConfigUpdate);
+      }
+      window.removeEventListener('config-reloaded', handleReloadEvent);
     };
   }, [config]);
 
   const doReload = useCallback(async () => {
-    const c = await reloadConfig();
-    setConfig(c);
-    return c;
+    return await reloadConfig();
   }, []);
 
   return { config, reload: doReload };

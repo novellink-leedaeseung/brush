@@ -1,176 +1,276 @@
 // electron.js
-const {app, BrowserWindow, protocol, ipcMain} = require('electron');
+const { app, BrowserWindow, protocol, ipcMain } = require('electron');
 const path = require('path');
 const url = require('url');
 const fs = require('fs');
 const isDev = require('electron-is-dev');
 
 /* =========================
-   [CONFIG] 최소 구현부
-   - exe 옆(config.json) 생성/로드
-   - IPC: config:get, config:reload
+   [CONFIG] 런타임 설정
+   - 읽기: 포터블/EXE 옆 → userData 순으로 탐색.
+   - 쓰기/생성: 항상 userData 폴더에만 저장. (가장 안정적)
 ========================= */
-// electron.js 안에 있던 DEFAULT_CONFIG 교체
-// electron.js 안 DEFAULT_CONFIG
 const DEFAULT_CONFIG = {
-    // ✅ 키오스크 장비 식별자 (연동 장비 ID)
-    kioskId: "MTA001",
-
-    // ✅ 화면 상단에 표시할 제목 텍스트
-    titleText: "양치!",
-
-    // ✅ 사용자가 일정 시간(초) 동안 터치하지 않으면 메인 홈으로 돌아가는 시간
-    timeout: 60,
-
-    // ✅ 홈 화면 공지/슬라이드가 바뀌는 주기 (초 단위)
-    slideTime: 3,
-
-    // ✅ API 서버 주소
-    apiBaseUrl: "http://127.0.0.1:3001",
-
-    // ✅ 양치 인증 완료 화면이 표시되는 시간 (밀리초 단위)
-    toothbrushModalTimeout: 5000,
-
-    // ✅ 점심시간 시작 시각 (24시간제, 시 단위)
-    lunchStartTime: 12,
-
-    // ✅ 점심시간 종료 시각 (24시간제, 시 단위)
-    lunchEndTime: 13,
-
-    // ✅ 로고 파일명 (public/assets 등 정적 경로에 위치해야 함)
-    //    화면 좌측 상단이나 타이틀 영역에 표시할 이미지
-    logo: "novellink.png"
+  kioskId: "MTA001",
+  titleText: "양치!",
+  timeout: 60,
+  slideTime: 3,
+  apiBaseUrl: "http://127.0.0.1:3001",
+  toothbrushModalTimeout: 5000,
+  lunchStartTime: 12,
+  lunchEndTime: 13,
+  logo: "novellink.png"
 };
 
-
-function getBaseDir() {
-    // 포터블(EXE) 실행 시 PORTABLE_EXECUTABLE_DIR 우선
-    return process.env.PORTABLE_EXECUTABLE_DIR || process.cwd();
+// --- 경로 함수들 ---
+function getExeDir() {
+  return isDev ? process.cwd() : path.dirname(app.getPath('exe'));
 }
 
-function getConfigPath() {
-    return path.join(getBaseDir(), 'config.json');
+function getUserDataDir() {
+  return app.getPath('userData');
 }
 
-function ensureConfig() {
-    const p = getConfigPath();
-    if (!fs.existsSync(p)) {
-        fs.writeFileSync(p, JSON.stringify(DEFAULT_CONFIG, null, 2), 'utf-8');
-        return DEFAULT_CONFIG;
+// --- 설정 파일 경로 ---
+const userDataConfigPath = path.join(getUserDataDir(), 'config.json');
+
+function getReadOnlyConfigPaths() {
+  const exeDir = getExeDir();
+  const portableDir = process.env.PORTABLE_EXECUTABLE_DIR;
+
+  const paths = new Set();
+
+  if (portableDir) {
+    paths.add(path.join(portableDir, 'config.json'));
+  }
+  // exe 파일과 같은 위치
+  paths.add(path.join(exeDir, 'config.json'));
+
+  return Array.from(paths);
+}
+
+
+// --- 설정 관리 로직 ---
+let mainWindow = null;
+let currentConfig = { ...DEFAULT_CONFIG };
+let currentConfigPath = null;
+let configWatcher = null; // 파일 감시자
+
+// 파일을 읽고 파싱하는 헬퍼
+function readConfigFile(filePath) {
+  try {
+    if (fs.existsSync(filePath)) {
+      const raw = fs.readFileSync(filePath, 'utf-8');
+      const obj = JSON.parse(raw);
+      console.log(`[config] Read success: ${filePath}`);
+      return obj && typeof obj === 'object' ? obj : null;
     }
-    try {
-        const raw = fs.readFileSync(p, 'utf-8');
-        const parsed = JSON.parse(raw);
-        // 기본값과 merge (누락 키 보완)
-        return {...DEFAULT_CONFIG, ...parsed};
-    } catch (e) {
-        console.error('⚠️ config.json 파싱 실패. 기본값 사용:', e);
-        return DEFAULT_CONFIG;
-    }
+  } catch (e) {
+    console.error(`[config] Read/parse fail: ${filePath}`, e);
+  }
+  return null;
 }
 
-let currentConfig = ensureConfig();
+// 설정을 userData에 저장하는 함수
+function saveConfigToUserData(configObject) {
+  try {
+    fs.mkdirSync(getUserDataDir(), { recursive: true });
+    fs.writeFileSync(userDataConfigPath, JSON.stringify(configObject, null, 2), 'utf-8');
+    console.log(`[config] SAVED to: ${userDataConfigPath}`);
+    return true;
+  } catch (e) {
+    console.error(`[config] SAVE FAILED to ${userDataConfigPath}:`, e);
+    return false;
+  }
+}
+
+// 앱 시작 시 설정 로드
+function loadRuntimeConfig() {
+  // 설정 변경을 감지하고 있을 경우, 잠시 중단
+  if (configWatcher) {
+    configWatcher.close();
+    configWatcher = null;
+  }
+
+  const candidatePaths = [...getReadOnlyConfigPaths(), userDataConfigPath];
+  console.log('[config] Searching for config in:', candidatePaths);
+  let loadedConfig = null;
+  let loadedPath = null;
+
+  for (const p of candidatePaths) {
+    if (!p) continue;
+    const configFromFile = readConfigFile(p);
+    if (configFromFile) {
+      loadedConfig = configFromFile;
+      loadedPath = p;
+      console.log(`[config] LOADED from: ${p}`);
+      break;
+    }
+  }
+
+  if (!loadedConfig) {
+    console.log('[config] No config file found. Creating default config in userData.');
+    saveConfigToUserData(DEFAULT_CONFIG);
+    currentConfig = { ...DEFAULT_CONFIG };
+    currentConfigPath = userDataConfigPath;
+  } else {
+    currentConfig = { ...DEFAULT_CONFIG, ...loadedConfig };
+    currentConfigPath = loadedPath;
+  }
+
+  // 만약 로드된 설정이 userData가 아니고, userData에 파일이 없다면 동기화
+  if (currentConfigPath !== userDataConfigPath && !fs.existsSync(userDataConfigPath)) {
+     console.log('[config] Loaded from read-only location. Syncing to userData for future writes.');
+     saveConfigToUserData(currentConfig);
+  }
+
+  return currentConfig;
+}
 
 /* =========================
    [ASSETS] file:///assets/* 매핑
 ========================= */
 function getAssetsBase() {
-    // dev: 프로젝트/public/assets , prod: resources/assets
-    return isDev
-        ? path.join(__dirname, 'public', 'assets')
-        : path.join(process.resourcesPath, 'assets');
+  return isDev
+    ? path.join(__dirname, 'public', 'assets')
+    : path.join(process.resourcesPath, 'assets');
 }
 
 function registerAssetProtocols() {
-    protocol.interceptFileProtocol('file', (request, callback) => {
-        try {
-            const raw = decodeURIComponent(request.url); // e.g. file:///assets/icon/home.svg
-            let p = raw.replace(/^file:\/\/\//i, '');    // -> 'assets/... or C:/assets/...'
-            p = p.replace(/^[A-Za-z]:\//, '');           // -> 'assets/...'
+  protocol.interceptFileProtocol('file', (request, callback) => {
+    try {
+      const raw = decodeURIComponent(request.url); // e.g. file:///assets/icon/home.svg
+      let p = raw.replace(/^file:\/\/\//i, '');
+      p = p.replace(/^[A-Za-z]:\//, '');
 
-            if (p.toLowerCase().startsWith('assets/')) {
-                const resolved = path.join(getAssetsBase(), p.slice('assets/'.length));
-                return callback({path: resolved});
-            }
-            return callback({path: url.fileURLToPath(raw)});
-        } catch (e) {
-            console.error('[interceptFileProtocol]', e);
-            callback(-6); // FILE_NOT_FOUND
-        }
-    });
+      if (p.toLowerCase().startsWith('assets/')) {
+        const resolved = path.join(getAssetsBase(), p.slice('assets/'.length));
+        return callback({ path: resolved });
+      }
+      return callback({ path: url.fileURLToPath(raw) });
+    } catch (e) {
+      console.error('[interceptFileProtocol]', e);
+      callback(-6); // FILE_NOT_FOUND
+    }
+  });
 }
 
 /* =========================
-   [WINDOW] 생성
+   [WINDOW]
 ========================= */
-let mainWindow = null;
-
 function createWindow() {
-    mainWindow = new BrowserWindow({
-        width: 1080,
-        height: 1920,
-        webPreferences: {
-            // 현재 프로젝트가 renderer에서 require/ipcRenderer를 직접 쓰는 구조면 아래 설정 유지
-            nodeIntegration: true,
-            contextIsolation: false,
-            webSecurity: false,
-            // 만약 preload 브릿지로 보안 강화하고 싶으면 위 두 옵션을 바꾸고 preload 추가
-            // preload: path.join(__dirname, 'preload.js'),
-        },
-    });
+  mainWindow = new BrowserWindow({
+    width: 1080,
+    height: 1920,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+      webSecurity: false,
+      // preload: path.join(__dirname, 'preload.js'),
+    },
+  });
 
-    const indexHtmlPath = url.format({
-        pathname: path.join(__dirname, 'dist', 'index.html'),
-        protocol: 'file:',
-        slashes: true,
-    });
-    mainWindow.loadURL(indexHtmlPath);
+  const indexHtmlPath = url.format({
+    pathname: path.join(__dirname, 'dist', 'index.html'),
+    protocol: 'file:',
+    slashes: true,
+  });
+  mainWindow.loadURL(indexHtmlPath);
 
-    if (isDev) mainWindow.webContents.openDevTools();
+  if (isDev) mainWindow.webContents.openDevTools();
 }
 
 /* =========================
-   [LIFECYCLE] whenReady 단일화
+   [LIFECYCLE]
 ========================= */
 app.whenReady().then(() => {
-    registerAssetProtocols();
-    createWindow();
+  // -- 설정 로드 & 파일 감시 설정 --
+  loadRuntimeConfig();
 
-    // ✅ 앱 종료 IPC
-    ipcMain.handle('app:quit', async () => {
-        try {
-            BrowserWindow.getAllWindows().forEach((w) => {
-                try {
-                    w.removeAllListeners('close');
-                    w.destroy();
-                } catch (e) {
-                    console.error('window destroy error', e);
-                }
-            });
-        } catch (e) {
-            console.error('error destroying windows before quit', e);
-        } finally {
-            app.quit();
+  const applyWindowTitle = () => {
+    try { mainWindow?.setTitle(currentConfig.titleText || ''); } catch {}
+  };
+  const broadcastConfig = () => {
+    try { mainWindow?.webContents.send('config:updated', currentConfig); } catch {}
+  };
+
+  function setupConfigWatcher() {
+    if (configWatcher) {
+      configWatcher.close();
+      configWatcher = null;
+    }
+    // 현재 사용중인 설정 파일의 변경을 감시
+    if (currentConfigPath && fs.existsSync(currentConfigPath)) {
+      console.log(`[config] Watching for changes at: ${currentConfigPath}`);
+      configWatcher = fs.watch(currentConfigPath, { persistent: false }, (eventType) => {
+        if (eventType === 'change') {
+          console.log(`[config] Detected change in ${currentConfigPath}. Reloading...`);
+          loadRuntimeConfig();
+          applyWindowTitle();
+          broadcastConfig();
+          // 감시 대상 파일이 변경될 수 있으므로, watcher를 다시 설정
+          setupConfigWatcher();
         }
-    });
+      });
+    }
+  }
 
-    // ✅ 설정 IPC
-    ipcMain.handle('config:get', () => currentConfig);
-    ipcMain.handle('config:reload', () => {
-        currentConfig = ensureConfig();
-        return currentConfig;
-    });
+  setupConfigWatcher(); // 앱 시작 시 감시 시작
 
-    // (선택) 파일 변경 자동 감지 원하면 주석 해제
-    // fs.watch(getConfigPath(), { persistent: false }, () => {
-    //   currentConfig = ensureConfig();
-    //   mainWindow?.webContents.send('config:updated', currentConfig);
-    // });
+  // -- 프로토콜, 윈도우 생성 --
+  registerAssetProtocols();
+  createWindow();
+  applyWindowTitle();
+  broadcastConfig();
+
+  // -- IPC 핸들러 --
+  ipcMain.handle('app:quit', async () => {
+    try {
+      BrowserWindow.getAllWindows().forEach((w) => {
+        try {
+          w.removeAllListeners('close');
+          w.destroy();
+        } catch (e) {
+          console.error('window destroy error', e);
+        }
+      });
+    } catch (e) {
+      console.error('error destroying windows before quit', e);
+    } finally {
+      app.quit();
+    }
+  });
+
+  ipcMain.handle('config:get', () => currentConfig);
+  ipcMain.handle('config:save', async (event, newConfig) => {
+    currentConfig = { ...currentConfig, ...newConfig };
+    saveConfigToUserData(currentConfig);
+    broadcastConfig();
+    setupConfigWatcher(); // 저장 후 감시 경로가 바뀔 수 있으므로 다시 설정
+    return currentConfig;
+  });
+  ipcMain.handle('config:reload', () => {
+    loadRuntimeConfig();
+    applyWindowTitle();
+    broadcastConfig();
+    setupConfigWatcher(); // 리로드 후 감시 경로가 바뀔 수 있으므로 다시 설정
+    return currentConfig;
+  });
+
+  // 디버그용: 실제 참조 경로/값 확인
+  ipcMain.handle('config:debugPaths', () => ({
+    appRoot: getExeDir(), // Simplified for windows
+    userDataConfigPath,
+    readOnlyCandidatePaths: getReadOnlyConfigPaths(),
+    currentConfigPath,
+    currentConfig
+  }));
+
 });
 
 app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') app.quit();
+  if (process.platform !== 'darwin') app.quit();
 });
 app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+  if (BrowserWindow.getAllWindows().length === 0) createWindow();
 });
