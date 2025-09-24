@@ -1,0 +1,11 @@
+{
+  "apiBaseUrl": "http://127.0.0.1:3001",
+  "logo": "novellink.png",
+  "themeColor": "#227EFF",
+  "title": "노블링크 메디터치",
+  "language": "ko",
+  "enableCamera": true,
+  "enableMic": false,
+  "timeoutSeconds": 60,
+  "kioskId": "KIOSK-001"
+}

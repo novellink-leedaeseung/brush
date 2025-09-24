@@ -1,6 +1,6 @@
 import {getAuthUser, getKioskAuth} from "@/api/ApiAxios.ts";
 import type {AuthUserResponse} from "@/api/Response.ts";
-import {getConfig} from "@/hooks/useConfig";
+import { getConfig } from "@/hooks/useConfig";
 
 // 서버 조회
 // 1. 키오스크 토큰 가져오기
@@ -16,13 +16,11 @@ export async function findUser(inputField: string): Promise<AuthUserResponse | n
     // 핸드폰/아이디 구분 (010으로 시작 + 총 11자리)
     const isPhone = /^010\d{8}$/.test(inputField);
     const type: "PHONE" | "ID" = isPhone ? "PHONE" : "ID";
-
-    const cfg = await getConfig();
-
+    const { kioskId } = await getConfig();       // ✅ 훅 대신 함수
 
     try {
         // 1) 키오스크 인증 → 토큰 획득
-        const kioskAuth = await getKioskAuth(cfg.kioskId ?? "");
+        const kioskAuth = await getKioskAuth(kioskId ?? "");
         const kioskToken = kioskAuth.resultData?.token;
         if (!kioskToken) throw new Error("키오스크 토큰 없음");
 

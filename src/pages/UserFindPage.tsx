@@ -53,7 +53,7 @@ const UserFindPage: React.FC = () => {
             }
             setShowSuccessModalName(kioskUser.resultData.username);
         } catch (err) {
-            setNetworkNotificationModal(true);
+            setNetworkNotificationModal(true); // 네트워크 오류 처리
             return;
         }
 
@@ -64,10 +64,19 @@ const UserFindPage: React.FC = () => {
         } catch (err) {
             if (axios.isAxiosError(err)) {
                 const status = err.response?.status;
+
+                if (!err.response) {
+                    // ✅ 네트워크 연결 안됨 (서버 미응답)
+                    setNetworkNotificationModal(true);
+                    return;
+                }
+
                 if (status === 404) {
                     setShowSuccessModal(true);
                 } else {
-                    setNotificationMessage("구강인증 서버 통신 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+                    setNotificationMessage(
+                        "구강인증 서버 통신 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
+                    );
                 }
             } else {
                 setNotificationMessage("구강인증 조회 중 알 수 없는 오류가 발생했습니다.");

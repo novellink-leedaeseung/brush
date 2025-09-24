@@ -1,5 +1,5 @@
 import {getAuthUser, getKioskAuth} from "@/api/ApiAxios.ts";
-import {useConfig} from "@/hooks/useConfig.ts";
+import { getConfig } from "@/hooks/useConfig";
 
 const confirmButton = document.getElementById('confirm-button') as HTMLButtonElement;
 const inputField = document.getElementById('input-field') as HTMLInputElement;
@@ -11,11 +11,11 @@ confirmButton.addEventListener('click', () => {
 // 서버 조회
 // 1. 키오스크 토큰 가져오기
 // 2. inputField에 전화번호로 조회하기
-export function findUser(inputField: string) {
+export async function findUser(inputField: string) {
     localStorage.clear();
 
-    const config = useConfig();
-    if (!config) return null;
+    const {kioskId} = await getConfig();       // ✅ 훅 대신 함수
+
 
     // 핸드폰, 회원 아이디 구분
     let type = "PHONE";
@@ -24,7 +24,7 @@ export function findUser(inputField: string) {
     }
 
     // 키오스크 인증 후 사용자 인증
-    getKioskAuth(config.kioskId)
+    getKioskAuth(kioskId)
         .then(res => {
             const kioskToken = res.resultData.token;
             // kioskToken을 받은 후 사용자 인증 실행
