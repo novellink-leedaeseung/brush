@@ -1,9 +1,20 @@
-import {config} from "@/config.ts";
+// apiClient.ts (예시 경로: src/api/apiClient.ts)
+import { getApiBase } from "@/hooks/useConfig";
 
-// 간단한 fetch 래퍼 (Vite)
-const BASE_URL = config.apiBaseUrl ?? "http://localhost:3001";
+/** --- 내부 유틸: BASE_URL 동적 획득 + 캐시 --- */
+let _baseUrlCache: string | null = null;
+async function buildUrl(path: string): Promise<string> {
+  if (!_baseUrlCache) {
+    _baseUrlCache = await getApiBase(); // config.json or Electron IPC
+  }
+  const sep = path.startsWith("/") ? "" : "/";
+  return `${_baseUrlCache}${sep}${path}`;
+}
 
+/** --- 공통 fetch 래퍼 --- */
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const url = await buildUrl(path);
+
   const headers = new Headers(init.headers ?? {});
   const body = init.body;
 
@@ -11,11 +22,7 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
     headers.set("Content-Type", "application/json");
   }
 
-  const res = await fetch(`${BASE_URL}${path}`, {
-    ...init,
-    headers,
-    body,
-  });
+  const res = await fetch(url, { ...init, headers, body });
 
   if (!res.ok) {
     const text = await res.text().catch(() => "");
@@ -29,14 +36,13 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   return (await res.json()) as T;
 }
 
+/** --- 업로드 --- */
 export async function uploadImage(blob: Blob, filename = `capture_${Date.now()}.png`) {
   const form = new FormData();
   form.append("file", blob, filename);
 
-  const res = await fetch(`${BASE_URL}/upload`, {
-    method: "POST",
-    body: form,
-  });
+  const url = await buildUrl("/upload");
+  const res = await fetch(url, { method: "POST", body: form });
 
   if (!res.ok) {
     const text = await res.text().catch(() => "");
@@ -45,6 +51,7 @@ export async function uploadImage(blob: Blob, filename = `capture_${Date.now()}.
   return (await res.json()) as { ok: true; path: string };
 }
 
+/** --- DTO & 타입 --- */
 export interface MemberDto {
   id: number;
   name: string;
@@ -70,14 +77,11 @@ export type MemberPayload = {
   classroom?: string;
 };
 
+/** --- API --- */
 export async function fetchMembers(params: { page?: number; pageSize?: number } = {}): Promise<MembersPage> {
   const search = new URLSearchParams();
-  if (params.page !== undefined) {
-    search.set("page", String(params.page));
-  }
-  if (params.pageSize !== undefined) {
-    search.set("pageSize", String(params.pageSize));
-  }
+  if (params.page !== undefined) search.set("page", String(params.page));
+  if (params.pageSize !== undefined) search.set("pageSize", String(params.pageSize));
 
   const query = search.toString();
   const path = `/api/members${query ? `?${query}` : ""}`;

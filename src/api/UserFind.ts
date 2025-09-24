@@ -6,7 +6,6 @@ import { getConfig } from "@/hooks/useConfig";
 // 1. 키오스크 토큰 가져오기
 // 2. inputField에 전화번호로 조회하기
 export async function findUser(inputField: string): Promise<AuthUserResponse | null> {
-    console.log("키오스크")
 
     // localStorage.clear(); // 전부 지우기보다 필요한 키만 지우는 게 안전
     localStorage.removeItem("name");

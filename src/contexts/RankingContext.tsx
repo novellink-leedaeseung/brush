@@ -1,5 +1,5 @@
 import React, {createContext, useContext, useState, useCallback, useEffect} from 'react'
-import {config} from "@/config.ts";
+import { getApiBase } from "@/hooks/useConfig"; // ✅ 추가: 런타임 BASE URL 사용
 
 /* =========================
  * Types
@@ -160,15 +160,15 @@ const saveCurrentUserRank = (rank: number | null) => {
     }
 }
 
-const API_BASE = config.apiBaseUrl ?? 'http://localhost:3001'
-
 /* =========================
  * API fetch (data.items 스키마)
  * ========================= */
 async function fetchMembersPage(
     page: number
 ): Promise<{ items: BrushingRecord[]; page: number; totalPages: number | null }> {
-    const url = `${API_BASE}/api/members?page=${page}`
+    const base = await getApiBase(); // ✅ 변경: 런타임 BASE URL
+    const url = `${base}/api/members?page=${page}`; // ✅ 변경: 동적 BASE 적용
+
     const res = await fetch(url, {headers: {Accept: 'application/json'}})
     if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`)
 
@@ -199,10 +199,8 @@ async function fetchMembersPage(
     }
 
     // 서버 -> 프론트 모델 매핑
-    // (선택) 안전한 매핑 함수
     const toMealType = (val: boolean | 'lunch' | 'outside' | undefined): 'lunch' | 'outside' => {
         if (val === 'lunch' || val === true) return 'lunch';
-        // undefined, false, 'outside' 전부 outside로 처리
         return 'outside';
     };
 
@@ -219,15 +217,13 @@ async function fetchMembersPage(
             id: String(m.id),
             name: m.name,
             className: resolvedClassName,
-            gender: m.gender ?? '미상',
-            // (참고) Vite에선 public 폴더 자산은 '/public/...'가 아니라 루트로 서빙됨: '/assets/images/...'
+            // (참고) Vite public 자산은 루트로 서빙됨: '/assets/images/...'
             profileImage: m.gender === '남자' ? '/assets/images/man.png' : '/assets/images/woman.png',
             brushingTime: toDate(rawTime),
-            mealType: toMealType(m.lunch), // ✅ boolean/undefined → 'lunch' | 'outside'
+            mealType: toMealType(m.lunch),
             duration: typeof m.duration === 'number' ? m.duration : 0,
         };
     });
-
 
     return {items, page: currentPage, totalPages}
 }
