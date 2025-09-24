@@ -1,6 +1,6 @@
 {
   "kioskId": "MTA001",
-  "titleText": "test1",
+  "titleText": "test3",
   "timeout": 60,
   "slideTime": 3,
   "apiBaseUrl": "http://127.0.0.1:3001",

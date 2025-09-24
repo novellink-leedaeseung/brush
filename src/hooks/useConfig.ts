@@ -95,18 +95,21 @@ export async function reloadConfig(): Promise<AppConfig> {
 export function useConfig() {
   const [config, setConfig] = useState<AppConfig | null>(_cachedConfig);
 
+  // 초기 로드 및 리스너 설정을 위한 Effect
   useEffect(() => {
     let alive = true;
+
+    // 1. 초기 설정 값 로드
     if (!config) {
       getConfig().then((c) => {
         if (alive) setConfig(c);
       });
     }
 
-    // 실시간 업데이트 리스너
+    // 2. 실시간 업데이트 리스너
     const handleConfigUpdate = (event: any, newConfig: AppConfig) => {
       console.log('[useConfig] Received config:updated event', newConfig);
-      _cachedConfig = newConfig;
+      _cachedConfig = newConfig; // 캐시 업데이트
       if (alive) {
         setConfig(newConfig);
       }
@@ -116,15 +119,16 @@ export function useConfig() {
       ipcRenderer.on('config:updated', handleConfigUpdate);
     }
 
-    // 수동 리로드 리스너
+    // 3. 수동 리로드 리스너
     const handleReloadEvent = (event: Event) => {
-        const customEvent = event as CustomEvent<AppConfig>;
-        if (alive) {
-            setConfig(customEvent.detail);
-        }
-    }
+      const customEvent = event as CustomEvent<AppConfig>;
+      if (alive) {
+        setConfig(customEvent.detail);
+      }
+    };
     window.addEventListener('config-reloaded', handleReloadEvent);
 
+    // 4. Cleanup 함수
     return () => {
       alive = false;
       if (ipcRenderer) {
@@ -132,7 +136,7 @@ export function useConfig() {
       }
       window.removeEventListener('config-reloaded', handleReloadEvent);
     };
-  }, [config]);
+  }, []); // 의존성 배열을 비워서 마운트 시 한 번만 실행되도록 수정
 
   const doReload = useCallback(async () => {
     return await reloadConfig();

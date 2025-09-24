@@ -1,11 +1,11 @@
 {
+  "kioskId": "MTA001",
+  "titleText": "테스트",
+  "timeout": 60,
+  "slideTime": 3,
   "apiBaseUrl": "http://127.0.0.1:3001",
-  "logo": "novellink.png",
-  "themeColor": "#227EFF",
-  "title": "노블링크 메디터치",
-  "language": "ko",
-  "enableCamera": true,
-  "enableMic": false,
-  "timeoutSeconds": 60,
-  "kioskId": "KIOSK-001"
+  "toothbrushModalTimeout": 5000,
+  "lunchStartTime": 12,
+  "lunchEndTime": 13,
+  "logo": "novellink.png"
 }
