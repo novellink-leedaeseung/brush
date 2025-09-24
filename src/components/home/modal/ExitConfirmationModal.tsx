@@ -1,10 +1,19 @@
+// ExitConfirmationModal.tsx  (수정본 - 기존 코드에서 최소 변경)
 import React, {useState, useEffect, CSSProperties} from 'react';
-const { ipcRenderer } = window.require('electron');
+
+// --- 기존의 window.require 사용 제거 ---
+// const { ipcRenderer } = window.require('electron');
 
 interface ExitConfirmationModalProps {
     isOpen: boolean;
     onClose?: () => void;
     autoShow?: boolean;
+}
+
+declare global {
+    interface Window {
+        quitApp?: () => Promise<void>
+    }
 }
 
 const ExitConfirmationModal: React.FC<ExitConfirmationModalProps> = ({
@@ -43,9 +52,28 @@ const ExitConfirmationModal: React.FC<ExitConfirmationModalProps> = ({
         }
     };
 
-    const handleConfirm = (): void => {
-        ipcRenderer.invoke('app:quit');
-        setShowModal(false);
+
+    const handleConfirm = async (): Promise<void> => {
+        try {
+            // preload로 노출된 quitApp() 호출 (한 줄)
+            if (typeof window !== 'undefined' && typeof window.quitApp === 'function') {
+                await window.quitApp();
+                // app.quit()이 호출되면 프로세스가 종료되어 아래 코드가 실행되지 않을 수 있음
+                return;
+            } else {
+                // 웹 모드(또는 preload 미설정)일 때 폴백
+                console.warn('window.quitApp not available — falling back to window.close()');
+                if (typeof window !== 'undefined' && typeof window.close === 'function') {
+                    window.close();
+                }
+            }
+        } catch (err) {
+            console.error('종료 호출 중 오류:', err);
+        } finally {
+            // 부모 상태도 닫히게 알림 -> "두 번 클릭" 문제 방지
+            setShowModal(false);
+            onClose?.();
+        }
     };
 
     const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>): void => {

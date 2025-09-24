@@ -10,7 +10,22 @@ app.whenReady().then(() => {
 
     // ✅ 렌더러에서 "app:quit" 신호 오면 앱 종료
     ipcMain.handle('app:quit', async () => {
-        app.quit();   // before-quit, will-quit 이벤트 정상 발생
+        try {
+            // 모든 창 강제 파괴 (beforeunload / close 리스너 무시)
+            BrowserWindow.getAllWindows().forEach((w) => {
+                try {
+                    w.removeAllListeners('close');
+                    w.destroy();
+                } catch (e) {
+                    console.error('window destroy error', e);
+                }
+            });
+        } catch (e) {
+            console.error('error destroying windows before quit', e);
+        } finally {
+            // 최종적으로 앱 종료
+            app.quit();
+        }
     });
 });
 
@@ -75,6 +90,7 @@ function createWindow() {
 
     if (isDev) mainWindow.webContents.openDevTools();
 }
+
 app.whenReady().then(() => {
     registerAssetProtocols(); // ★ 윈도우 생성 전 등록
     createWindow();

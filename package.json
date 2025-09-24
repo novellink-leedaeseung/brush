@@ -72,6 +72,7 @@
       "electron.js",
       "public/assets/**/*",
       "node_modules/**/*",
+      "preload.js",
       {
         "from": "dist",
         "to": "dist",
