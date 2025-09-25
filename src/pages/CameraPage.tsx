@@ -50,7 +50,7 @@ const CameraPage: React.FC = () => {
                 borderTop: '0.5px solid rgb(76, 73, 72)',
                 outlineOffset: '-0.25px',
                 width: '1080px',
-                height: '352px',
+                height: '349px',
                 background: 'white',
                 overflow: 'hidden',
                 position: 'relative',

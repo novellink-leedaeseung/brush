@@ -345,11 +345,15 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
             {/* 비디오 엘리먼트 */}
             <video
                 ref={videoRef}
+                draggable={false}
+                onDragStart={(event) => event.preventDefault()}
                 style={{
                     width: '100%',
                     height: '100%',
                     objectFit: 'cover',
                     backgroundColor: '#000',
+                    userSelect: 'none',
+                    WebkitUserDrag: 'none',
                 }}
             />
 
