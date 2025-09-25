@@ -35,6 +35,11 @@ const HomePage: React.FC = () => {
         setShowModal(true);
     };
 
+    const handleCloseModal = () => {
+        setShowModal(false);
+        setOverlayTapCount(0);
+    };
+
     // ✅ 투명 오버레이 버튼 4-탭 핸들러
     const handleOverlayPress = () => {
         // 3초 윈도우(4번 모으기) 시작/연장
@@ -51,7 +56,7 @@ const HomePage: React.FC = () => {
         setOverlayTapCount((prev) => {
             const next = prev + 1;
 
-            // ✅ 임계치(4회) 도달 → 타이머 정리 + 모달 오픈
+            // ✅ 임계치(2회) 도달 → 타이머 정리 + 모달 오픈
             if (next >= 2) {
                 if (overlayWindowRef.current) {
                     clearTimeout(overlayWindowRef.current);
@@ -114,8 +119,7 @@ const HomePage: React.FC = () => {
             {/* 종료 확인 모달 */}
             <ExitConfirmationModal
                 isOpen={showModal}
-                onClose={() => {
-                }}
+                onClose={handleCloseModal}
                 autoShow={false}
             />
         </div>
