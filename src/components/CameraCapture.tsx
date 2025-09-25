@@ -353,7 +353,6 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
                     objectFit: 'cover',
                     backgroundColor: '#000',
                     userSelect: 'none',
-                    WebkitUserDrag: 'none',
                 }}
             />
 
