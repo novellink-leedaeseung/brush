@@ -14,6 +14,9 @@ import MaskedPhoneDisplay, {maskPhoneNumber} from "@/components/userFind/MaskedP
 import {flushSync} from "react-dom";
 import NetworkNotificationModal from "@/components/userFind/NetworkNotificationModal.tsx";
 
+import {getConfig} from "@/hooks/useConfig";
+
+
 const UserFindPage: React.FC = () => {
     const navigate = useNavigate();
     const [inputNumber, setInputNumber] = useState<string>('');
@@ -22,6 +25,7 @@ const UserFindPage: React.FC = () => {
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [notificationMessage, setNotificationMessage] = useState<string>("일치하는 회원 정보가 없습니다.");
     const [showSuccessModalName, setShowSuccessModalName] = useState<string>('테스트');
+
 
     // 입력 처리 (기존 로직 그대로)
     const handlePress = useCallback((value: number | 'clear' | 'backspace') => {
@@ -41,10 +45,12 @@ const UserFindPage: React.FC = () => {
 
     // 확인 버튼 클릭 (기존 로직 그대로)
     const handleConfirm = async () => {
+        const {apiBaseUrl} = await getConfig();
+
         let n = inputNumber.trim();
         if (!n) return;
 
-        if (inputNumber.trim().length == 5 || inputNumber.trim().length == 6){
+        if (inputNumber.trim().length == 5 || inputNumber.trim().length == 6) {
             n = n.replace(/^0+/, "");
         }
 
@@ -55,7 +61,7 @@ const UserFindPage: React.FC = () => {
 
             // --- 2. 구강인증 DB에 사용자 조회 ---
             try {
-                await axios.get(`http://localhost:3001/api/members/${n}`);
+                await axios.get(`${apiBaseUrl}/api/members/${n}`);
                 localStorage.setItem("inputNumber", n);
                 navigate("/kiosk/user-confirm");
             } catch (oralAuthError) {

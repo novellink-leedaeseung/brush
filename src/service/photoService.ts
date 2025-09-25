@@ -1,4 +1,8 @@
+import { getConfig } from "@/hooks/useConfig";
+
 export const saveImageToServer = async (imageDataUrl: string) => {
+    const { apiBaseUrl } = await getConfig();
+
     const today = new Date()
     const y = today.getFullYear();
     const m = String(today.getMonth() + 1).padStart(2, '0');
@@ -13,7 +17,7 @@ export const saveImageToServer = async (imageDataUrl: string) => {
     if (userNo.length === 6 || userNo.length === 5) fileName = `${y}${m}${d}-${hh}-${mm}-${ss}-${userNo}-${userName}`
 
 
-    const response = await fetch('http://localhost:3001/api/save-photo', {
+    const response = await fetch(`${apiBaseUrl}/api/save-photo`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({imageData: imageDataUrl, fileName})
