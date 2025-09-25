@@ -176,6 +176,9 @@ function createWindow() {
     slashes: true,
   });
   mainWindow.loadURL(indexHtmlPath);
+
+  // 디버깅 편의를 위해 항상 개발자 도구를 연다.
+  mainWindow.webContents.openDevTools();
 }
 
 /* =========================
@@ -264,6 +267,14 @@ app.whenReady().then(() => {
     currentConfig
   }));
 
+});
+
+app.on('will-quit', () => {
+  try {
+    globalShortcut.unregisterAll();
+  } catch (err) {
+    console.warn('[devtools] Failed to unregister shortcuts on quit', err);
+  }
 });
 
 app.on('window-all-closed', () => {
