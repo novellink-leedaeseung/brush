@@ -41,8 +41,12 @@ const UserFindPage: React.FC = () => {
 
     // 확인 버튼 클릭 (기존 로직 그대로)
     const handleConfirm = async () => {
-        const n = inputNumber.trim();
+        let n = inputNumber.trim();
         if (!n) return;
+
+        if (inputNumber.trim().length == 5 || inputNumber.trim().length == 6){
+            n = n.replace(/^0+/, "");
+        }
 
         try {
             // --- 1. 메인 DB에서 사용자 조회 ---
