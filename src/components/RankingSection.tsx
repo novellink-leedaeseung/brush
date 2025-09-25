@@ -3,6 +3,8 @@ import React, {useEffect, useMemo, useState} from "react";
 import UserListItem from "@/components/UserListItem";
 import {splitKoKRDateTime} from "@/utils/koreanDateTime.ts";
 import NoneLayer from "@/components/ranking/NoneLayer.tsx";
+import {getConfig} from "@/hooks/useConfig";
+
 
 /** ===== API 타입 ===== */
 interface MembersApiItem {
@@ -146,14 +148,17 @@ const RankingSection: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+
     useEffect(() => {
         const fetchMembers = async () => {
+            const {apiBaseUrl} = await getConfig();
+
             try {
                 setLoading(true);
                 setError(null);
 
                 const res = await fetch(
-                    `http://localhost:3001/api/members?page=${page}&lunchOnly=true`
+                    `${apiBaseUrl}/api/members?page=${page}&lunchOnly=true`
                 );
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
@@ -399,7 +404,12 @@ const RankingSection: React.FC = () => {
                                             gap: 12,
                                         }}
                                     >
-                                        <div style={{fontSize: "25px", color: "#4C4948", textAlign: "center", width: "250px"}}>{user.time}</div>
+                                        <div style={{
+                                            fontSize: "25px",
+                                            color: "#4C4948",
+                                            textAlign: "center",
+                                            width: "250px"
+                                        }}>{user.time}</div>
                                     </div>
                                 )}
                             </React.Fragment>
