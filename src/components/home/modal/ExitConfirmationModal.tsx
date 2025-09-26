@@ -76,10 +76,9 @@ const ExitConfirmationModal: React.FC<ExitConfirmationModalProps> = ({
         }
     };
 
+    // 변경 후 (바깥 클릭 시 닫히지 않음)
     const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>): void => {
-        if (e.target === e.currentTarget) {
-            handleClose();
-        }
+        e.stopPropagation(); // 클릭은 막되, 더 이상 닫지 않음
     };
 
     if (!showModal) return null;
