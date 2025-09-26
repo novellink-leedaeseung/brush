@@ -162,6 +162,7 @@ const HeroSlider: React.FC = () => {
           opacity: visible ? 1 : 0,
           transition: "opacity 0.7s ease-in-out",
           pointerEvents: visible ? "auto" : "none",
+            objectFit: "contain",
         };
 
         return item.type === "image" ? (
