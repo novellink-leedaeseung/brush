@@ -6,5 +6,5 @@
   "apiBaseUrl": "http://127.0.0.1:3001",
   "toothbrushModalTimeout": 5000,
   "lunchStartTime": 12,
-  "lunchEndTime": 13,
+  "lunchEndTime": 13
 }
