@@ -31,6 +31,24 @@ function resolveIpcRenderer(): IpcRendererLike | null {
   return ipcRenderer;
 }
 
+function sendLogEvent(channel: string, entry: Record<string, unknown>, devLabel: string) {
+  const ipc = resolveIpcRenderer();
+  const payload = {
+    ...entry,
+    loggedAt: new Date().toISOString(),
+  };
+
+  if (ipc) {
+    try {
+      ipc.send(channel, payload);
+    } catch (err) {
+      console.error(`[ipcLogger] Failed to send ${devLabel} entry`, err);
+    }
+  } else if (import.meta.env?.DEV) {
+    console.debug(`[ipcLogger:${devLabel}]`, payload);
+  }
+}
+
 export type ButtonClickLogPayload = {
   buttonId?: string | null;
   text?: string | null;
@@ -40,23 +58,25 @@ export type ButtonClickLogPayload = {
 };
 
 export function logButtonClick(payload: ButtonClickLogPayload) {
-  const entry = {
-    ...payload,
-    clickedAt: new Date().toISOString(),
-  };
+  sendLogEvent('log:button-click', payload, 'button');
+}
 
-  const ipc = resolveIpcRenderer();
-  console.log('[ipcLogger] button log attempt', entry, ipc ? 'ipc:yes' : 'ipc:no');
-  if (ipc) {
-    try {
-      console.log('[ipcLogger] sending log:button-click', entry);
-      ipc.send('log:button-click', entry);
-    } catch (err) {
-      console.error('[ipcLogger] Failed to send log entry', err);
-    }
-  } else if (import.meta.env?.DEV) {
-    console.debug('[button-log]', entry);
-  }
+export type ApiLogPayload = {
+  stage: 'request' | 'response' | 'error';
+  requestId: string | null;
+  label?: string | null;
+  method?: string | null;
+  url?: string | null;
+  status?: number | null;
+  durationMs?: number | null;
+  success?: boolean;
+  message?: string | null;
+  code?: string | null;
+  extra?: Record<string, unknown> | null;
+};
+
+export function logApiEvent(payload: ApiLogPayload) {
+  sendLogEvent('log:api-event', payload, 'api');
 }
 
 // Warm up once in case the environment is ready immediately.

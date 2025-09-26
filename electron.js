@@ -36,10 +36,13 @@ const userDataConfigPath = path.join(getUserDataDir(), 'config.json');
 
 // --- 로그 경로 및 유틸 ---
 const LOG_DIR_NAMES = ['log', 'logs'];
-const BUTTON_LOG_FILE = 'button-clicks.log';
+const LOG_FILES = {
+  button: 'button-clicks.log',
+  api: 'api.log',
+};
 let resolvedLogDir = null;
 const failedLogDirs = new Set();
-let didLogResolvedPath = false;
+const announcedLogFilePaths = new Map();
 
 function getBaseLogDirCandidates() {
   const bases = new Set();
@@ -81,13 +84,13 @@ function ensureLogDir() {
   return null;
 }
 
-function getButtonLogPath() {
+function getLogPath(logFileName) {
   const dir = ensureLogDir();
-  return dir ? path.join(dir, BUTTON_LOG_FILE) : null;
+  return dir ? path.join(dir, logFileName) : null;
 }
 
-function ensureButtonLogFile() {
-  const logPath = getButtonLogPath();
+function ensureLogFile(logFileName) {
+  const logPath = getLogPath(logFileName);
   if (!logPath) return null;
 
   try {
@@ -96,7 +99,7 @@ function ensureButtonLogFile() {
     }
     return logPath;
   } catch (err) {
-    console.error('[log] Failed to ensure log file', err);
+    console.error(`[log] Failed to ensure log file ${logFileName}`, err);
     failedLogDirs.add(path.dirname(logPath));
     resolvedLogDir = null;
     return null;
@@ -116,18 +119,23 @@ function serializeForLog(payload) {
   }
 }
 
-function writeLogLine(eventType, payload) {
+function announceLogPath(logFileName, logPath) {
+  const prev = announcedLogFilePaths.get(logFileName);
+  if (prev !== logPath) {
+    console.log(`[log] Writing ${logFileName} logs to: ${logPath}`);
+    announcedLogFilePaths.set(logFileName, logPath);
+  }
+}
+
+function writeLogLine(logFileName, eventType, payload) {
   try {
-    let logPath = ensureButtonLogFile();
+    let logPath = ensureLogFile(logFileName);
     if (!logPath) {
       console.error('[log] No log directory available. Skipping log write.');
       return;
     }
 
-    if (!didLogResolvedPath) {
-      console.log(`[log] Writing button logs to: ${logPath}`);
-      didLogResolvedPath = true;
-    }
+    announceLogPath(logFileName, logPath);
 
     const line = `[${new Date().toISOString()}] [${eventType}] ${serializeForLog(payload)}\n`;
     try {
@@ -137,16 +145,17 @@ function writeLogLine(eventType, payload) {
       console.error(`[log] Failed to append log at ${logPath}`, err);
       failedLogDirs.add(path.dirname(logPath));
       resolvedLogDir = null;
-      logPath = ensureButtonLogFile();
+      logPath = ensureLogFile(logFileName);
       if (!logPath) {
         console.error('[log] Fallback log directory unavailable after append failure.');
         return;
       }
-      console.warn(`[log] Retrying log write at fallback path: ${logPath}`);
+      console.warn(`[log] Retrying log write for ${logFileName} at fallback path: ${logPath}`);
+      announceLogPath(logFileName, logPath);
       fs.appendFileSync(logPath, line, 'utf-8');
     }
   } catch (err) {
-    console.error('[log] Failed to write log line', err);
+    console.error(`[log] Failed to write log line for ${logFileName}`, err);
   }
 }
 
@@ -335,10 +344,12 @@ app.whenReady().then(() => {
   const preparedLogDir = ensureLogDir();
   if (preparedLogDir) {
     console.log(`[log] Log directory ready: ${preparedLogDir}`);
-    const logFile = ensureButtonLogFile();
-    if (logFile) {
-      console.log(`[log] Log file ready: ${logFile}`);
-    }
+    Object.entries(LOG_FILES).forEach(([key, fileName]) => {
+      const logFile = ensureLogFile(fileName);
+      if (logFile) {
+        console.log(`[log] Log file ready (${key}): ${logFile}`);
+      }
+    });
   } else {
     console.error('[log] Failed to prepare any log directory.');
   }
@@ -433,7 +444,18 @@ app.whenReady().then(() => {
       ...payload,
     };
     console.log('[log] Received button click', logEntry);
-    writeLogLine('BUTTON_CLICK', logEntry);
+    writeLogLine(LOG_FILES.button, 'BUTTON_CLICK', logEntry);
+  });
+
+  ipcMain.on('log:api-event', (event, rawPayload) => {
+    const payload = (rawPayload && typeof rawPayload === 'object') ? rawPayload : { value: rawPayload };
+    const logEntry = {
+      kioskId: currentConfig?.kioskId ?? null,
+      senderURL: event?.senderFrame?.url ?? null,
+      ...payload,
+    };
+    console.log('[log] Received api event', logEntry);
+    writeLogLine(LOG_FILES.api, 'API_EVENT', logEntry);
   });
 
 });
