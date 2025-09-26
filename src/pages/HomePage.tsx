@@ -7,6 +7,7 @@ import HeroSlider from '@/components/home/HeroSlider.tsx';
 import '@/index.css';
 import ExitConfirmationModal from '@/components/home/modal/ExitConfirmationModal.tsx';
 import TransparentHitArea from "@/components/home/TransparentHitArea.tsx";
+import { logButtonClick } from '@/utils/ipcLogger';
 
 const HEADER_H = 150;  // Header 실제 높이(px) 맞춰 조정
 const HERO_H = 608;    // 상단 이미지 영역 높이
@@ -42,6 +43,15 @@ const HomePage: React.FC = () => {
 
     // ✅ 투명 오버레이 버튼 4-탭 핸들러
     const handleOverlayPress = () => {
+        const currentPath = typeof window !== 'undefined'
+            ? (window.location?.hash || window.location?.pathname || null)
+            : null;
+
+        logButtonClick({
+            buttonId: 'transparent-overlay',
+            path: currentPath,
+            text: 'overlay tap',
+        });
         // 3초 윈도우(4번 모으기) 시작/연장
         if (overlayWindowRef.current) {
             clearTimeout(overlayWindowRef.current);

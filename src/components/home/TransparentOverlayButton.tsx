@@ -50,6 +50,7 @@ const TransparentOverlayButton: React.FC<Props> = ({
       touchAction: 'manipulation',
     }}
     data-log-id={logId}
+    data-log-skip-global="true"
   />
 );
 

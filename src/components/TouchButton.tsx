@@ -1,5 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
+import { logButtonClick } from '@/utils/ipcLogger'
 
 interface TouchButtonProps {
   to: string
@@ -11,11 +12,24 @@ const TouchButton: React.FC<TouchButtonProps> = ({ to, text = "화면을 터치�
   const navigate = useNavigate()
 
   const handleClick = () => {
+    const currentPath = typeof window !== 'undefined'
+      ? (window.location?.hash || window.location?.pathname || null)
+      : null
+    logButtonClick({
+      buttonId: logId,
+      text,
+      path: currentPath,
+    })
     navigate(to)
   }
 
   return (
-    <button type="button" onClick={handleClick} data-log-id={logId} style={{
+    <button
+      type="button"
+      onClick={handleClick}
+      data-log-id={logId}
+      data-log-skip-global="true"
+      style={{
       width: '1080px',
       height: '354px',
       padding: 0,

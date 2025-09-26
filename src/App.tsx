@@ -28,6 +28,9 @@ function App() {
       if (found.disabled) return;
 
       const button = found;
+      if (button.dataset?.logSkipGlobal === 'true') {
+        return;
+      }
       const datasetEntries = Object.entries(button.dataset ?? {});
       const dataAttributes = datasetEntries.length ? Object.fromEntries(datasetEntries) : null;
 

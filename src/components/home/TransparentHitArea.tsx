@@ -1,6 +1,7 @@
 // src/components/TransparentHitArea.tsx
 import React from 'react';
 import {useNavigate} from "react-router-dom";
+import { logButtonClick } from '@/utils/ipcLogger';
 
 type Props = {
     top?: number;
@@ -42,8 +43,17 @@ const TransparentHitArea: React.FC<Props> = ({
                 cursor: 'pointer',
                 zIndex,
             }}
+            data-log-id="transparent-hit-area"
+            data-log-skip-global="true"
             onClick={() => {
-                // TODO: 클릭 시 실행할 코드를 여기에 작성
+                const currentPath = typeof window !== 'undefined'
+                    ? (window.location?.hash || window.location?.pathname || null)
+                    : null
+                logButtonClick({
+                    buttonId: 'transparent-hit-area',
+                    path: currentPath,
+                    text: 'transparent-hit-area',
+                });
                 navigate("/kiosk/user-find")
             }}
         />

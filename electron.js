@@ -35,22 +35,64 @@ function getUserDataDir() {
 const userDataConfigPath = path.join(getUserDataDir(), 'config.json');
 
 // --- 로그 경로 및 유틸 ---
-const LOG_DIR_NAME = 'logs';
+const LOG_DIR_NAMES = ['log', 'logs'];
 const BUTTON_LOG_FILE = 'button-clicks.log';
+let resolvedLogDir = null;
+let didLogResolvedPath = false;
 
-function getLogDir() {
-  return path.join(getUserDataDir(), LOG_DIR_NAME);
+function getBaseLogDirCandidates() {
+  const bases = new Set();
+  const portableDir = process.env.PORTABLE_EXECUTABLE_DIR;
+  if (portableDir) bases.add(portableDir);
+  bases.add(getExeDir());
+  bases.add(getUserDataDir());
+  return Array.from(bases);
+}
+
+function ensureLogDir() {
+  if (resolvedLogDir && fs.existsSync(resolvedLogDir)) {
+    return resolvedLogDir;
+  }
+
+  const bases = getBaseLogDirCandidates();
+  for (const base of bases) {
+    if (!base) continue;
+    for (const dirName of LOG_DIR_NAMES) {
+      const candidate = path.join(base, dirName);
+      try {
+        fs.mkdirSync(candidate, { recursive: true });
+        resolvedLogDir = candidate;
+        if (candidate !== path.join(getExeDir(), dirName)) {
+          console.warn(`[log] Using fallback log directory: ${candidate}`);
+        }
+        return resolvedLogDir;
+      } catch (err) {
+        console.error(`[log] Failed to ensure log directory at ${candidate}`, err);
+      }
+    }
+  }
+
+  resolvedLogDir = null;
+  return null;
 }
 
 function getButtonLogPath() {
-  return path.join(getLogDir(), BUTTON_LOG_FILE);
+  const dir = ensureLogDir();
+  return dir ? path.join(dir, BUTTON_LOG_FILE) : null;
 }
 
-function ensureLogDirExists() {
+function ensureButtonLogFile() {
+  const logPath = getButtonLogPath();
+  if (!logPath) return null;
+
   try {
-    fs.mkdirSync(getLogDir(), { recursive: true });
+    if (!fs.existsSync(logPath)) {
+      fs.writeFileSync(logPath, '', 'utf-8');
+    }
+    return logPath;
   } catch (err) {
-    console.error('[log] Failed to ensure log directory', err);
+    console.error('[log] Failed to ensure log file', err);
+    return null;
   }
 }
 
@@ -69,9 +111,19 @@ function serializeForLog(payload) {
 
 function writeLogLine(eventType, payload) {
   try {
-    ensureLogDirExists();
+    const logPath = ensureButtonLogFile();
+    if (!logPath) {
+      console.error('[log] No log directory available. Skipping log write.');
+      return;
+    }
+
+    if (!didLogResolvedPath) {
+      console.log(`[log] Writing button logs to: ${logPath}`);
+      didLogResolvedPath = true;
+    }
+
     const line = `[${new Date().toISOString()}] [${eventType}] ${serializeForLog(payload)}\n`;
-    fs.appendFileSync(getButtonLogPath(), line, 'utf-8');
+    fs.appendFileSync(logPath, line, 'utf-8');
   } catch (err) {
     console.error('[log] Failed to write log line', err);
   }
@@ -228,6 +280,17 @@ function createWindow() {
    [LIFECYCLE]
 ========================= */
 app.whenReady().then(() => {
+  const preparedLogDir = ensureLogDir();
+  if (preparedLogDir) {
+    console.log(`[log] Log directory ready: ${preparedLogDir}`);
+    const logFile = ensureButtonLogFile();
+    if (logFile) {
+      console.log(`[log] Log file ready: ${logFile}`);
+    }
+  } else {
+    console.error('[log] Failed to prepare any log directory.');
+  }
+
   // -- 설정 로드 & 파일 감시 설정 --
   loadRuntimeConfig();
 
