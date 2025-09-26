@@ -1,12 +1,25 @@
 // preload.js
-const { contextBridge, ipcRenderer } = require('electron');
+const { ipcRenderer } = require('electron');
 
-contextBridge.exposeInMainWorld('electronAPI', {
-  // invoke 패턴으로 사용
+const api = {
   appQuit: () => ipcRenderer.invoke('app:quit'),
-  // 필요하면 추가 노출: send/on 등
   send: (channel, ...args) => ipcRenderer.send(channel, ...args),
   on: (channel, listener) => {
     ipcRenderer.on(channel, (event, ...args) => listener(...args));
   },
-});
+};
+
+try {
+  if (typeof window !== 'undefined') {
+    window.electronAPI = api;
+  }
+  if (typeof global !== 'undefined') {
+    global.electronAPI = api;
+  }
+  if (typeof globalThis !== 'undefined') {
+    globalThis.electronAPI = api;
+  }
+  console.log('[preload] electronAPI injected without contextBridge');
+} catch (err) {
+  console.error('[preload] Failed to expose electronAPI', err);
+}

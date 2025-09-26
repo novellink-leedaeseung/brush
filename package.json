@@ -16,7 +16,7 @@
     "preelectron-pack": "npm run build",
     "build-electron": "npm run build && electron-builder --publish=never",
     "dist": "npm run build && electron-builder --publish=never",
-    "dist-zip": "electron-builder -w zip"
+    "dist-zip": "npm run build && electron-builder -w zip"
   },
   "dependencies": {
     "async-mutex": "^0.5.0",

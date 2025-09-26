@@ -274,32 +274,55 @@ function registerAssetProtocols() {
 /* =========================
    [WINDOW]
 ========================= */
-function createWindow() {
-  const preloadCandidate = path.join(__dirname, 'preload.js');
-  const webPreferences = {
-    nodeIntegration: true,
-    contextIsolation: false,
-    webSecurity: false,
+function resolveIndexHtmlPath() {
+  const candidates = [];
+
+  const addCandidate = (p) => {
+    if (!p) return;
+    try {
+      candidates.push(path.normalize(p));
+    } catch {}
   };
 
-  if (fs.existsSync(preloadCandidate)) {
-    webPreferences.preload = preloadCandidate;
-  } else {
-    console.warn(`[preload] Not found at ${preloadCandidate}. Continuing without preload.`);
+  addCandidate(path.join(__dirname, 'dist', 'index.html'));
+  addCandidate(path.join(app.getAppPath(), 'dist', 'index.html'));
+
+  try { addCandidate(path.join(process.resourcesPath, 'app', 'dist', 'index.html')); } catch {}
+  try { addCandidate(path.join(process.resourcesPath, 'app.asar', 'dist', 'index.html')); } catch {}
+  try { addCandidate(path.join(process.resourcesPath, 'dist', 'index.html')); } catch {}
+
+  for (const candidate of candidates) {
+    try {
+      if (fs.existsSync(candidate)) {
+        return candidate;
+      }
+    } catch {}
   }
 
+  console.error('[main] Failed to resolve index.html. Checked candidates:', candidates);
+  return null;
+}
+
+function createWindow() {
   mainWindow = new BrowserWindow({
     fullscreen: true,
     autoHideMenuBar: true,
-    webPreferences,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+      webSecurity: false,
+    },
   });
 
-  const indexHtmlPath = url.format({
-    pathname: path.join(__dirname, 'dist', 'index.html'),
-    protocol: 'file:',
-    slashes: true,
-  });
-  mainWindow.loadURL(indexHtmlPath);
+  const resolvedIndex = resolveIndexHtmlPath();
+
+  if (resolvedIndex) {
+    console.log(`[main] Loading UI from ${resolvedIndex}`);
+    mainWindow.loadFile(resolvedIndex);
+  } else {
+    const fallbackHtml = '<h1 style="font-family: sans-serif; color: #c00; text-align: center; margin-top: 40vh;">index.html not found</h1>';
+    mainWindow.loadURL(`data:text/html,${encodeURIComponent(fallbackHtml)}`);
+  }
 
   // 디버깅 편의를 위해 항상 개발자 도구를 연다.
   mainWindow.webContents.openDevTools();
