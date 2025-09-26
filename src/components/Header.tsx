@@ -22,106 +22,22 @@ const Header: React.FC<HeaderProps> = ({
     const [currentTime, setCurrentTime] = useState<string>('');
     const [currentDate, setCurrentDate] = useState<string>('');
     const {config} = useConfig(); // { config, reload }
-    const [remoteLogo, setRemoteLogo] = useState<string | null>(null);
-    const objectUrlRef = useRef<string | null>(null);
 
-    const releaseObjectUrl = () => {
-        if (objectUrlRef.current) {
-            URL.revokeObjectURL(objectUrlRef.current);
-            objectUrlRef.current = null;
+    const logoToDisplay = useMemo(() => {
+        if (logoSrc) {
+            return logoSrc;
         }
-    };
-
-    const applyRemoteLogo = (value: string | null, isObjectUrl = false) => {
-        releaseObjectUrl();
-        if (value && isObjectUrl) {
-            objectUrlRef.current = value;
+        if (config?.apiBaseUrl && config?.logo) {
+            const trimmedBase = config.apiBaseUrl.replace(/\/+$/, '');
+            return `${trimmedBase}/api/logo`;
         }
-        setRemoteLogo(value);
-    };
+        return '/assets/logo/novellink.png';
+    }, [config, logoSrc]);
 
-    useEffect(() => () => releaseObjectUrl(), []);
-
-    useEffect(() => {
-        if (!config?.apiBaseUrl || logoSrc) {
-            applyRemoteLogo(null);
-            return;
-        }
-
-        const trimmedBase = config.apiBaseUrl.replace(/\/+$/, '');
-        const controller = new AbortController();
-        let cancelled = false;
-
-        applyRemoteLogo(null);
-
-        const resolveRemotePath = (path: string | undefined | null) => {
-            if (!path) return null;
-            try {
-                return new URL(path, `${trimmedBase}/`).toString();
-            } catch (err) {
-                console.warn('[Header] Failed to resolve logo path', err);
-                return path;
-            }
-        };
-
-        (async () => {
-            try {
-                const response = await fetch(`${trimmedBase}/api/logo`, {
-                    signal: controller.signal,
-                    cache: 'no-store',
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-
-                const contentType = response.headers.get('content-type')?.toLowerCase() ?? '';
-
-                if (contentType.includes('application/json')) {
-                    const payload = await response.json();
-                    const candidate = [
-                        payload?.logoUrl,
-                        payload?.logo,
-                        payload?.url,
-                        payload?.path,
-                    ].find((value) => typeof value === 'string' && value.length > 0);
-
-                    const resolved = resolveRemotePath(candidate as string | undefined);
-                    if (resolved && !cancelled) {
-                        applyRemoteLogo(resolved);
-                    }
-                } else {
-                    const blob = await response.blob();
-                    if (cancelled) {
-                        return;
-                    }
-                    const objectUrl = URL.createObjectURL(blob);
-                    applyRemoteLogo(objectUrl, true);
-                }
-            } catch (error) {
-                if (!controller.signal.aborted) {
-                    console.warn('[Header] Failed to fetch remote logo', error);
-                }
-            }
-        })();
-
-        return () => {
-            cancelled = true;
-            controller.abort();
-        };
-    }, [config?.apiBaseUrl, logoSrc]);
-
-    // ✅ 안전한 값 계산 (config 없을 때도 동작)
-    const fallbackLogo = useMemo(
-        () => (config?.logo ? `/assets/logo/${config.logo}` : `/assets/logo/novellink.png`),
-        [config?.logo]
-    );
     const safeTitle = useMemo(
         () => (typeof title === 'string' ? title : (config?.titleText ?? "")),
         [title, config?.titleText]
     );
-
-    const logoToDisplay = logoSrc ?? remoteLogo ?? fallbackLogo;
 
     // ✅ 문서(윈도우) 타이틀도 함께 갱신 — 눈으로 확인 용이
     useEffect(() => {
