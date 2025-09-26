@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import { RankingProvider } from '@/contexts/RankingContext';
 import HomePage from '@/pages/HomePage';
@@ -9,6 +10,7 @@ import RegistrationCompletePage from '@/pages/RegistrationCompletePage';
 import IdleRedirect from '@/utils/IdleRedirect';
 import { useNoZoomNoContext } from '@/utils/useNoZoomNoContext';
 import { useConfig } from '@/hooks/useConfig';
+import { logButtonClick } from '@/utils/ipcLogger';
 
 function App() {
   useNoZoomNoContext();
@@ -16,6 +18,40 @@ function App() {
 
   // 안전 계산: config 없으면 기본 60초
   const timeoutMs = ((config?.timeout ?? 60) * 1000);
+
+  useEffect(() => {
+    const handleButtonClick = (event: MouseEvent) => {
+      if (!event.isTrusted) return;
+      const target = event.target as HTMLElement | null;
+      const found = target?.closest?.('button');
+      if (!(found instanceof HTMLButtonElement)) return;
+      if (found.disabled) return;
+
+      const button = found;
+      const datasetEntries = Object.entries(button.dataset ?? {});
+      const dataAttributes = datasetEntries.length ? Object.fromEntries(datasetEntries) : null;
+
+      const meta: Record<string, string | null> = {
+        type: button.getAttribute('type'),
+        name: button.getAttribute('name'),
+        className: button.className || null,
+      };
+      const hasMeta = Object.values(meta).some((value) => Boolean(value));
+
+      logButtonClick({
+        buttonId: button.dataset?.logId ?? button.id ?? null,
+        text: (button.innerText ?? '').trim() || null,
+        path: window.location?.hash || window.location?.pathname || null,
+        dataAttributes,
+        extra: hasMeta ? meta : null,
+      });
+    };
+
+    document.addEventListener('click', handleButtonClick, true);
+    return () => {
+      document.removeEventListener('click', handleButtonClick, true);
+    };
+  }, []);
 
   return (
     <RankingProvider>

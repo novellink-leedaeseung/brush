@@ -4,9 +4,10 @@ import { useNavigate } from 'react-router-dom'
 interface TouchButtonProps {
   to: string
   text?: string
+  logId?: string
 }
 
-const TouchButton: React.FC<TouchButtonProps> = ({ to, text = "화면을 터치해주세요!" }) => {
+const TouchButton: React.FC<TouchButtonProps> = ({ to, text = "화면을 터치해주세요!", logId = "touch-button" }) => {
   const navigate = useNavigate()
 
   const handleClick = () => {
@@ -14,7 +15,7 @@ const TouchButton: React.FC<TouchButtonProps> = ({ to, text = "화면을 터치�
   }
 
   return (
-    <button onClick={handleClick} style={{
+    <button type="button" onClick={handleClick} data-log-id={logId} style={{
       width: '1080px',
       height: '354px',
       padding: 0,

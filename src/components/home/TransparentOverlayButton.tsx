@@ -9,6 +9,7 @@ type Props = {
   height?: number;  // 기본 500
   top?: number;     // 기본 0
   left?: number;    // 기본 0
+  logId?: string;
 };
 
 const TransparentOverlayButton: React.FC<Props> = ({
@@ -19,6 +20,7 @@ const TransparentOverlayButton: React.FC<Props> = ({
   height = 130,
   top = 10,
   left = 840,
+  logId = 'transparent-overlay',
 }) => (
   <button
     type="button"
@@ -47,6 +49,7 @@ const TransparentOverlayButton: React.FC<Props> = ({
       WebkitAppearance: 'none' as any,
       touchAction: 'manipulation',
     }}
+    data-log-id={logId}
   />
 );
 
