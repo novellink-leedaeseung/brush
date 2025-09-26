@@ -1,11 +1,18 @@
 {
+  "kioskId_comment": "키오스크 장비 식별자(서버/장비 연동용 고유 ID)",
   "kioskId": "MTA001",
+  "titleText_comment": "앱 상단/윈도우에 표시할 제목 텍스트",
   "titleText": "스마일 양치 인증",
+  "timeout_comment": "사용자 입력이 없을 때 홈으로 자동 복귀하는 시간(초)",
   "timeout": 60,
+  "slideTime_comment": "홈 공지/배너가 전환되는 간격(초)",
   "slideTime": 3,
+  "apiBaseUrl_comment": "백엔드 API 기본 주소(포함된 포트로 통신)",
   "apiBaseUrl": "http://127.0.0.1:3001",
+  "toothbrushModalTimeout_comment": "양치 완료 모달 표시 시간(밀리초)",
   "toothbrushModalTimeout": 5000,
-  "lunchStartTime": 12,
-  "lunchEndTime": 13,
-  "logo": "수성중학교_로고.png"
+  "lunchStartTime_comment": "점심시간 시작 시각(24시간제, 시 단위)",
+  "lunchStartTime": 10,
+  "lunchEndTime_comment": "점심시간 종료 시각(24시간제, 시 단위)",
+  "lunchEndTime": 13
 }
