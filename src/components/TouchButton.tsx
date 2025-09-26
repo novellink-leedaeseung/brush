@@ -21,6 +21,7 @@ const TouchButton: React.FC<TouchButtonProps> = ({ to, text = "화면을 터치�
       text,
       path: currentPath,
     })
+    console.log('[TouchButton] manual log recorded', { logId, currentPath })
     buttonEl.dataset.logManualReported = 'true'
     setTimeout(() => {
       delete buttonEl.dataset.logManualReported

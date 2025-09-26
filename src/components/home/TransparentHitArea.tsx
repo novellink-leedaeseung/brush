@@ -53,6 +53,7 @@ const TransparentHitArea: React.FC<Props> = ({
                     path: currentPath,
                     text: 'transparent-hit-area',
                 });
+                console.log('[TransparentHitArea] manual log recorded', { path: currentPath });
                 const buttonEl = event.currentTarget;
                 buttonEl.dataset.logManualReported = 'true'
                 setTimeout(() => {

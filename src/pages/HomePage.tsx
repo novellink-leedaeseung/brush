@@ -52,6 +52,7 @@ const HomePage: React.FC = () => {
             path: currentPath,
             text: 'overlay tap',
         });
+        console.log('[TransparentOverlay] manual log recorded', { path: currentPath });
 
         const buttonEl = event.currentTarget;
         buttonEl.dataset.logManualReported = 'true';

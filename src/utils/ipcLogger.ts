@@ -46,9 +46,10 @@ export function logButtonClick(payload: ButtonClickLogPayload) {
   };
 
   const ipc = resolveIpcRenderer();
+  console.log('[ipcLogger] button log attempt', entry, ipc ? 'ipc:yes' : 'ipc:no');
   if (ipc) {
     try {
-      console.debug('[ipcLogger] sending log:button-click', entry);
+      console.log('[ipcLogger] sending log:button-click', entry);
       ipc.send('log:button-click', entry);
     } catch (err) {
       console.error('[ipcLogger] Failed to send log entry', err);

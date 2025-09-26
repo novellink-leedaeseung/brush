@@ -31,6 +31,13 @@ function App() {
       if (button.dataset?.logManualReported === 'true') {
         return;
       }
+
+      console.log('[globalLogFallback] button click detected', {
+        logId: button.dataset?.logId ?? button.id ?? null,
+        text: (button.innerText ?? '').trim() || null,
+        path: window.location?.hash || window.location?.pathname || null,
+      });
+
       const datasetEntries = Object.entries(button.dataset ?? {});
       const dataAttributes = datasetEntries.length ? Object.fromEntries(datasetEntries) : null;
 
