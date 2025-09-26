@@ -36,9 +36,9 @@ const userDataConfigPath = path.join(getUserDataDir(), 'config.json');
 
 // --- 로그 경로 및 유틸 ---
 const LOG_DIR_NAMES = ['log', 'logs'];
-const LOG_FILES = {
-  button: 'button-clicks.log',
-  api: 'api.log',
+const LOG_TARGETS = {
+  button: { base: 'button-clicks' },
+  api: { base: 'api' },
 };
 let resolvedLogDir = null;
 const failedLogDirs = new Set();
@@ -53,6 +53,11 @@ function formatKstTimestamp(date = new Date()) {
   const kstDate = new Date(date.getTime() + KST_OFFSET_MS);
   return `${kstDate.getUTCFullYear()}-${pad(kstDate.getUTCMonth() + 1)}-${pad(kstDate.getUTCDate())}`
     + ` ${pad(kstDate.getUTCHours())}:${pad(kstDate.getUTCMinutes())}:${pad(kstDate.getUTCSeconds())}.${pad(kstDate.getUTCMilliseconds(), 3)} KST`;
+}
+
+function formatKstDate(date = new Date()) {
+  const kstDate = new Date(date.getTime() + KST_OFFSET_MS);
+  return `${kstDate.getUTCFullYear()}-${pad(kstDate.getUTCMonth() + 1)}-${pad(kstDate.getUTCDate())}`;
 }
 
 function getBaseLogDirCandidates() {
@@ -100,7 +105,14 @@ function getLogPath(logFileName) {
   return dir ? path.join(dir, logFileName) : null;
 }
 
-function ensureLogFile(logFileName) {
+function getLogFileNameForKey(logKey, date = new Date()) {
+  const target = LOG_TARGETS[logKey];
+  const base = target?.base ?? logKey;
+  return `${base}-${formatKstDate(date)}.log`;
+}
+
+function ensureLogFile(logKey, date = new Date()) {
+  const logFileName = getLogFileNameForKey(logKey, date);
   const logPath = getLogPath(logFileName);
   if (!logPath) return null;
 
@@ -130,23 +142,24 @@ function serializeForLog(payload) {
   }
 }
 
-function announceLogPath(logFileName, logPath) {
-  const prev = announcedLogFilePaths.get(logFileName);
+function announceLogPath(logKey, logPath) {
+  const mapKey = `${logKey}:${path.basename(logPath)}`;
+  const prev = announcedLogFilePaths.get(mapKey);
   if (prev !== logPath) {
-    console.log(`[log] Writing ${logFileName} logs to: ${logPath}`);
-    announcedLogFilePaths.set(logFileName, logPath);
+    console.log(`[log] Writing ${logKey} logs to: ${logPath}`);
+    announcedLogFilePaths.set(mapKey, logPath);
   }
 }
 
-function writeLogLine(logFileName, eventType, payload) {
+function writeLogLine(logKey, eventType, payload) {
   try {
-    let logPath = ensureLogFile(logFileName);
+    let logPath = ensureLogFile(logKey);
     if (!logPath) {
       console.error('[log] No log directory available. Skipping log write.');
       return;
     }
 
-    announceLogPath(logFileName, logPath);
+    announceLogPath(logKey, logPath);
 
     const line = `[${formatKstTimestamp()}] [${eventType}] ${serializeForLog(payload)}\n`;
     try {
@@ -156,17 +169,17 @@ function writeLogLine(logFileName, eventType, payload) {
       console.error(`[log] Failed to append log at ${logPath}`, err);
       failedLogDirs.add(path.dirname(logPath));
       resolvedLogDir = null;
-      logPath = ensureLogFile(logFileName);
+      logPath = ensureLogFile(logKey);
       if (!logPath) {
         console.error('[log] Fallback log directory unavailable after append failure.');
         return;
       }
-      console.warn(`[log] Retrying log write for ${logFileName} at fallback path: ${logPath}`);
-      announceLogPath(logFileName, logPath);
+      console.warn(`[log] Retrying log write for ${logKey} at fallback path: ${logPath}`);
+      announceLogPath(logKey, logPath);
       fs.appendFileSync(logPath, line, 'utf-8');
     }
   } catch (err) {
-    console.error(`[log] Failed to write log line for ${logFileName}`, err);
+    console.error(`[log] Failed to write log line for ${logKey}`, err);
   }
 }
 
@@ -355,8 +368,8 @@ app.whenReady().then(() => {
   const preparedLogDir = ensureLogDir();
   if (preparedLogDir) {
     console.log(`[log] Log directory ready: ${preparedLogDir}`);
-    Object.entries(LOG_FILES).forEach(([key, fileName]) => {
-      const logFile = ensureLogFile(fileName);
+    Object.keys(LOG_TARGETS).forEach((key) => {
+      const logFile = ensureLogFile(key);
       if (logFile) {
         console.log(`[log] Log file ready (${key}): ${logFile}`);
       }
@@ -455,7 +468,7 @@ app.whenReady().then(() => {
       ...payload,
     };
     console.log('[log] Received button click', logEntry);
-    writeLogLine(LOG_FILES.button, 'BUTTON_CLICK', logEntry);
+    writeLogLine('button', 'BUTTON_CLICK', logEntry);
   });
 
   ipcMain.on('log:api-event', (event, rawPayload) => {
@@ -466,7 +479,7 @@ app.whenReady().then(() => {
       ...payload,
     };
     console.log('[log] Received api event', logEntry);
-    writeLogLine(LOG_FILES.api, 'API_EVENT', logEntry);
+    writeLogLine('api', 'API_EVENT', logEntry);
   });
 
 });
