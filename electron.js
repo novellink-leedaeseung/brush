@@ -43,6 +43,17 @@ const LOG_FILES = {
 let resolvedLogDir = null;
 const failedLogDirs = new Set();
 const announcedLogFilePaths = new Map();
+const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
+
+function pad(value, length = 2) {
+  return String(value).padStart(length, '0');
+}
+
+function formatKstTimestamp(date = new Date()) {
+  const kstDate = new Date(date.getTime() + KST_OFFSET_MS);
+  return `${kstDate.getUTCFullYear()}-${pad(kstDate.getUTCMonth() + 1)}-${pad(kstDate.getUTCDate())}`
+    + ` ${pad(kstDate.getUTCHours())}:${pad(kstDate.getUTCMinutes())}:${pad(kstDate.getUTCSeconds())}.${pad(kstDate.getUTCMilliseconds(), 3)} KST`;
+}
 
 function getBaseLogDirCandidates() {
   const bases = new Set();
@@ -137,7 +148,7 @@ function writeLogLine(logFileName, eventType, payload) {
 
     announceLogPath(logFileName, logPath);
 
-    const line = `[${new Date().toISOString()}] [${eventType}] ${serializeForLog(payload)}\n`;
+    const line = `[${formatKstTimestamp()}] [${eventType}] ${serializeForLog(payload)}\n`;
     try {
       fs.appendFileSync(logPath, line, 'utf-8');
       return;

@@ -5,6 +5,17 @@ type IpcRendererLike = {
 };
 
 let ipcRenderer: IpcRendererLike | null = null;
+const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
+
+function pad(value: number, length = 2) {
+  return String(value).padStart(length, '0');
+}
+
+function formatKstTimestamp(date = new Date()) {
+  const kstDate = new Date(date.getTime() + KST_OFFSET_MS);
+  return `${kstDate.getUTCFullYear()}-${pad(kstDate.getUTCMonth() + 1)}-${pad(kstDate.getUTCDate())}`
+    + ` ${pad(kstDate.getUTCHours())}:${pad(kstDate.getUTCMinutes())}:${pad(kstDate.getUTCSeconds())}.${pad(kstDate.getUTCMilliseconds(), 3)} KST`;
+}
 
 function resolveIpcRenderer(): IpcRendererLike | null {
   if (ipcRenderer) return ipcRenderer;
@@ -35,7 +46,7 @@ function sendLogEvent(channel: string, entry: Record<string, unknown>, devLabel:
   const ipc = resolveIpcRenderer();
   const payload = {
     ...entry,
-    loggedAt: new Date().toISOString(),
+    loggedAt: formatKstTimestamp(),
   };
 
   if (ipc) {
