@@ -358,7 +358,7 @@ function createWindow() {
   }
 
   // 디버깅 편의를 위해 항상 개발자 도구를 연다.
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 }
 
 /* =========================
