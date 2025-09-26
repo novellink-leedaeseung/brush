@@ -15,7 +15,8 @@
     "electron-pack": "npm run build && electron-builder",
     "preelectron-pack": "npm run build",
     "build-electron": "npm run build && electron-builder --publish=never",
-    "dist": "npm run build && electron-builder --publish=never"
+    "dist": "npm run build && electron-builder --publish=never",
+    "dist-zip": "electron-builder -w zip"
   },
   "dependencies": {
     "async-mutex": "^0.5.0",
@@ -62,6 +63,7 @@
   "build": {
     "appId": "com.novellink.brush",
     "productName": "오늘의 양치왕",
+    "asar": false,
     "directories": {
       "output": "electron-dist",
       "buildResources": "public/assets"
@@ -84,7 +86,7 @@
     "win": {
       "target": [
         {
-          "target": "nsis",
+          "target": "zip",
           "arch": [
             "x64"
           ]
@@ -113,21 +115,12 @@
       ]
     },
     "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
+      "oneClick": true,
+      "allowToChangeInstallationDirectory": false,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "perMachine": true
     },
-    "extraResources": [
-      {
-        "from": "public/assets",
-        "to": "assets",
-        "filter": [
-          "**/*"
-        ]
-      }
-    ],
     "extraFiles": [
       {
         "from": "config.json",
