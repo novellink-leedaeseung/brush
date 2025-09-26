@@ -34,6 +34,49 @@ function getUserDataDir() {
 // --- 설정 파일 경로 ---
 const userDataConfigPath = path.join(getUserDataDir(), 'config.json');
 
+// --- 로그 경로 및 유틸 ---
+const LOG_DIR_NAME = 'logs';
+const BUTTON_LOG_FILE = 'button-clicks.log';
+
+function getLogDir() {
+  return path.join(getUserDataDir(), LOG_DIR_NAME);
+}
+
+function getButtonLogPath() {
+  return path.join(getLogDir(), BUTTON_LOG_FILE);
+}
+
+function ensureLogDirExists() {
+  try {
+    fs.mkdirSync(getLogDir(), { recursive: true });
+  } catch (err) {
+    console.error('[log] Failed to ensure log directory', err);
+  }
+}
+
+function serializeForLog(payload) {
+  if (payload === undefined || payload === null) return '';
+  try {
+    if (typeof payload === 'string') {
+      return payload;
+    }
+    return JSON.stringify(payload);
+  } catch (err) {
+    console.error('[log] Failed to serialize payload', err);
+    return '"[unserializable]"';
+  }
+}
+
+function writeLogLine(eventType, payload) {
+  try {
+    ensureLogDirExists();
+    const line = `[${new Date().toISOString()}] [${eventType}] ${serializeForLog(payload)}\n`;
+    fs.appendFileSync(getButtonLogPath(), line, 'utf-8');
+  } catch (err) {
+    console.error('[log] Failed to write log line', err);
+  }
+}
+
 function getReadOnlyConfigPaths() {
   const exeDir = getExeDir();
   const portableDir = process.env.PORTABLE_EXECUTABLE_DIR;
@@ -266,6 +309,16 @@ app.whenReady().then(() => {
     currentConfigPath,
     currentConfig
   }));
+
+  ipcMain.on('log:button-click', (event, rawPayload) => {
+    const payload = (rawPayload && typeof rawPayload === 'object') ? rawPayload : { value: rawPayload };
+    const logEntry = {
+      kioskId: currentConfig?.kioskId ?? null,
+      senderURL: event?.senderFrame?.url ?? null,
+      ...payload,
+    };
+    writeLogLine('BUTTON_CLICK', logEntry);
+  });
 
 });
 
