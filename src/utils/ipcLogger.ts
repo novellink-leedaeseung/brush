@@ -17,6 +17,10 @@ function resolveIpcRenderer(): IpcRendererLike | null {
     const anyWindow = window as any;
     if (anyWindow.require) {
       ipcRenderer = anyWindow.require('electron').ipcRenderer;
+    } else if (anyWindow.electronAPI?.send) {
+      ipcRenderer = {
+        send: (channel: string, ...args: any[]) => anyWindow.electronAPI.send(channel, ...args),
+      };
     } else if (anyWindow.electron?.ipcRenderer) {
       ipcRenderer = anyWindow.electron.ipcRenderer;
     }
@@ -44,6 +48,7 @@ export function logButtonClick(payload: ButtonClickLogPayload) {
   const ipc = resolveIpcRenderer();
   if (ipc) {
     try {
+      console.debug('[ipcLogger] sending log:button-click', entry);
       ipc.send('log:button-click', entry);
     } catch (err) {
       console.error('[ipcLogger] Failed to send log entry', err);
@@ -52,3 +57,6 @@ export function logButtonClick(payload: ButtonClickLogPayload) {
     console.debug('[button-log]', entry);
   }
 }
+
+// Warm up once in case the environment is ready immediately.
+resolveIpcRenderer();
