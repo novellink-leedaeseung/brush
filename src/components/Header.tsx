@@ -27,7 +27,7 @@ const Header: React.FC<HeaderProps> = ({
         if (logoSrc) {
             return logoSrc;
         }
-        if (config?.apiBaseUrl && config?.logo) {
+        if (config?.apiBaseUrl) {
             const trimmedBase = config.apiBaseUrl.replace(/\/+$/, '');
             return `${trimmedBase}/api/logo`;
         }
