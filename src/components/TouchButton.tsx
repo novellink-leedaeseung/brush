@@ -11,7 +11,8 @@ interface TouchButtonProps {
 const TouchButton: React.FC<TouchButtonProps> = ({ to, text = "화면을 터치해주세요!", logId = "touch-button" }) => {
   const navigate = useNavigate()
 
-  const handleClick = () => {
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const buttonEl = event.currentTarget;
     const currentPath = typeof window !== 'undefined'
       ? (window.location?.hash || window.location?.pathname || null)
       : null
@@ -20,6 +21,10 @@ const TouchButton: React.FC<TouchButtonProps> = ({ to, text = "화면을 터치�
       text,
       path: currentPath,
     })
+    buttonEl.dataset.logManualReported = 'true'
+    setTimeout(() => {
+      delete buttonEl.dataset.logManualReported
+    }, 0)
     navigate(to)
   }
 
@@ -28,7 +33,6 @@ const TouchButton: React.FC<TouchButtonProps> = ({ to, text = "화면을 터치�
       type="button"
       onClick={handleClick}
       data-log-id={logId}
-      data-log-skip-global="true"
       style={{
       width: '1080px',
       height: '354px',

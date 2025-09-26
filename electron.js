@@ -38,6 +38,7 @@ const userDataConfigPath = path.join(getUserDataDir(), 'config.json');
 const LOG_DIR_NAMES = ['log', 'logs'];
 const BUTTON_LOG_FILE = 'button-clicks.log';
 let resolvedLogDir = null;
+const failedLogDirs = new Set();
 let didLogResolvedPath = false;
 
 function getBaseLogDirCandidates() {
@@ -59,6 +60,9 @@ function ensureLogDir() {
     if (!base) continue;
     for (const dirName of LOG_DIR_NAMES) {
       const candidate = path.join(base, dirName);
+      if (failedLogDirs.has(candidate)) {
+        continue;
+      }
       try {
         fs.mkdirSync(candidate, { recursive: true });
         resolvedLogDir = candidate;
@@ -68,6 +72,7 @@ function ensureLogDir() {
         return resolvedLogDir;
       } catch (err) {
         console.error(`[log] Failed to ensure log directory at ${candidate}`, err);
+        failedLogDirs.add(candidate);
       }
     }
   }
@@ -92,6 +97,8 @@ function ensureButtonLogFile() {
     return logPath;
   } catch (err) {
     console.error('[log] Failed to ensure log file', err);
+    failedLogDirs.add(path.dirname(logPath));
+    resolvedLogDir = null;
     return null;
   }
 }
@@ -111,7 +118,7 @@ function serializeForLog(payload) {
 
 function writeLogLine(eventType, payload) {
   try {
-    const logPath = ensureButtonLogFile();
+    let logPath = ensureButtonLogFile();
     if (!logPath) {
       console.error('[log] No log directory available. Skipping log write.');
       return;
@@ -123,7 +130,21 @@ function writeLogLine(eventType, payload) {
     }
 
     const line = `[${new Date().toISOString()}] [${eventType}] ${serializeForLog(payload)}\n`;
-    fs.appendFileSync(logPath, line, 'utf-8');
+    try {
+      fs.appendFileSync(logPath, line, 'utf-8');
+      return;
+    } catch (err) {
+      console.error(`[log] Failed to append log at ${logPath}`, err);
+      failedLogDirs.add(path.dirname(logPath));
+      resolvedLogDir = null;
+      logPath = ensureButtonLogFile();
+      if (!logPath) {
+        console.error('[log] Fallback log directory unavailable after append failure.');
+        return;
+      }
+      console.warn(`[log] Retrying log write at fallback path: ${logPath}`);
+      fs.appendFileSync(logPath, line, 'utf-8');
+    }
   } catch (err) {
     console.error('[log] Failed to write log line', err);
   }
@@ -380,6 +401,7 @@ app.whenReady().then(() => {
       senderURL: event?.senderFrame?.url ?? null,
       ...payload,
     };
+    console.log('[log] Received button click', logEntry);
     writeLogLine('BUTTON_CLICK', logEntry);
   });
 

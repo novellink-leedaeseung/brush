@@ -2,7 +2,7 @@
 import React from 'react';
 
 type Props = {
-  onClick?: () => void;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
   ariaLabel?: string;
   disabled?: boolean;
   width?: number;   // 기본 1080
@@ -50,7 +50,6 @@ const TransparentOverlayButton: React.FC<Props> = ({
       touchAction: 'manipulation',
     }}
     data-log-id={logId}
-    data-log-skip-global="true"
   />
 );
 

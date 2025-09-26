@@ -44,8 +44,7 @@ const TransparentHitArea: React.FC<Props> = ({
                 zIndex,
             }}
             data-log-id="transparent-hit-area"
-            data-log-skip-global="true"
-            onClick={() => {
+            onClick={(event) => {
                 const currentPath = typeof window !== 'undefined'
                     ? (window.location?.hash || window.location?.pathname || null)
                     : null
@@ -54,6 +53,11 @@ const TransparentHitArea: React.FC<Props> = ({
                     path: currentPath,
                     text: 'transparent-hit-area',
                 });
+                const buttonEl = event.currentTarget;
+                buttonEl.dataset.logManualReported = 'true'
+                setTimeout(() => {
+                    delete buttonEl.dataset.logManualReported
+                }, 0)
                 navigate("/kiosk/user-find")
             }}
         />

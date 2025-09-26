@@ -28,7 +28,7 @@ function App() {
       if (found.disabled) return;
 
       const button = found;
-      if (button.dataset?.logSkipGlobal === 'true') {
+      if (button.dataset?.logManualReported === 'true') {
         return;
       }
       const datasetEntries = Object.entries(button.dataset ?? {});
@@ -50,9 +50,9 @@ function App() {
       });
     };
 
-    document.addEventListener('click', handleButtonClick, true);
+    document.addEventListener('click', handleButtonClick);
     return () => {
-      document.removeEventListener('click', handleButtonClick, true);
+      document.removeEventListener('click', handleButtonClick);
     };
   }, []);
 

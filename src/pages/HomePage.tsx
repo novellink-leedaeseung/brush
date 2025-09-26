@@ -42,7 +42,7 @@ const HomePage: React.FC = () => {
     };
 
     // ✅ 투명 오버레이 버튼 4-탭 핸들러
-    const handleOverlayPress = () => {
+    const handleOverlayPress = (event: React.MouseEvent<HTMLButtonElement>) => {
         const currentPath = typeof window !== 'undefined'
             ? (window.location?.hash || window.location?.pathname || null)
             : null;
@@ -52,6 +52,12 @@ const HomePage: React.FC = () => {
             path: currentPath,
             text: 'overlay tap',
         });
+
+        const buttonEl = event.currentTarget;
+        buttonEl.dataset.logManualReported = 'true';
+        setTimeout(() => {
+            delete buttonEl.dataset.logManualReported;
+        }, 0);
         // 3초 윈도우(4번 모으기) 시작/연장
         if (overlayWindowRef.current) {
             clearTimeout(overlayWindowRef.current);
