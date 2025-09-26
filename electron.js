@@ -275,15 +275,23 @@ function registerAssetProtocols() {
    [WINDOW]
 ========================= */
 function createWindow() {
+  const preloadCandidate = path.join(__dirname, 'preload.js');
+  const webPreferences = {
+    nodeIntegration: true,
+    contextIsolation: false,
+    webSecurity: false,
+  };
+
+  if (fs.existsSync(preloadCandidate)) {
+    webPreferences.preload = preloadCandidate;
+  } else {
+    console.warn(`[preload] Not found at ${preloadCandidate}. Continuing without preload.`);
+  }
+
   mainWindow = new BrowserWindow({
     fullscreen: true,
     autoHideMenuBar: true,
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-      webSecurity: false,
-      preload: path.join(__dirname, 'preload.js'),
-    },
+    webPreferences,
   });
 
   const indexHtmlPath = url.format({
